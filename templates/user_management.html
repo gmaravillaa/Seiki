@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - User Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    /* Header */
+    .header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem;
+      color: white;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .back-button {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .progress-button {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .progress-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Add User Form */
+    .form-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #003a6c;
+    }
+
+    .role-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #eee;
+    }
+
+    .role-options {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .role-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .role-option input[type="radio"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .role-option label {
+      font-weight: 500;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .submit-button {
+      background-color: #003a6c;
+      color: white;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 1rem;
+    }
+
+    .submit-button:hover {
+      background-color: #002a5c;
+    }
+
+    /* Users List */
+    .users-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .users-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin-bottom: 1.5rem;
+    }
+
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .users-table th,
+    .users-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .users-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .users-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .role-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .role-staff {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .role-superuser {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .role-user {
+      background-color: #e8f5e8;
+      color: #388e3c;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-deactivate {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .btn-deactivate:hover {
+      background-color: #ffeaa7;
+    }
+
+    .btn-activate {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .btn-activate:hover {
+      background-color: #c3e6cb;
+    }
+
+    .btn-delete {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .btn-delete:hover {
+      background-color: #f5c6cb;
+    }
+
+    /* Messages */
+    .messages {
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .users-table {
+        font-size: 0.875rem;
+      }
+
+      .users-table th,
+      .users-table td {
+        padding: 0.5rem;
+      }
+
+      .action-btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+      }
+
+      /* Stack action buttons vertically on mobile */
+      .users-table td div {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">User Management</h1>
+      <div style="display: flex; gap: 1rem;">
+        <a href="{% url 'user_progress' %}" class="progress-button">View Progress</a>
+        <a href="{% url 'profile' %}" class="back-button">Back to Profile</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Messages -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Add User Form -->
+    <section class="form-section">
+      <h2 class="form-title">Add New User</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="username">Username *</label>
+            <input type="text" id="username" name="username" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password *</label>
+            <input type="password" id="password" name="password" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="first_name">First Name *</label>
+            <input type="text" id="first_name" name="first_name" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="last_name">Last Name *</label>
+            <input type="text" id="last_name" name="last_name" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email *</label>
+            <input type="email" id="email" name="email" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="office">Office</label>
+            <input type="text" id="office" name="office" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_number">ID Number</label>
+            <input type="text" id="id_number" name="id_number" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="required_hours">Total Hours Needed to Render</label>
+            <input type="number" id="required_hours" name="required_hours" class="form-input" step="0.5" min="0" value="80.0">
+          </div>
+        </div>
+
+        <div class="role-section">
+          <h3 style="margin-bottom: 1rem; color: #333;">Assign Role</h3>
+          <div class="role-options">
+            <div class="role-option">
+              <input type="radio" id="role_student_assistant" name="role" value="student_assistant" checked>
+              <label for="role_student_assistant">Student Assistant</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role_office_head" name="role" value="office_head">
+              <label for="role_office_head">Office Head</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role_caao_staff" name="role" value="caao_staff">
+              <label for="role_caao_staff">CAAO Staff</label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-button">Create User</button>
+      </form>
+    </section>
+
+    <!-- Users List -->
+    <section class="users-section">
+      <h2 class="users-title">Existing Users</h2>
+      <div style="overflow-x: auto;">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Office</th>
+              <th>ID Number</th>
+              <th>Total Hours to Render</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.userprofile.office|default:"-" }}</td>
+                <td>{{ user.userprofile.id_number|default:"-" }}</td>
+                <td>{{ user.userprofile.required_hours|default:"80.0" }}</td>
+                <td>
+                  {% if user.is_superuser %}
+                    <span class="role-badge role-superuser">CAAO Staff</span>
+                  {% elif user.is_staff %}
+                    <span class="role-badge role-staff">Office Head</span>
+                  {% else %}
+                    <span class="role-badge role-user">Student Assistant</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.is_active %}
+                    <span style="color: #388e3c;">Active</span>
+                  {% else %}
+                    <span style="color: #d32f2f;">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <form method="post" action="{% url 'toggle_user_status' user.id %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="action-btn {% if user.is_active %}btn-deactivate{% else %}btn-activate{% endif %}" 
+                              onclick="return confirm('{% if user.is_active %}Deactivate{% else %}Activate{% endif %} user {{ user.username }}?')">
+                        {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                      </button>
+                    </form>
+                    {% if not user.is_superuser or user != request.user %}
+                    <form method="post" action="{% url 'delete_user' user.id %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="action-btn btn-delete" 
+                              onclick="return confirm('Are you sure you want to delete user {{ user.username }}? This action cannot be undone.')">
+                        Delete
+                      </button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
