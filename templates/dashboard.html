@@ -384,9 +384,11 @@
           {% if user.is_staff %}
           <a href="{% url 'scanner' %}" class="header-button">📷 Scanner</a>
           {% endif %}
+          {% if user.is_staff or user.is_superuser %}
+          <a href="{% url 'dtr_approvals' %}" class="header-button">✅ DTR Approvals</a>
+          {% endif %}
           {% if user.is_superuser %}
           <a href="{% url 'user_management' %}" class="header-button">👥 Users</a>
-          <a href="{% url 'dtr_approvals' %}" class="header-button">✅ Approvals</a>
           {% endif %}
           <a href="{% url 'logout' %}" class="header-button">🚪 Logout</a>
         </div>

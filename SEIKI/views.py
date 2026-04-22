@@ -434,6 +434,11 @@ def user_progress(request):
     
     users_data = []
     
+    # Get current month and year
+    from datetime import datetime
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    
     for user in page_obj:
         # Calculate total hours rendered for this user
         total_duration = TimeRecord.objects.filter(
@@ -460,6 +465,13 @@ def user_progress(request):
         # Get recent time records (last 10)
         recent_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')[:10]
         
+        # Get DTR submission status for current month
+        try:
+            dtr_submission = DTRSubmission.objects.get(user=user, month=current_month, year=current_year)
+            dtr_status = dtr_submission.get_status_display()
+        except DTRSubmission.DoesNotExist:
+            dtr_status = "Not Submitted"
+        
         users_data.append({
             'user': user,
             'profile': user.userprofile if hasattr(user, 'userprofile') else None,
@@ -468,6 +480,7 @@ def user_progress(request):
             'remaining_hours': round(remaining_hours, 2),
             'percentage': round(percentage, 1),
             'recent_records': recent_records,
+            'dtr_status': dtr_status,
         })
     
     context = {
@@ -732,17 +745,26 @@ def submit_dtr(request):
     
     return redirect('monthly_dtr')
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def dtr_approvals(request):
-    """Superuser view to approve/reject DTR submissions"""
+    """View to approve/reject DTR submissions"""
     from django.core.paginator import Paginator
     
     # Get filter status from request
-    status_filter = request.GET.get('status', 'pending')
+    default_status = ''  # Show all for both staff and superusers
+    status_filter = request.GET.get('status', default_status).strip()
     search_query = request.GET.get('search', '').strip()
     
-    # Get all DTR submissions
+    # Get DTR submissions
     dtr_submissions = DTRSubmission.objects.select_related('user', 'approver').all()
+    
+    # Filter by office for non-superusers
+    if request.user.is_staff and not request.user.is_superuser:
+        try:
+            user_office = request.user.userprofile.office
+            dtr_submissions = dtr_submissions.filter(user__userprofile__office=user_office)
+        except UserProfile.DoesNotExist:
+            dtr_submissions = dtr_submissions.none()
     
     # Apply status filter
     if status_filter in ['pending', 'approved', 'rejected']:
@@ -774,7 +796,7 @@ def dtr_approvals(request):
     
     return render(request, 'dtr_approvals.html', context)
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 @require_http_methods(["POST"])
 def approve_dtr(request, dtr_id):
     """Approve a DTR submission"""
@@ -788,6 +810,15 @@ def approve_dtr(request, dtr_id):
         dtr_submission.remarks = remarks
         dtr_submission.save()
         
+        # Notify all superusers about the approval
+        superusers = User.objects.filter(is_superuser=True)
+        for superuser in superusers:
+            ChatMessage.objects.create(
+                sender=request.user,
+                recipient=superuser,
+                message=f"DTR for {dtr_submission.user.get_full_name() or dtr_submission.user.username} ({dtr_submission.month}/{dtr_submission.year}) has been approved."
+            )
+        
         messages.success(request, f"DTR for {dtr_submission.user.username} ({dtr_submission.month}/{dtr_submission.year}) approved successfully!")
     except DTRSubmission.DoesNotExist:
         messages.error(request, "DTR submission not found.")
@@ -796,7 +827,7 @@ def approve_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 @require_http_methods(["POST"])
 def reject_dtr(request, dtr_id):
     """Reject a DTR submission"""
@@ -818,7 +849,7 @@ def reject_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser)
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
@@ -852,7 +883,7 @@ def time_correction(request, dtr_id):
     
     return render(request, 'time_correction.html', context)
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
     """Update a specific time record"""
@@ -893,7 +924,7 @@ def update_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=request.POST.get('dtr_id'))
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 @require_http_methods(["POST"])
 def delete_time_record(request, record_id):
     """Delete a specific time record"""
@@ -909,7 +940,7 @@ def delete_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=dtr_id)
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 @require_http_methods(["POST"])
 def add_time_record(request):
     """Add a new time record"""

@@ -414,10 +414,17 @@
             {% endif %}
           </div>
         </div>
+        {% if dtr_submission.approver %}
+        <div class="detail-item">
+          <h3>Approved By</h3>
+          <div class="detail-value">{{ dtr_submission.approver.first_name }} {{ dtr_submission.approver.last_name }} ({{ dtr_submission.approver.username }})</div>
+        </div>
+        {% endif %}
       </div>
     </div>
 
     <!-- Add Record Form -->
+    {% if not user.is_superuser %}
     <div class="add-record-section">
       <div class="section-title">Add New Time Record</div>
       <form method="post" action="{% url 'add_time_record' %}">
@@ -443,6 +450,7 @@
         </div>
       </form>
     </div>
+    {% endif %}
 
     <!-- Time Records -->
     <div class="records-section">
@@ -479,12 +487,14 @@
                   </td>
                   <td>
                     <div class="action-buttons">
+                      {% if not user.is_superuser %}
                       <button class="btn-edit" onclick="openEditModal({{ record.id }}, '{{ record.timestamp|date:"Y-m-d H:i" }}')">Edit</button>
                       <form method="post" action="{% url 'delete_time_record' record.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this record?')">
                         {% csrf_token %}
                         <input type="hidden" name="dtr_id" value="{{ dtr_submission.id }}">
                         <button type="submit" class="btn-delete">Delete</button>
                       </form>
+                      {% endif %}
                     </div>
                   </td>
                 </tr>

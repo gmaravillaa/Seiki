@@ -484,6 +484,20 @@
                 <span class="detail-label">Required Hours:</span>
                 <span class="detail-value">{{ user_data.required_hours }} hours</span>
               </div>
+              <div class="detail-row">
+                <span class="detail-label">DTR Status:</span>
+                <span class="detail-value">
+                  {% if user_data.dtr_status == "Not Submitted" %}
+                    <span style="color: #ff9800;">{{ user_data.dtr_status }}</span>
+                  {% elif user_data.dtr_status == "Pending Approval" %}
+                    <span style="color: #2196f3;">{{ user_data.dtr_status }}</span>
+                  {% elif user_data.dtr_status == "Approved" %}
+                    <span style="color: #4caf50;">{{ user_data.dtr_status }}</span>
+                  {% else %}
+                    <span style="color: #f44336;">{{ user_data.dtr_status }}</span>
+                  {% endif %}
+                </span>
+              </div>
             {% endif %}
           </div>
 

@@ -462,7 +462,7 @@
         <div class="filter-group">
           <label for="status" class="filter-label">Status:</label>
           <select name="status" id="status" class="filter-select">
-            <option value="">All</option>
+            <option value="" {% if status_filter == '' %}selected{% endif %}>All</option>
             <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
             <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
             <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
@@ -518,13 +518,13 @@
                 <td>{{ dtr.submitted_date|date:"M d, Y" }}</td>
                 <td>
                   <div class="action-buttons">
-                    {% if dtr.status == 'pending' %}
+                    {% if dtr.status == 'pending' and user.is_staff and not user.is_superuser %}
                       <button class="action-btn btn-approve" onclick="openApproveModal({{ dtr.id }}, '{{ dtr.user.first_name }} {{ dtr.user.last_name }}', '{{ dtr.month }}/{{ dtr.year }}')">Approve</button>
                       <button class="action-btn btn-reject" onclick="openRejectModal({{ dtr.id }}, '{{ dtr.user.first_name }} {{ dtr.user.last_name }}', '{{ dtr.month }}/{{ dtr.year }}')">Reject</button>
                     {% else %}
                       <button class="action-btn btn-view" disabled>Processed</button>
                     {% endif %}
-                    <a href="{% url 'time_correction' dtr.id %}" class="action-btn btn-edit" style="background-color: #17a2b8; color: white; text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; margin-top: 0.25rem;">Time Correction</a>
+                    <a href="{% url 'time_correction' dtr.id %}" class="action-btn btn-edit" style="background-color: #17a2b8; color: white; text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; margin-top: 0.25rem;">View Details</a>
                   </div>
                 </td>
               </tr>
