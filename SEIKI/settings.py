@@ -12,21 +12,27 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+env_path = BASE_DIR / '.env'
 
+# Load environment variables from .env file
+load_dotenv(dotenv_path=env_path, override=True)
+
+print(f"Checking path: {env_path}")
+print(f"File exists: {os.path.exists(env_path)}")
+print(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(m&j4_ftzkwgd!gvpv5$091m8+#@g4e(xlia&+jq-4+&*0c02%'
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -76,14 +82,11 @@ WSGI_APPLICATION = 'SEIKI.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'seiki_db',
-        'USER': 'postgres',
-        'PASSWORD': 'admin' , 
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 
