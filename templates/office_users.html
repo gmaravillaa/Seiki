@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Office Users</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    /* Header */
+    .header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem;
+      color: white;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header-subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 0.25rem;
+    }
+
+    .back-button {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Office Info */
+    .office-info {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .office-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin-bottom: 0.5rem;
+    }
+
+    .office-stats {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    /* Search Section */
+    .search-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-form {
+      display: flex;
+      justify-content: center;
+    }
+
+    .search-input-group {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #003a6c;
+    }
+
+    .search-button {
+      background-color: #003a6c;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .search-button:hover {
+      background-color: #002a5c;
+    }
+
+    .clear-button {
+      background-color: #6c757d;
+      color: white;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .clear-button:hover {
+      background-color: #545b62;
+    }
+
+    /* Results Info */
+    .results-info {
+      background-color: #e3f2fd;
+      color: #1976d2;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* User Cards */
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .user-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .user-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #003a6c;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-right: 1rem;
+    }
+
+    .user-info h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin-bottom: 0.25rem;
+    }
+
+    .user-role {
+      font-size: 0.8rem;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .user-details {
+      margin-bottom: 1rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+    }
+
+    .detail-label {
+      color: #666;
+    }
+
+    .detail-value {
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* Progress Section */
+    .progress-section {
+      margin-bottom: 1rem;
+    }
+
+    .progress-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #003a6c;
+      margin-bottom: 0.75rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, #8bc34a);
+      border-radius: 5px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .progress-percentage {
+      font-weight: 600;
+      color: #4caf50;
+    }
+
+    /* Recent Activity */
+    .activity-section {
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+
+    .activity-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #003a6c;
+      margin-bottom: 0.75rem;
+    }
+
+    .activity-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 0.75rem;
+    }
+
+    .activity-time {
+      color: #666;
+    }
+
+    .activity-type {
+      font-weight: 500;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.2rem;
+      font-size: 0.65rem;
+    }
+
+    .activity-in {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .activity-out {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .no-activity {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.2rem;
+      font-size: 0.65rem;
+      font-weight: 500;
+      margin-left: 0.25rem;
+    }
+
+    .status-active {
+      background-color: #e8f5e8;
+      color: #388e3c;
+    }
+
+    .status-inactive {
+      background-color: #ffebee;
+      color: #d32f2f;
+    }
+
+    /* Pagination */
+    .pagination {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pagination-info {
+      font-weight: 500;
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-link {
+      background-color: #f8f9fa;
+      color: #003a6c;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: background-color 0.2s;
+    }
+
+    .page-link:hover {
+      background-color: #e9ecef;
+    }
+
+    .current-page {
+      background-color: #003a6c;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    /* No Users Message */
+    .no-users {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 3rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .no-users-icon {
+      font-size: 3rem;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+
+    .no-users-title {
+      font-size: 1.25rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .no-users-text {
+      color: #999;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .users-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .user-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .user-avatar {
+        margin-right: 0;
+        margin-bottom: 0.75rem;
+      }
+
+      .detail-row {
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .progress-text {
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+      }
+
+      .search-input-group {
+        flex-direction: column;
+      }
+
+      .pagination-controls {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .pagination {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div>
+        <h1 class="header-title">Office Users</h1>
+        <div class="header-subtitle">{{ office_name }} Department</div>
+      </div>
+      <a href="{% url 'profile' %}" class="back-button">Back to Profile</a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Office Info -->
+    <div class="office-info">
+      <div class="office-name">{{ office_name }}</div>
+      <div class="office-stats">{{ total_office_users }} team member{{ total_office_users|pluralize }}</div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-section">
+      <form method="get" class="search-form">
+        <div class="search-input-group">
+          <input type="text" name="search" value="{{ search_query }}" placeholder="Search by name or username..." class="search-input">
+          <button type="submit" class="search-button">Search</button>
+          {% if search_query %}
+            <a href="{% url 'office_users' %}" class="clear-button">Clear</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <!-- Results Info -->
+    {% if search_query %}
+      <div class="results-info">
+        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} results for "{{ search_query }}"
+      </div>
+    {% endif %}
+
+    <!-- Users Grid -->
+    {% if users_data %}
+      <div class="users-grid">
+        {% for user_data in users_data %}
+          <div class="user-card">
+            <div class="user-header">
+              <div class="user-avatar">
+                {{ user_data.user.first_name|first|upper }}{{ user_data.user.last_name|first|upper }}
+              </div>
+              <div class="user-info">
+                <h3>{{ user_data.user.first_name }} {{ user_data.user.last_name }}</h3>
+                <div class="user-role">
+                  @{{ user_data.user.username }}
+                  {% if not user_data.user.is_active %}
+                    <span class="status-badge status-inactive">Inactive</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="user-details">
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">{{ user_data.user.email }}</span>
+              </div>
+              {% if user_data.profile %}
+                <div class="detail-row">
+                  <span class="detail-label">ID Number:</span>
+                  <span class="detail-value">{{ user_data.profile.id_number|default:"-" }}</span>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="progress-section">
+              <div class="progress-title">Work Progress</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ user_data.percentage }}%"></div>
+              </div>
+              <div class="progress-text">
+                <span>{{ user_data.total_hours_rendered }} / {{ user_data.required_hours }} hrs</span>
+                <span class="progress-percentage">{{ user_data.percentage }}%</span>
+              </div>
+              {% if user_data.remaining_hours > 0 %}
+                <div style="font-size: 0.7rem; color: #666; margin-top: 0.25rem;">
+                  {{ user_data.remaining_hours }} hrs remaining
+                </div>
+              {% else %}
+                <div style="font-size: 0.7rem; color: #4caf50; margin-top: 0.25rem; font-weight: 500;">
+                  ✓ Complete!
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="activity-section">
+              <div class="activity-title">Recent Activity</div>
+              {% if user_data.recent_records %}
+                {% for record in user_data.recent_records %}
+                  <div class="activity-item">
+                    <div>
+                      <strong>{{ record.get_record_type_display }}</strong>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.25rem;">
+                      <span class="activity-time">{{ record.timestamp|date:"M d, H:i" }}</span>
+                      <span class="activity-type activity-{{ record.record_type }}">
+                        {{ record.record_type|upper }}
+                      </span>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="no-activity">No recent activity</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if is_paginated %}
+        <div class="pagination">
+          <div class="pagination-info">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </div>
+          <div class="pagination-controls">
+            {% if page_obj.has_previous %}
+              <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page=1" class="page-link">First</a>
+              <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+            {% endif %}
+
+            <span class="current-page">{{ page_obj.number }}</span>
+
+            {% if page_obj.has_next %}
+              <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+              <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <!-- No Users Message -->
+      <div class="no-users">
+        <div class="no-users-icon">👥</div>
+        <div class="no-users-title">No Team Members Found</div>
+        <div class="no-users-text">
+          {% if search_query %}
+            No users match your search criteria. Try a different search term.
+          {% else %}
+            There are no other users in your office yet.
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </main>
+</body>
+</html>

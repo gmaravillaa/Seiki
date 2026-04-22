@@ -1,0 +1,226 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    #preview {
+      width: 100%;
+      max-width: 400px;
+      height: 400px;
+      border: 2px solid #ccc;
+      display: block;
+      margin: 20px auto;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      min-height: 30px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Scanner - Attendance</h1>
+  <video id="preview"></video>
+  <br>
+  <button id="start">Start Scanner</button>
+  <button id="stop">Stop Scanner</button>
+  <div id="result"></div>
+  
+  <script type="module">
+    import QrScanner from '{% static "qr-scanner.min.js" %}';
+    
+    let qrScanner = null;
+    let isScanning = false;
+    let lastScanTime = 0;
+    const SCAN_COOLDOWN = 3000; // 3 second cooldown between scans
+    
+    // Get CSRF token
+    function getCsrfToken() {
+      let token = '';
+      // Try to get from cookie
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith('csrftoken=')) {
+          token = cookie.substring('csrftoken='.length);
+          break;
+        }
+      }
+      console.log('CSRF Token:', token ? 'Found' : 'Not found');
+      return token;
+    }
+    
+    async function recordTime(qrCode) {
+      try {
+        console.log('Recording time for QR code:', qrCode);
+        
+        const csrfToken = getCsrfToken();
+        const response = await fetch('/api/record-time/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({ qr_code: qrCode })
+        });
+        
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (response.ok && data.success) {
+          return data.message;
+        } else {
+          return 'Error: ' + (data.error || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Error recording time:', error);
+        return 'Error: ' + error.message;
+      }
+    }
+    
+    async function setupScannerButtons() {
+      const startBtn = document.getElementById('start');
+      const stopBtn = document.getElementById('stop');
+      const resultDiv = document.getElementById('result');
+      const videoElement = document.getElementById('preview');
+      
+      startBtn.onclick = async () => {
+        try {
+          console.log('Start button clicked');
+          
+          if (qrScanner && isScanning) {
+            resultDiv.innerHTML = '⚠️ Scanner already running';
+            return;
+          }
+          
+          if (!qrScanner) {
+            console.log('Creating QrScanner instance...');
+            resultDiv.innerHTML = '⏳ Initializing scanner...';
+            
+            qrScanner = new QrScanner(
+              videoElement,
+              async result => {
+                const now = Date.now();
+                
+                // Check if enough time has passed since last scan
+                if (now - lastScanTime < SCAN_COOLDOWN) {
+                  console.log('Scan ignored - still in cooldown period');
+                  return;
+                }
+                
+                if (!isScanning) return;
+                console.log('QR code scanned:', result.data);
+                lastScanTime = now;
+                
+                // Pause scanning temporarily
+                qrScanner.pause();
+                
+                resultDiv.innerHTML = '⏳ Recording time...';
+                const message = await recordTime(result.data);
+                resultDiv.innerHTML = '✓ ' + message;
+                
+                // Resume scanning after cooldown
+                setTimeout(() => {
+                  if (isScanning && qrScanner) {
+                    qrScanner.start().catch(e => console.error('Error resuming scanner:', e));
+                    resultDiv.innerHTML = '🎥 Scanning... point camera at QR code';
+                  }
+                }, SCAN_COOLDOWN);
+              },
+              {
+                preferredCamera: 'environment',
+                highlightScanRegion: true,
+                highlightCodeOutline: true,
+                maxScansPerSecond: 25,
+                calculateScanRegion: (video) => {
+                  // Use full video frame for scanning instead of limited region
+                  return {
+                    x: 0,
+                    y: 0,
+                    width: video.videoWidth,
+                    height: video.videoHeight
+                  };
+                }
+              }
+            );
+          }
+          
+          console.log('Starting scanner...');
+          isScanning = true;
+          lastScanTime = 0;
+          await qrScanner.start();
+          resultDiv.innerHTML = '🎥 Scanner started - point camera at QR code';
+          console.log('Scanner started successfully');
+          
+        } catch (error) {
+          console.error('Error starting scanner:', error);
+          console.error('Error details:', {
+            message: error?.message,
+            name: error?.name,
+            stack: error?.stack
+          });
+          resultDiv.innerHTML = '❌ Error: ' + (error?.message || String(error));
+          isScanning = false;
+          if (qrScanner) {
+            try {
+              qrScanner.destroy();
+            } catch (e) {
+              console.error('Error destroying scanner:', e);
+            }
+            qrScanner = null;
+          }
+        }
+      };
+      
+      stopBtn.onclick = () => {
+        try {
+          console.log('Stop button clicked');
+          if (qrScanner) {
+            qrScanner.stop();
+            isScanning = false;
+            lastScanTime = 0;
+            resultDiv.innerHTML = '⏹️ Scanner stopped';
+            console.log('Scanner stopped');
+          } else {
+            resultDiv.innerHTML = '⚠️ Scanner is not running';
+          }
+        } catch (error) {
+          console.error('Error stopping scanner:', error);
+          resultDiv.innerHTML = '❌ Error stopping: ' + error.message;
+          isScanning = false;
+        }
+      };
+      
+      console.log('Scanner buttons initialized');
+    }
+    
+    // Wait for DOM to load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', async () => {
+        console.log('DOMContentLoaded event fired');
+        await setupScannerButtons();
+      });
+    } else {
+      console.log('DOM already loaded, setting up now');
+      await setupScannerButtons();
+    }
+  </script>
+</body>
+</html>

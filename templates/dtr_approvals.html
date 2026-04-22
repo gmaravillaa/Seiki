@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - DTR Approvals</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    /* Header */
+    .header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem;
+      color: white;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .back-button {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Filters Section */
+    .filters-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .filters-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #003a6c;
+      margin-bottom: 1rem;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.875rem;
+    }
+
+    .filter-input {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+    }
+
+    .filter-select {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+    }
+
+    .filter-button {
+      background-color: #003a6c;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      cursor: pointer;
+      align-self: flex-end;
+      transition: background-color 0.2s;
+    }
+
+    .filter-button:hover {
+      background-color: #002a5c;
+    }
+
+    /* Messages */
+    .messages {
+      margin-bottom: 2rem;
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* DTR List */
+    .dtr-list {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .dtr-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .dtr-table th,
+    .dtr-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dtr-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.875rem;
+    }
+
+    .dtr-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .dtr-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-approved {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-rejected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      padding: 0.3rem 0.6rem;
+      border: none;
+      border-radius: 0.2rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .action-btn:hover {
+      opacity: 0.8;
+    }
+
+    .btn-approve {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .btn-reject {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .btn-view {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin-bottom: 1rem;
+    }
+
+    .modal-form {
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .modal-btn-primary {
+      background-color: #003a6c;
+      color: white;
+    }
+
+    .modal-btn-primary:hover {
+      background-color: #002a5c;
+    }
+
+    .modal-btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-secondary:hover {
+      background-color: #545b62;
+    }
+
+    .close-modal {
+      color: #999;
+      float: right;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-modal:hover {
+      color: #333;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Pagination */
+    .pagination {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pagination-info {
+      font-weight: 500;
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-link {
+      background-color: #f8f9fa;
+      color: #003a6c;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: background-color 0.2s;
+    }
+
+    .page-link:hover {
+      background-color: #e9ecef;
+    }
+
+    .current-page {
+      background-color: #003a6c;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .dtr-table {
+        font-size: 0.875rem;
+      }
+
+      .dtr-table th,
+      .dtr-table td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .pagination {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">DTR Approvals</h1>
+      <a href="{% url 'user_management' %}" class="back-button">Back to Management</a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Messages -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <div class="filters-title">Filters</div>
+      <form method="get" class="filters-grid">
+        <div class="filter-group">
+          <label for="status" class="filter-label">Status:</label>
+          <select name="status" id="status" class="filter-select">
+            <option value="" {% if status_filter == '' %}selected{% endif %}>All</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="search" class="filter-label">Search:</label>
+          <input type="text" name="search" id="search" placeholder="Name, username, or office" value="{{ search_query }}" class="filter-input">
+        </div>
+        <div class="filter-group">
+          <button type="submit" class="filter-button">Filter</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- DTR Table -->
+    <div class="dtr-list">
+      {% if dtr_submissions %}
+        <table class="dtr-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Office</th>
+              <th>Month</th>
+              <th>Total Hours</th>
+              <th>Status</th>
+              <th>Submitted Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for dtr in dtr_submissions %}
+              <tr>
+                <td>
+                  <strong>{{ dtr.user.first_name }} {{ dtr.user.last_name }}</strong>
+                  <br>
+                  <small style="color: #666;">@{{ dtr.user.username }}</small>
+                </td>
+                <td>{{ dtr.user.userprofile.office|default:"-" }}</td>
+                <td>{{ dtr.month }}/{{ dtr.year }}</td>
+                <td>{{ dtr.total_hours }} hrs</td>
+                <td>
+                  <span class="status-badge status-{{ dtr.status }}">
+                    {% if dtr.status == 'pending' %}
+                      Pending
+                    {% elif dtr.status == 'approved' %}
+                      Approved
+                    {% else %}
+                      Rejected
+                    {% endif %}
+                  </span>
+                </td>
+                <td>{{ dtr.submitted_date|date:"M d, Y" }}</td>
+                <td>
+                  <div class="action-buttons">
+                    {% if dtr.status == 'pending' and user.is_staff and not user.is_superuser %}
+                      <button class="action-btn btn-approve" onclick="openApproveModal({{ dtr.id }}, '{{ dtr.user.first_name }} {{ dtr.user.last_name }}', '{{ dtr.month }}/{{ dtr.year }}')">Approve</button>
+                      <button class="action-btn btn-reject" onclick="openRejectModal({{ dtr.id }}, '{{ dtr.user.first_name }} {{ dtr.user.last_name }}', '{{ dtr.month }}/{{ dtr.year }}')">Reject</button>
+                    {% else %}
+                      <button class="action-btn btn-view" disabled>Processed</button>
+                    {% endif %}
+                    <a href="{% url 'time_correction' dtr.id %}" class="action-btn btn-edit" style="background-color: #17a2b8; color: white; text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; margin-top: 0.25rem;">View Details</a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div style="font-size: 1.1rem; margin-bottom: 0.5rem;">No DTR Submissions Found</div>
+          <div>No DTR submissions match your filters.</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+      <div class="pagination">
+        <div class="pagination-info">
+          Page {{ dtr_submissions.number }} of {{ dtr_submissions.paginator.num_pages }}
+        </div>
+        <div class="pagination-controls">
+          {% if dtr_submissions.has_previous %}
+            <a href="?status={{ status_filter }}&search={{ search_query }}&page=1" class="page-link">First</a>
+            <a href="?status={{ status_filter }}&search={{ search_query }}&page={{ dtr_submissions.previous_page_number }}" class="page-link">Previous</a>
+          {% endif %}
+
+          <span class="current-page">{{ dtr_submissions.number }}</span>
+
+          {% if dtr_submissions.has_next %}
+            <a href="?status={{ status_filter }}&search={{ search_query }}&page={{ dtr_submissions.next_page_number }}" class="page-link">Next</a>
+            <a href="?status={{ status_filter }}&search={{ search_query }}&page={{ dtr_submissions.paginator.num_pages }}" class="page-link">Last</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </main>
+
+  <!-- Approve Modal -->
+  <div id="approveModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeApproveModal()">&times;</span>
+      <div class="modal-header">Approve DTR</div>
+      <form method="post" id="approveForm" class="modal-form">
+        {% csrf_token %}
+        <p style="margin-bottom: 1rem; color: #666;">
+          Are you sure you want to approve the DTR for <strong id="approveName"></strong> (<span id="approveMonth"></span>)?
+        </p>
+        <div class="form-group">
+          <label for="approveRemarks" class="form-label">Remarks (optional):</label>
+          <textarea name="remarks" id="approveRemarks" class="form-textarea" placeholder="Add any remarks..."></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="modal-btn modal-btn-secondary" onclick="closeApproveModal()">Cancel</button>
+          <button type="submit" class="modal-btn modal-btn-primary">Approve</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div id="rejectModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeRejectModal()">&times;</span>
+      <div class="modal-header">Reject DTR</div>
+      <form method="post" id="rejectForm" class="modal-form">
+        {% csrf_token %}
+        <p style="margin-bottom: 1rem; color: #666;">
+          Are you sure you want to reject the DTR for <strong id="rejectName"></strong> (<span id="rejectMonth"></span>)?
+        </p>
+        <div class="form-group">
+          <label for="rejectRemarks" class="form-label">Reason for rejection:</label>
+          <textarea name="remarks" id="rejectRemarks" class="form-textarea" placeholder="Please provide reason for rejection..." required></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="modal-btn modal-btn-secondary" onclick="closeRejectModal()">Cancel</button>
+          <button type="submit" class="modal-btn modal-btn-primary" style="background-color: #dc3545;">Reject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openApproveModal(dtrId, userName, monthYear) {
+      document.getElementById('approveName').textContent = userName;
+      document.getElementById('approveMonth').textContent = monthYear;
+      document.getElementById('approveForm').action = `/dtr-approvals/approve/${dtrId}/`;
+      document.getElementById('approveModal').classList.add('show');
+    }
+
+    function closeApproveModal() {
+      document.getElementById('approveModal').classList.remove('show');
+    }
+
+    function openRejectModal(dtrId, userName, monthYear) {
+      document.getElementById('rejectName').textContent = userName;
+      document.getElementById('rejectMonth').textContent = monthYear;
+      document.getElementById('rejectForm').action = `/dtr-approvals/reject/${dtrId}/`;
+      document.getElementById('rejectModal').classList.add('show');
+    }
+
+    function closeRejectModal() {
+      document.getElementById('rejectModal').classList.remove('show');
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      const approveModal = document.getElementById('approveModal');
+      const rejectModal = document.getElementById('rejectModal');
+      
+      if (event.target == approveModal) {
+        closeApproveModal();
+      }
+      if (event.target == rejectModal) {
+        closeRejectModal();
+      }
+    }
+  </script>
+</body>
+</html>

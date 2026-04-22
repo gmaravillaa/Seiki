@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - QR Code</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    /* QR Page */
+    .qr-page {
+      min-height: 100vh;
+      background-color: #dbdbdb;
+      padding-bottom: 1rem;
+    }
+
+    /* Header */
+    .qr-header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem 3rem;
+      border-bottom-left-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .header-logo {
+      position: absolute;
+      left: 0;
+      width: 4rem;
+      height: 4rem;
+      transform: rotate(-3deg);
+      background-color: #d9d9d9;
+      border-radius: 50%;
+    }
+
+    .header-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    /* Content */
+    .qr-content {
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .qr-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 28rem;
+      margin: 0 auto;
+    }
+
+    .qr-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #003a6c;
+    }
+
+    .qr-subtitle {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .qr-code {
+      margin: 2rem 0;
+    }
+
+    .qr-code img {
+      width: 200px;
+      height: 200px;
+      border: 2px solid #003a6c;
+      border-radius: 0.5rem;
+    }
+
+    .qr-info {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .qr-info p {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .qr-info strong {
+      color: #003a6c;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #003a6c;
+      color: white;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: #002a5c;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .qr-content {
+        padding: 3rem 1.5rem;
+      }
+
+      .qr-card {
+        padding: 3rem;
+      }
+
+      .qr-code img {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="qr-page">
+    <!-- Header -->
+    <div class="qr-header">
+      <div class="header-content">
+        <div class="header-logo"></div>
+        <h1 class="header-title">Attendance QR Code</h1>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="qr-content">
+      <div class="qr-card">
+        <h2 class="qr-title">Your Attendance QR Code</h2>
+        <p class="qr-subtitle">Scan this code to mark your attendance</p>
+
+        <!-- QR Code -->
+        <div class="qr-code">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" />
+        </div>
+
+        <!-- User Info -->
+        <div class="qr-info">
+          <p><strong>User ID:</strong> {{ user.id }}</p>
+          <p><strong>Username:</strong> {{ user.username }}</p>
+          <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+
+        <!-- Back Button -->
+        <a href="{% url 'dashboard' %}" class="back-button">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
