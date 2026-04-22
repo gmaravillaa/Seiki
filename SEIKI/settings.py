@@ -28,7 +28,11 @@ load_dotenv(dotenv_path=env_path, override=True)
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')
+allowed_hosts_value = os.getenv('ALLOWED_HOSTS') or os.getenv('ALLOWED_HOST')
+if allowed_hosts_value:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_value.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com']
 
 
 # Application definition
