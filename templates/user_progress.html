@@ -148,6 +148,10 @@
       padding: 2rem;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
 
     .user-card:hover {
@@ -439,7 +443,7 @@
 
     <div class="users-grid">
       {% for user_data in users_data %}
-        <div class="user-card">
+        <a href="{% url 'user_dtr_details' user_data.user.id %}" class="user-card">
           <div class="user-header">
             <div class="user-avatar">
               {{ user_data.user.first_name|first|upper }}{{ user_data.user.last_name|first|upper }}
@@ -523,7 +527,7 @@
               <div class="no-activity">No recent activity</div>
             {% endif %}
           </div>
-        </div>
+        </a>
       {% endfor %}
     </div>
 

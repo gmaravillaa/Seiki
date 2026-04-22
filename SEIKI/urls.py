@@ -33,6 +33,7 @@ urlpatterns = [
     path('scanner/', views.scanner, name='scanner'),
     path('user-management/', views.user_management, name='user_management'),
     path('user-progress/', views.user_progress, name='user_progress'),
+    path('user-dtr-details/<int:user_id>/', views.user_dtr_details, name='user_dtr_details'),
     path('office-users/', views.office_users, name='office_users'),
     path('monthly-dtr/', views.monthly_dtr, name='monthly_dtr'),
     path('submit-dtr/', views.submit_dtr, name='submit_dtr'),

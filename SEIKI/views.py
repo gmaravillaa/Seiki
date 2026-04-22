@@ -405,6 +405,8 @@ def delete_user(request, user_id):
         messages.error(request, f"Error deleting user: {str(e)}")
     
     return redirect('user_management')
+
+@user_passes_test(lambda u: u.is_superuser)
 def user_progress(request):
     """User progress page for superusers to view detailed user information and work progress"""
     from django.core.paginator import Paginator
@@ -476,6 +478,46 @@ def user_progress(request):
     }
     
     return render(request, 'user_progress.html', context)
+
+@user_passes_test(lambda u: u.is_superuser)
+def user_dtr_details(request, user_id):
+    """View all DTR submissions for a specific user"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('user_progress')
+    
+    # Get all DTR submissions for this user, sorted from latest to oldest
+    dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month', '-submitted_date')
+    
+    # Calculate user stats
+    total_duration = TimeRecord.objects.filter(
+        user=user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=models.Sum('duration'))['total']
+    
+    total_hours_rendered = 0
+    if total_duration:
+        total_seconds = total_duration.total_seconds()
+        total_hours_rendered = total_seconds / 3600
+    
+    required_hours = user.userprofile.required_hours if hasattr(user, 'userprofile') else 80.0
+    remaining_hours = max(0, float(required_hours) - total_hours_rendered)
+    percentage = min(100, (total_hours_rendered / float(required_hours)) * 100) if required_hours > 0 else 0
+    
+    context = {
+        'user': user,
+        'profile': user.userprofile if hasattr(user, 'userprofile') else None,
+        'dtr_submissions': dtr_submissions,
+        'total_hours_rendered': round(total_hours_rendered, 2),
+        'required_hours': required_hours,
+        'remaining_hours': round(remaining_hours, 2),
+        'percentage': round(percentage, 1),
+    }
+    
+    return render(request, 'user_dtr_details.html', context)
 
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
