@@ -130,8 +130,12 @@ STATICFILES_DIRS = [
 
 # WhiteNoise configuration for serving static files
 STORAGES = {
-    'default': 'django.core.files.storage.FileSystemStorage',
-    'staticfiles': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
 }
 
 # Default primary key field type
