@@ -344,6 +344,80 @@
       border: 1px solid #f5c6cb;
     }
 
+    /* Approval Remarks Section */
+    .approval-remarks-section {
+      margin-bottom: 2rem;
+    }
+
+    .remarks-box {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid #6c757d;
+    }
+
+    .remarks-box.approved {
+      border-left-color: #28a745;
+      background-color: #f8fff9;
+    }
+
+    .remarks-box.rejected {
+      border-left-color: #dc3545;
+      background-color: #fff8f9;
+    }
+
+    .remarks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .remarks-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #003a6c;
+      margin: 0;
+    }
+
+    .remarks-box.approved .remarks-title {
+      color: #28a745;
+    }
+
+    .remarks-box.rejected .remarks-title {
+      color: #dc3545;
+    }
+
+    .remarks-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    .remarks-date {
+      color: #999;
+      font-size: 0.8rem;
+    }
+
+    .remarks-approver {
+      color: #666;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    .remarks-content {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .form-row {
@@ -362,6 +436,16 @@
       .records-table td {
         padding: 0.75rem;
         font-size: 0.875rem;
+      }
+
+      .remarks-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .remarks-meta {
+        align-items: flex-start;
+        margin-top: 1rem;
       }
     }
   </style>
@@ -422,6 +506,32 @@
         {% endif %}
       </div>
     </div>
+
+    <!-- Approval Remarks Section -->
+    {% if dtr_submission.status != 'pending' and dtr_submission.remarks %}
+    <div class="approval-remarks-section">
+      <div class="remarks-box {% if dtr_submission.status == 'approved' %}approved{% else %}rejected{% endif %}">
+        <div class="remarks-header">
+          <h3 class="remarks-title">
+            {% if dtr_submission.status == 'approved' %}
+              ✓ Approval Comments
+            {% else %}
+              ✗ Rejection Remarks
+            {% endif %}
+          </h3>
+          <div class="remarks-meta">
+            <span class="remarks-date">{{ dtr_submission.approved_date|date:"M d, Y H:i" }}</span>
+            {% if dtr_submission.approver %}
+            <span class="remarks-approver">by {{ dtr_submission.approver.first_name }} {{ dtr_submission.approver.last_name }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="remarks-content">
+          {{ dtr_submission.remarks }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     <!-- Add Record Form -->
     {% if not user.is_superuser %}

@@ -758,8 +758,10 @@ def dtr_approvals(request):
     # Get DTR submissions
     dtr_submissions = DTRSubmission.objects.select_related('user', 'approver').all()
     
-    # Filter by office for non-superusers
+    # Filter by office for office heads only (not for superusers)
+    # Superusers see all DTR submissions regardless of office
     if request.user.is_staff and not request.user.is_superuser:
+        # This is an office head, filter to their office only
         try:
             user_office = request.user.userprofile.office
             dtr_submissions = dtr_submissions.filter(user__userprofile__office=user_office)
@@ -796,7 +798,7 @@ def dtr_approvals(request):
     
     return render(request, 'dtr_approvals.html', context)
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
 def approve_dtr(request, dtr_id):
     """Approve a DTR submission"""
@@ -827,7 +829,7 @@ def approve_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
 def reject_dtr(request, dtr_id):
     """Reject a DTR submission"""
@@ -883,7 +885,7 @@ def time_correction(request, dtr_id):
     
     return render(request, 'time_correction.html', context)
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
     """Update a specific time record"""
@@ -924,7 +926,7 @@ def update_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=request.POST.get('dtr_id'))
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
 def delete_time_record(request, record_id):
     """Delete a specific time record"""
@@ -940,7 +942,7 @@ def delete_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=dtr_id)
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
 def add_time_record(request):
     """Add a new time record"""
