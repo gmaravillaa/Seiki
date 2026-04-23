@@ -36,13 +36,13 @@ def index(request):
             return redirect('dashboard')  # Redirect to dashboard after successful login
         else:
             # Display error message on login page
-            return render(request, 'index.html', {'error': 'Invalid credentials'})
+            return render(request, 'core/index.html', {'error': 'Invalid credentials'})
 
-    return render(request, 'index.html')
+    return render(request, 'core/index.html')
 
 @login_required(login_url='login')
 def notification(request):
-    return render(request, 'notification.html')
+    return render(request, 'core/notification.html')
 
 @login_required(login_url='login')
 def profile(request):
@@ -75,7 +75,7 @@ def profile(request):
         'percentage': round(percentage, 1),
     }
     
-    return render(request, 'profile.html', context)
+    return render(request, 'core/profile.html', context)
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -129,17 +129,17 @@ def dashboard(request):
         'month_names': month_names,
     }
     
-    return render(request, 'dashboard.html', context)
+    return render(request, 'core/dashboard.html', context)
 
 @login_required(login_url='login')
 def qr(request):
-    return render(request, 'qr.html')
+    return render(request, 'core/qr.html')
 
 @login_required(login_url='login')
 def scanner(request):
     if not request.user.is_staff:
         return redirect('profile')
-    return render(request, 'scanner.html')
+    return render(request, 'office_head/scanner.html')
 
 @login_required(login_url='login')
 def logs(request):
@@ -202,7 +202,7 @@ def logs(request):
     # Sort logs_data by time_in descending (most recent first)
     logs_data.sort(key=lambda x: x['time_in'], reverse=True)
     
-    return render(request, 'logs.html', {'logs_data': logs_data})
+    return render(request, 'core/logs.html', {'logs_data': logs_data})
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
@@ -318,7 +318,7 @@ def user_management(request):
         if User.objects.filter(username=username).exists():
             messages.error(request, f'Username "{username}" already exists!')
             users = User.objects.all().select_related('userprofile').order_by('username')
-            return render(request, 'user_management.html', {'users': users})
+            return render(request, 'caao_admin/user_management.html', {'users': users})
         
         try:
             # Create user
@@ -349,7 +349,7 @@ def user_management(request):
     
     # Get all users with their profiles
     users = User.objects.all().select_related('userprofile').order_by('username')
-    return render(request, 'user_management.html', {'users': users})
+    return render(request, 'caao_admin/user_management.html', {'users': users})
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_http_methods(["POST"])
@@ -490,7 +490,7 @@ def user_progress(request):
         'is_paginated': page_obj.has_other_pages(),
     }
     
-    return render(request, 'user_progress.html', context)
+    return render(request, 'caao_admin/user_progress.html', context)
 
 @user_passes_test(lambda u: u.is_superuser)
 def user_dtr_details(request, user_id):
@@ -530,7 +530,7 @@ def user_dtr_details(request, user_id):
         'percentage': round(percentage, 1),
     }
     
-    return render(request, 'user_dtr_details.html', context)
+    return render(request, 'caao_admin/user_dtr_details.html', context)
 
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
@@ -618,7 +618,7 @@ def office_users(request):
         'total_office_users': office_users.count(),
     }
     
-    return render(request, 'office_users.html', context)
+    return render(request, 'office_head/office_users.html', context)
 
 @login_required(login_url='login')
 def monthly_dtr(request):
@@ -704,7 +704,7 @@ def monthly_dtr(request):
         'can_submit': not dtr_submission,  # Can only submit if not already submitted
     }
     
-    return render(request, 'monthly_dtr.html', context)
+    return render(request, 'core/monthly_dtr.html', context)
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
@@ -796,7 +796,7 @@ def dtr_approvals(request):
         'is_paginated': page_obj.has_other_pages(),
     }
     
-    return render(request, 'dtr_approvals.html', context)
+    return render(request, 'office_head/dtr_approvals.html', context)
 
 @user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
@@ -883,7 +883,7 @@ def time_correction(request, dtr_id):
         'daily_records': sorted_records,
     }
     
-    return render(request, 'time_correction.html', context)
+    return render(request, 'caao_admin/time_correction.html', context)
 
 @user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
@@ -1007,7 +1007,7 @@ def chat(request):
         'recent_messages': recent_messages[::-1],  # Reverse to show oldest first
     }
     
-    return render(request, 'chat.html', context)
+    return render(request, 'core/chat.html', context)
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
