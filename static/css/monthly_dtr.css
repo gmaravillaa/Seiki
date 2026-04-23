@@ -1,0 +1,228 @@
+/* ============================================
+   MONTHLY_DTR.CSS - Page-Unique Styles
+   Loaded by: templates/core/monthly_dtr.html
+   ============================================ */
+
+/* Month Selector */
+.month-selector {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.month-input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+}
+
+.month-button {
+  background-color: #003a6c;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.month-button:hover {
+  background-color: #002a5c;
+}
+
+/* DTR Info */
+.dtr-info {
+  background: linear-gradient(135deg, #003a6c 0%, #004a8c 100%);
+  color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dtr-month {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.dtr-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-item h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Status Section */
+.status-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #003a6c;
+  margin-bottom: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-approved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-info {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 1rem;
+}
+
+/* Records Table */
+.records-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.records-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #003a6c;
+  margin-bottom: 1.5rem;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.records-table th,
+.records-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.records-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.records-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.no-records {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+/* Submit Button */
+.action-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.submit-form {
+  display: inline-block;
+}
+
+.action-section .submit-button {
+  background-color: #28a745;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-section .submit-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.action-section .submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.button-info {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .month-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .month-input,
+  .month-button {
+    width: 100%;
+  }
+
+  .dtr-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .records-table th,
+  .records-table td {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
