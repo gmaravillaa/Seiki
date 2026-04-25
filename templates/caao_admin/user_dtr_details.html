@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User DTR Details - Seiki Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+<div class="w-full h-2 bg-[#003A6C]"></div>
+
+<div class="p-6 space-y-6 max-w-7xl mx-auto">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-[#003A6C]">📋 User DTR Details</h1>
+            <p class="text-gray-600 mt-1">Review monthly submissions and work hour history.</p>
+        </div>
+        <button onclick="window.history.back()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm flex items-center gap-2">
+            <span>←</span> Back to Progress
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border-t-4 border-[#003A6C] p-6">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <div class="flex-1 space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-[#003A6C] font-bold text-xl border border-blue-100">
+                        JD
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Juan Dela Cruz</h2>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-sm text-gray-500 font-mono">@juan.delacruz</span>
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase tracking-wider">Student Assistant</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Office</p>
+                        <p class="text-sm font-bold text-gray-800">Registrar Office</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">ID Number</p>
+                        <p class="text-sm font-bold text-gray-800">2021-00001</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-blue-50/30 p-6 rounded-xl border border-blue-100">
+                <div class="flex justify-between items-end mb-3">
+                    <div>
+                        <p class="text-[10px] font-bold text-blue-800 uppercase tracking-widest mb-1">Total Completion</p>
+                        <h3 class="text-2xl font-black text-[#003A6C]">120 <span class="text-sm font-normal text-blue-600">/ 150 Hours</span></h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-2xl font-black text-green-600">80%</span>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
+                    <div class="bg-green-500 h-full rounded-full transition-all duration-1000" style="width: 80%"></div>
+                </div>
+                
+                <div class="flex justify-between text-[11px] font-bold uppercase tracking-tight">
+                    <span class="text-gray-500">⏳ 30 Hours Remaining</span>
+                    <span class="text-blue-700">Status: On Track</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h3 class="font-bold text-[#003A6C] text-sm uppercase tracking-wider flex items-center gap-2">
+                📅 Daily Time Records <span class="bg-[#003A6C] text-white px-2 py-0.5 rounded-full text-[10px]">8 Submissions</span>
+            </h3>
+            
+            <div class="flex bg-white p-1 rounded-lg border border-gray-300 gap-1">
+                <button onclick="filterDTR('all')" class="filter-btn active px-3 py-1 text-[11px] font-bold rounded-md transition-all">ALL</button>
+                <button onclick="filterDTR('approved')" class="filter-btn px-3 py-1 text-[11px] font-bold rounded-md transition-all">APPROVED</button>
+                <button onclick="filterDTR('pending')" class="filter-btn px-3 py-1 text-[11px] font-bold rounded-md transition-all text-orange-600">PENDING</button>
+                <button onclick="filterDTR('rejected')" class="filter-btn px-3 py-1 text-[11px] font-bold rounded-md transition-all text-red-600">REJECTED</button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="bg-white border-b border-gray-200">
+                        <th class="px-6 py-4 font-bold text-gray-400 uppercase text-[10px]">Month/Year</th>
+                        <th class="px-6 py-4 font-bold text-gray-400 uppercase text-[10px]">Total Hours</th>
+                        <th class="px-6 py-4 font-bold text-gray-400 uppercase text-[10px]">Status</th>
+                        <th class="px-6 py-4 font-bold text-gray-400 uppercase text-[10px]">Submitted</th>
+                        <th class="px-6 py-4 font-bold text-gray-400 uppercase text-[10px]">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="divide-y divide-gray-50">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="p-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+            <span class="text-xs text-gray-500 font-medium">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+            <div class="flex gap-2">
+                <button onclick="previousPage()" id="prevBtn" class="px-3 py-1.5 border border-gray-300 rounded-md text-xs font-bold hover:bg-white transition-all disabled:opacity-50">PREV</button>
+                <button onclick="nextPage()" id="nextBtn" class="px-3 py-1.5 bg-[#003A6C] text-white rounded-md text-xs font-bold hover:bg-[#002a5c] transition-all disabled:opacity-50">NEXT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .filter-btn.active {
+        background-color: #003A6C;
+        color: white !important;
+    }
+</style>
+
+<script>
+    const dtrData = [
+        { id: 1, month: 'April', year: 2026, hours: 32, status: 'pending', submitted: 'Apr 16, 2026' },
+        { id: 2, month: 'March', year: 2026, hours: 40, status: 'approved', submitted: 'Mar 31, 2026' },
+        { id: 3, month: 'February', year: 2026, hours: 38, status: 'approved', submitted: 'Feb 28, 2026' },
+        { id: 4, month: 'January', year: 2026, hours: 35, status: 'approved', submitted: 'Jan 31, 2026' },
+        { id: 5, month: 'December', year: 2025, hours: 42, status: 'approved', submitted: 'Dec 31, 2025' },
+        { id: 6, month: 'November', year: 2025, hours: 28, status: 'rejected', submitted: 'Nov 30, 2025' },
+        { id: 7, month: 'October', year: 2025, hours: 36, status: 'approved', submitted: 'Oct 31, 2025' },
+        { id: 8, month: 'September', year: 2025, hours: 39, status: 'approved', submitted: 'Sep 30, 2025' }
+    ];
+
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 5;
+
+    function filterDTR(filter) {
+        currentFilter = filter;
+        currentPage = 1;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.innerText.toLowerCase() === filter);
+        });
+        renderTable();
+    }
+
+    function renderTable() {
+        const body = document.getElementById('tableBody');
+        const data = currentFilter === 'all' ? dtrData : dtrData.filter(d => d.status === currentFilter);
+        
+        const totalPages = Math.ceil(data.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const pageData = data.slice(startIndex, startIndex + itemsPerPage);
+
+        body.innerHTML = pageData.map(d => `
+            <tr class="hover:bg-blue-50/20 transition-all">
+                <td class="px-6 py-4 font-bold text-[#003A6C]">${d.month} ${d.year}</td>
+                <td class="px-6 py-4 font-bold text-gray-700">${d.hours} Hours</td>
+                <td class="px-6 py-4">
+                    <span class="text-[9px] font-black px-2.5 py-1 rounded uppercase tracking-widest border ${
+                        d.status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' : 
+                        d.status === 'pending' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-red-50 text-red-700 border-red-200'
+                    }">${d.status}</span>
+                </td>
+                <td class="px-6 py-4 text-xs text-gray-500 font-medium">${d.submitted}</td>
+                <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                        <button class="text-[#003A6C] font-black text-[10px] uppercase hover:underline">View</button>
+                        ${d.status === 'pending' ? `
+                            <button class="text-green-600 font-black text-[10px] uppercase hover:underline">Approve</button>
+                            <button class="text-red-600 font-black text-[10px] uppercase hover:underline">Reject</button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        document.getElementById('currentPage').innerText = currentPage;
+        document.getElementById('totalPages').innerText = totalPages || 1;
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+    }
+
+    function nextPage() { currentPage++; renderTable(); }
+    function previousPage() { currentPage--; renderTable(); }
+
+    renderTable();
+</script>
+
+</body>
+</html>

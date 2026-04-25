@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Seiki Admin</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+<div class="w-full h-2 bg-[#003A6C]"></div>
+
+<div class="p-6 space-y-6 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
+
+        <div>
+            <h1 class="text-2xl font-bold text-[#003A6C]">👥 User Management</h1>
+            <p class="text-gray-600 mt-1">
+                Create and manage system accounts for Staff and Students.
+            </p>
+        </div>
+
+        <!-- NAV BACK -->
+        <div class="flex gap-2">
+            <button onclick="window.history.back()"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+                ← Back
+            </button>
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="px-4 py-2 bg-[#003A6C] text-white rounded-lg text-sm font-medium hover:bg-[#002a5c] transition">
+                Dashboard
+            </a>
+        </div>
+
+    </div>
+
+    <!-- CREATE USER -->
+    <div class="bg-white rounded-xl shadow-sm border-t-4 border-[#003A6C] p-6">
+
+        <h2 class="text-lg font-bold mb-6">Create New Account</h2>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- LOGIN -->
+                <div class="space-y-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Login</p>
+
+                    <input type="text" name="username" placeholder="Username"
+                        class="w-full px-4 py-2 border rounded-lg text-sm" required>
+
+                    <input type="password" name="password" placeholder="Password"
+                        class="w-full px-4 py-2 border rounded-lg text-sm" required>
+                </div>
+
+                <!-- INFO -->
+                <div class="space-y-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase">User Info</p>
+
+                    <input type="text" name="first_name" placeholder="First Name"
+                        class="w-full px-4 py-2 border rounded-lg text-sm" required>
+
+                    <input type="text" name="last_name" placeholder="Last Name"
+                        class="w-full px-4 py-2 border rounded-lg text-sm" required>
+
+                    <input type="text" name="office" placeholder="Office / Department"
+                        class="w-full px-4 py-2 border rounded-lg text-sm" required>
+                </div>
+
+                <!-- ASSIGNMENT (ONLY STUDENT) -->
+                <div id="studentFields" class="space-y-3 transition-all">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Student Assignment</p>
+
+                    <input type="text" name="id_number" id="id_number"
+                        placeholder="ID Number"
+                        class="w-full px-4 py-2 border rounded-lg text-sm">
+
+                    <input type="number" name="required_hours" id="required_hours"
+                        value="150"
+                        placeholder="Required Hours"
+                        class="w-full px-4 py-2 border rounded-lg text-sm">
+                </div>
+
+            </div>
+
+            <!-- ROLE -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+
+                <p class="text-xs font-bold text-gray-400 uppercase mb-3">Account Type</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="role" value="student_assistant" checked onchange="toggleRole()">
+                        Student Assistant
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="role" value="office_head" onchange="toggleRole()">
+                        Office Head
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="role" value="caao_staff" onchange="toggleRole()">
+                        CAAO Staff
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit"
+                    class="px-6 py-2 bg-[#003A6C] text-white rounded-md font-bold text-xs uppercase tracking-wider">
+                    Save Account
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- USER LIST -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+        <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+
+            <h3 class="font-bold text-[#003A6C]">📋 User Directory</h3>
+
+            <span class="text-xs font-bold text-gray-500">
+                {{ users|length }} Users
+            </span>
+
+        </div>
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full text-sm">
+
+                <thead class="bg-gray-100 text-xs uppercase text-gray-500">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Username</th>
+                        <th class="px-6 py-3 text-left">Name</th>
+                        <th class="px-6 py-3 text-left">Office</th>
+                        <th class="px-6 py-3 text-left">ID / Hours</th>
+                        <th class="px-6 py-3 text-left">Role</th>
+                        <th class="px-6 py-3 text-left">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y">
+
+                    {% for user in users %}
+                    <tr class="hover:bg-blue-50/30 transition">
+
+                        <td class="px-6 py-4 font-bold text-[#003A6C]">
+                            @{{ user.username }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ user.get_full_name }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ user.userprofile.office|default:"N/A" }}
+                        </td>
+
+                        <td class="px-6 py-4 text-xs text-gray-500">
+                            {{ user.userprofile.id_number|default:"-" }} /
+                            {{ user.userprofile.required_hours|default:"-" }} hrs
+                        </td>
+
+                        <td class="px-6 py-4">
+
+                            {% if user.is_superuser %}
+                                <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded">CAAO STAFF</span>
+
+                            {% elif user.is_staff %}
+                                <span class="bg-orange-100 text-orange-700 text-[10px] px-2 py-1 rounded">OFFICE HEAD</span>
+
+                            {% else %}
+                                <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded">STUDENT</span>
+                            {% endif %}
+
+                        </td>
+
+                        <td class="px-6 py-4">
+
+                            <form method="POST" action="{% url 'delete_user' user.id %}">
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                    onclick="return confirm('Delete this user?')"
+                                    class="text-red-500 hover:text-red-700 text-xs font-bold uppercase">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- SCRIPT: ROLE LOGIC -->
+<script>
+function toggleRole() {
+    const role = document.querySelector('input[name="role"]:checked').value;
+    const studentFields = document.getElementById("studentFields");
+    const id = document.getElementById("id_number");
+    const hrs = document.getElementById("required_hours");
+
+    if (role === "student_assistant") {
+        studentFields.style.opacity = "1";
+        studentFields.style.pointerEvents = "auto";
+        id.required = true;
+        hrs.required = true;
+    } else {
+        studentFields.style.opacity = "0.3";
+        studentFields.style.pointerEvents = "none";
+        id.required = false;
+        hrs.required = false;
+        id.value = "";
+        hrs.value = "";
+    }
+}
+
+// init
+toggleRole();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.py[cod]
+db.sqlite3
+virts/
+venv/
+.vscode/
+/staticfiles
+*.log

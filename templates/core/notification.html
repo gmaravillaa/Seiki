@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Notifications</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    /* Notifications Page */
+    .notifications-page {
+      min-height: 100vh;
+      background-color: #dbdbdb;
+      padding-bottom: 1rem;
+    }
+
+    /* Header */
+    .notifications-header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom-left-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .header-logo {
+      position: absolute;
+      right: 0;
+      width: 4rem;
+      height: 4rem;
+      background-color: #d9d9d9;
+      border-radius: 50%;
+    }
+
+    .header-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    /* Filter Buttons */
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      background-color: white;
+      color: black;
+    }
+
+    .filter-btn:hover {
+      background-color: #f3f4f6;
+    }
+
+    .filter-active {
+      background-color: #003a6c;
+      color: white;
+    }
+
+    .filter-active:hover {
+      background-color: #002a4c;
+    }
+
+    /* Notifications List */
+    .notifications-list {
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .notifications-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    /* Notification Card */
+    .notification-card {
+      background-color: #003a6c;
+      border-radius: 0.5rem;
+      padding: 2px;
+    }
+
+    .card-border {
+      background-color: white;
+      border-radius: 0.375rem;
+      position: relative;
+    }
+
+    .card-content {
+      padding: 1rem;
+      position: relative;
+    }
+
+    /* Color Indicator */
+    .indicator {
+      position: absolute;
+      left: 0.75rem;
+      top: 1rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 0.125rem;
+    }
+
+    .indicator-approved {
+      background-color: #9df9a5;
+    }
+
+    .indicator-rejected {
+      background-color: #ff5b6e;
+    }
+
+    .indicator-reminder {
+      background-color: #e9f655;
+    }
+
+    /* Content */
+    .notif-content {
+      margin-left: 1.5rem;
+    }
+
+    .notif-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .notif-message {
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .notif-message p {
+      margin: 0.125rem 0;
+    }
+
+    .notif-time {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    /* Responsive - Tablet/Desktop */
+    @media (min-width: 768px) {
+      .notifications-header {
+        padding: 2.5rem 3rem 2rem;
+        border-radius: 0;
+      }
+
+      .header-content {
+        justify-content: flex-start;
+      }
+
+      .header-logo {
+        position: static;
+        width: 3rem;
+        height: 3rem;
+        margin-right: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+      }
+
+      .filter-buttons {
+        padding: 1.5rem 3rem 0;
+      }
+
+      .filter-btn {
+        flex: 0;
+        padding: 0.5rem 2rem;
+      }
+
+      .notifications-list {
+        padding: 1.5rem 3rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .notifications-list {
+        padding: 1.5rem 4rem;
+      }
+
+      .notifications-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="notifications-page">
+    <!-- Header -->
+    <div class="notifications-header">
+      <div class="header-content">
+        <div class="header-logo"></div>
+        <h1 class="header-title">Notifications</h1>
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-buttons">
+      <button class="filter-btn filter-active">All</button>
+      <button class="filter-btn">Unread</button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-list">
+      <div class="notifications-grid">
+        
+        <!-- Notification Card 1 - Approved -->
+        <div class="notification-card">
+          <div class="card-border">
+            <div class="card-content">
+              <!-- Color Indicator -->
+              <div class="indicator indicator-approved"></div>
+              
+              <!-- Content -->
+              <div class="notif-content">
+                <h3 class="notif-title">DTR Approved</h3>
+                <div class="notif-message">
+                  <p>Your Submission for April 6</p>
+                  <p>has been approved</p>
+                </div>
+                <p class="notif-time">2 days ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Card 2 - Approved -->
+        <div class="notification-card">
+          <div class="card-border">
+            <div class="card-content">
+              <!-- Color Indicator -->
+              <div class="indicator indicator-approved"></div>
+              
+              <!-- Content -->
+              <div class="notif-content">
+                <h3 class="notif-title">DTR Approved</h3>
+                <div class="notif-message">
+                  <p>Your Submission for April 3</p>
+                  <p>has been approved</p>
+                </div>
+                <p class="notif-time">5 days ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Card 3 - Reminder -->
+        <div class="notification-card">
+          <div class="card-border">
+            <div class="card-content">
+              <!-- Color Indicator -->
+              <div class="indicator indicator-reminder"></div>
+              
+              <!-- Content -->
+              <div class="notif-content">
+                <h3 class="notif-title">Reminder: Submit DTR</h3>
+                <div class="notif-message">
+                  <p>The end of the day period is</p>
+                  <p>approaching. please submit your</p>
+                  <p>DTR by April 02, 2026.</p>
+                </div>
+                <p class="notif-time">1 week ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Card 4 - Rejected -->
+        <div class="notification-card">
+          <div class="card-border">
+            <div class="card-content">
+              <!-- Color Indicator -->
+              <div class="indicator indicator-rejected"></div>
+              
+              <!-- Content -->
+              <div class="notif-content">
+                <h3 class="notif-title">DTR Rejected</h3>
+                <div class="notif-message">
+                  <p>Your Submission for April 1</p>
+                  <p>has been rejected (Missing Remark)</p>
+                </div>
+                <p class="notif-time">1 week ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Card 5 - Rejected -->
+        <div class="notification-card">
+          <div class="card-border">
+            <div class="card-content">
+              <!-- Color Indicator -->
+              <div class="indicator indicator-rejected"></div>
+              
+              <!-- Content -->
+              <div class="notif-content">
+                <h3 class="notif-title">DTR Rejected</h3>
+                <div class="notif-message">
+                  <p>Your Submission for March 31</p>
+                  <p>has been rejected (Missing Remark)</p>
+                </div>
+                <p class="notif-time">1 week ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

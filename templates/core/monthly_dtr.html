@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Monthly DTR</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    /* Header */
+    .header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem;
+      color: white;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .back-button {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Month Selector */
+    .month-selector {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .month-input {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+    }
+
+    .month-button {
+      background-color: #003a6c;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .month-button:hover {
+      background-color: #002a5c;
+    }
+
+    /* DTR Info */
+    .dtr-info {
+      background: linear-gradient(135deg, #003a6c 0%, #004a8c 100%);
+      color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dtr-month {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .dtr-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .stat-item h3 {
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* Status Section */
+    .status-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #003a6c;
+      margin-bottom: 1rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-approved {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-rejected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-info {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 1rem;
+    }
+
+    /* Records Table */
+    .records-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .records-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin-bottom: 1.5rem;
+    }
+
+    .records-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .records-table th,
+    .records-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .records-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .records-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .no-records {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+    }
+
+    /* Submit Button */
+    .action-section {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .submit-form {
+      display: inline-block;
+    }
+
+    .submit-button {
+      background-color: #28a745;
+      color: white;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .submit-button:hover:not(:disabled) {
+      background-color: #218838;
+    }
+
+    .submit-button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .button-info {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 1rem;
+    }
+
+    /* Messages */
+    .messages {
+      margin-bottom: 2rem;
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .month-selector {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .month-input,
+      .month-button {
+        width: 100%;
+      }
+
+      .dtr-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .records-table th,
+      .records-table td {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">Monthly DTR</h1>
+      <div style="display: flex; gap: 1rem;">
+        <a href="{% url 'chat' %}" style="background-color: rgba(32, 201, 151, 0.2); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 500;">💬 Chat</a>
+        <a href="{% url 'logs' %}" class="back-button">Back to Logs</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Messages -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Month Selector -->
+    <div class="month-selector">
+      <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <label for="month-select" style="font-weight: 500;">Select Month:</label>
+        <input type="month" id="month-select" name="month_year" value="{{ year }}-{% if month < 10 %}0{% endif %}{{ month }}" class="month-input">
+        <button type="submit" class="month-button">View DTR</button>
+      </form>
+    </div>
+
+    <!-- DTR Info -->
+    <div class="dtr-info">
+      <div class="dtr-month">{{ month_name }} {{ year }} DTR Summary</div>
+      <div class="dtr-stats">
+        <div class="stat-item">
+          <h3>Total Hours</h3>
+          <div class="stat-value">{{ total_hours_formatted }}</div>
+        </div>
+        <div class="stat-item">
+          <h3>Days Worked</h3>
+          <div class="stat-value">{{ daily_records|length }}</div>
+        </div>
+        <div class="stat-item">
+          <h3>Status</h3>
+          <div class="stat-value">
+            {% if dtr_submission %}
+              {% if dtr_submission.status == 'pending' %}
+                <span style="font-size: 1rem;">Pending</span>
+              {% elif dtr_submission.status == 'approved' %}
+                <span style="font-size: 1rem;">✓ Approved</span>
+              {% else %}
+                <span style="font-size: 1rem;">✗ Rejected</span>
+              {% endif %}
+            {% else %}
+              <span style="font-size: 1rem;">Not Submitted</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Section -->
+    {% if dtr_submission %}
+      <div class="status-section">
+        <div class="status-title">Submission Status</div>
+        <span class="status-badge status-{{ dtr_submission.status }}">
+          {% if dtr_submission.status == 'pending' %}
+            Pending Approval
+          {% elif dtr_submission.status == 'approved' %}
+            Approved
+          {% else %}
+            Rejected
+          {% endif %}
+        </span>
+        <div class="status-info">
+          Submitted on: {{ dtr_submission.submitted_date|date:"M d, Y H:i" }}
+          {% if dtr_submission.approved_date %}
+            <br>Processed on: {{ dtr_submission.approved_date|date:"M d, Y H:i" }}
+            {% if dtr_submission.approver %}
+              <br>By: {{ dtr_submission.approver.first_name }} {{ dtr_submission.approver.last_name }}
+            {% endif %}
+          {% endif %}
+          {% if dtr_submission.remarks %}
+            <br><strong>Remarks:</strong> {{ dtr_submission.remarks }}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Records Table -->
+    <div class="records-section">
+      <div class="records-title">Daily Records for {{ month_name }} {{ year }}</div>
+      {% if daily_records %}
+        <div style="overflow-x: auto;">
+          <table class="records-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time In</th>
+                <th>Time Out</th>
+                <th>Cumulative Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for date, record in daily_records %}
+                <tr>
+                  <td>{{ date|date:"l, M d, Y" }}</td>
+                  <td>{{ record.in|date:"H:i"|default:"-" }}</td>
+                  <td>{{ record.out|date:"H:i"|default:"-" }}</td>
+                  <td>{{ record.cumulative_duration_formatted|default:"0h 0m" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="no-records">
+          No time records found for {{ month_name }} {{ year }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Submit Section -->
+    {% if can_submit %}
+      <div class="action-section">
+        <h2 style="margin-bottom: 1rem; color: #003a6c;">Submit DTR</h2>
+        <form method="post" action="{% url 'submit_dtr' %}" class="submit-form">
+          {% csrf_token %}
+          <input type="hidden" name="month" value="{{ month }}">
+          <input type="hidden" name="year" value="{{ year }}">
+          <button type="submit" class="submit-button">Submit DTR for {{ month_name }} {{ year }}</button>
+        </form>
+        <div class="button-info">
+          Once submitted, your DTR will be sent for approval. You can review it but cannot edit after submission.
+        </div>
+      </div>
+    {% else %}
+      <div class="action-section">
+        <div style="color: #666; font-size: 1.1rem;">
+          DTR for {{ month_name }} {{ year }} has already been submitted{% if dtr_submission.status != 'pending' %} and {{ dtr_submission.status }}{% endif %}
+        </div>
+        <button class="submit-button" disabled>Already Submitted</button>
+      </div>
+    {% endif %}
+  </main>
+</body>
+</html>

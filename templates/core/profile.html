@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Profile</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    /* Profile Page */
+    .profile-page {
+      min-height: 100vh;
+      background-color: #dbdbdb;
+      padding-bottom: 1rem;
+    }
+
+    /* Header */
+    .profile-header {
+      background-color: #003a6c;
+      padding: 2rem 1.5rem 3rem;
+      border-bottom-left-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .header-logo {
+      position: absolute;
+      left: 0;
+      width: 4rem;
+      height: 4rem;
+      transform: rotate(-3deg);
+      background-color: #d9d9d9;
+      border-radius: 50%;
+    }
+
+    .header-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    /* Profile Picture */
+    .profile-picture {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .picture-outer {
+      width: 6rem;
+      height: 6rem;
+      background-color: #d9d9d9;
+      border-radius: 50%;
+      padding: 4px;
+    }
+
+    .picture-middle {
+      width: 100%;
+      height: 100%;
+      background-color: #003a6c;
+      border-radius: 50%;
+      padding: 4px;
+    }
+
+    .picture-inner {
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .picture-initial {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #003a6c;
+    }
+
+    /* Profile Info */
+    .profile-info {
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
+    .profile-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .profile-office {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: black;
+    }
+
+    .profile-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: #9df9a5;
+      border-radius: 50%;
+    }
+
+    .status-text {
+      font-size: 0.625rem;
+      font-weight: 500;
+      color: #9df9a5;
+    }
+
+    /* Content */
+    .profile-content {
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    /* Cards */
+    .info-card,
+    .progress-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Student Information */
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #a9a9a9;
+    }
+
+    .info-item-last {
+      border-bottom: none;
+    }
+
+    .info-icon {
+      width: 1rem;
+      height: 1rem;
+      margin-top: 0.125rem;
+    }
+
+    .info-details {
+      flex: 1;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .info-value-bold {
+      font-weight: 700;
+    }
+
+    /* Work Progress */
+    .progress-container {
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar {
+      position: relative;
+      height: 1.5rem;
+      background-color: #d9d9d9;
+      border-radius: 0.125rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      position: absolute;
+      inset: 0;
+      background-color: #9df9a5;
+      border-radius: 0.125rem;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-percentage {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.25rem;
+    }
+
+    .progress-percentage span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #6a6a6a;
+    }
+
+    /* Hours Information */
+    .hours-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .hours-bold {
+      font-weight: 700;
+    }
+
+    .hours-rendered {
+      font-weight: 800;
+      color: #9df9a5;
+    }
+
+    .hours-remaining {
+      font-weight: 700;
+      color: #ff5b6e;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    }
+
+    /* Responsive - Tablet/Desktop */
+    @media (min-width: 768px) {
+      .profile-header {
+        padding: 2.5rem 3rem 4rem;
+        border-radius: 0;
+      }
+
+      .header-content {
+        justify-content: flex-start;
+      }
+
+      .header-logo {
+        position: static;
+        width: 3rem;
+        height: 3rem;
+        margin-right: 1rem;
+        transform: rotate(0);
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+      }
+
+      .picture-outer {
+        width: 8rem;
+        height: 8rem;
+      }
+
+      .picture-initial {
+        font-size: 3rem;
+      }
+
+      .profile-name {
+        font-size: 1.125rem;
+      }
+
+      .profile-office {
+        font-size: 0.875rem;
+      }
+
+      .status-text {
+        font-size: 0.75rem;
+      }
+
+      .profile-content {
+        padding: 1.5rem 3rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .profile-content {
+        padding: 1.5rem 4rem;
+      }
+
+      .content-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-page">
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="header-content">
+        <div class="header-logo"></div>
+        <h1 class="header-title">Profile</h1>
+        <div style="position: absolute; right: 1.5rem; display: flex; gap: 0.5rem;">
+          {% if user.is_superuser %}
+          <a href="{% url 'user_management' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #6f42c1; padding: 0.5rem 1rem; border-radius: 0.25rem;">User Management</a>
+          <a href="{% url 'dtr_approvals' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #fd7e14; padding: 0.5rem 1rem; border-radius: 0.25rem;">DTR Approvals</a>
+          {% endif %}
+          {% if user.is_staff %}
+          <a href="{% url 'scanner' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #28a745; padding: 0.5rem 1rem; border-radius: 0.25rem;">QR Scanner</a>
+          {% if not user.is_superuser %}
+          <a href="{% url 'office_users' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #17a2b8; padding: 0.5rem 1rem; border-radius: 0.25rem;">Office Users</a>
+          {% endif %}
+          {% endif %}
+          <a href="{% url 'chat' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #20c997; padding: 0.5rem 1rem; border-radius: 0.25rem;">💬 Chat</a>
+          <a href="{% url 'dashboard' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #007bff; padding: 0.5rem 1rem; border-radius: 0.25rem;">🏠 Dashboard</a>
+          <a href="{% url 'qr' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #0059ff; padding: 0.5rem 1rem; border-radius: 0.25rem;">Show QR Code</a>
+          <a href="{% url 'logout' %}" style="color: white; text-decoration: none; font-size: 0.875rem; background-color: #ff6b6b; padding: 0.5rem 1rem; border-radius: 0.25rem;">Logout</a>
+        </div>
+      </div>
+
+      <!-- Profile Picture -->
+      <div class="profile-picture">
+        <div class="picture-outer">
+          <div class="picture-middle">
+            <div class="picture-inner">
+              <span class="picture-initial">{{ user.first_name|first|upper }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Name and Office -->
+      <div class="profile-info">
+        <h2 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h2>
+        <p class="profile-office">{{ user.userprofile.office|default:"No Office Assigned" }}</p>
+        <div class="profile-status">
+          <div class="status-dot"></div>
+          <span class="status-text">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="profile-content">
+      <div class="content-grid">
+        
+        <!-- Student Information Card -->
+        <div class="info-card">
+          <div class="card-body">
+            <h3 class="card-title">Student Information</h3>
+
+            <div class="info-list">
+              <!-- Full Name -->
+              <div class="info-item">
+                <span class="info-icon"></span>
+                <div class="info-details">
+                  <div class="info-label">Full Name</div>
+                  <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
+                </div>
+              </div>
+
+              <!-- Username -->
+              <div class="info-item">
+                <span class="info-icon"></span>
+                <div class="info-details">
+                  <div class="info-label">Username</div>
+                  <div class="info-value">{{ user.username }}</div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="info-item">
+                <span class="info-icon"></span>
+                <div class="info-details">
+                  <div class="info-label">Email</div>
+                  <div class="info-value">{{ user.email }}</div>
+                </div>
+              </div>
+
+              <!-- ID Number -->
+              <div class="info-item">
+                <span class="info-icon"></span>
+                <div class="info-details">
+                  <div class="info-label">ID Number</div>
+                  <div class="info-value">{{ user.userprofile.id_number|default:"Not Set" }}</div>
+                </div>
+              </div>
+
+              <!-- Office -->
+              <div class="info-item info-item-last">
+                <span class="info-icon"></span>
+                <div class="info-details">
+                  <div class="info-label">Office</div>
+                  <div class="info-value">{{ user.userprofile.office|default:"Not Assigned" }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Progress Card -->
+        <div class="progress-card">
+          <div class="card-body">
+            <h3 class="card-title">Work Progress</h3>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ percentage }}%;"></div>
+              </div>
+              <div class="progress-percentage">
+                <span>{{ percentage }}%</span>
+              </div>
+            </div>
+
+            <!-- Hours Information -->
+            <div class="hours-info">
+              <div class="hours-row">
+                <span>Required Hours</span>
+                <span class="hours-bold">{{ required_hours }}</span>
+              </div>
+              <div class="hours-row">
+                <span>Total Hours Rendered</span>
+                <span class="hours-rendered">{{ total_hours_rendered }}</span>
+              </div>
+              <div class="hours-row">
+                <span>Remaining Hours</span>
+                <span class="hours-remaining">{{ remaining_hours }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>
