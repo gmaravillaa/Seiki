@@ -1,29 +1,17 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 import json
-<<<<<<< HEAD
 import csv
-from django.http import HttpResponse
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
-=======
-from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
-from django.contrib.auth.models import User
-from django.utils import timezone
 from django.db import models
-from django.db.models import Q
-from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
-<<<<<<< HEAD
-from django.db import models
-from django.contrib.auth.decorators import login_required
 from datetime import date, datetime
-from .models import TimeRecord
 
 @login_required
 def dashboard_redirect(request):
@@ -134,19 +122,6 @@ def profile(request):
 @login_required
 def dtr_records(request):
     return render(request, 'caao_admin/dtr.html')
-=======
-from datetime import date, datetime
-from django.db import models
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
-
-def format_hours_minutes(decimal_hours):
-    """Convert decimal hours to hours and minutes format (e.g., 8.5 -> '8h 30m')"""
-    if decimal_hours is None or decimal_hours == 0:
-        return "0h 0m"
-    
-    hours = int(decimal_hours)
-    minutes = int((decimal_hours - hours) * 60)
-    return f"{hours}h {minutes}m"
 
 def index(request):
     if request.method == 'POST':
@@ -157,11 +132,7 @@ def index(request):
         
         if user is not None:
             auth_login(request, user)
-<<<<<<< HEAD
             return redirect('dashboard_redirect')  # Redirect to dashboard after successful login
-=======
-            return redirect('dashboard')  # Redirect to dashboard after successful login
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
         else:
             # Display error message on login page
             return render(request, 'core/index.html', {'error': 'Invalid credentials'})
@@ -170,11 +141,6 @@ def index(request):
 
 @login_required(login_url='login')
 def notification(request):
-    return render(request, 'core/notification.html')
-
-@login_required(login_url='login')
-def profile(request):
-    # Calculate total hours rendered
     total_duration = TimeRecord.objects.filter(
         user=request.user,
         record_type='out',
@@ -208,11 +174,6 @@ def profile(request):
 @login_required(login_url='login')
 def dashboard(request):
     """Dashboard/home page for students/users"""
-<<<<<<< HEAD
-=======
-    from datetime import date, datetime
-    from django.utils import timezone
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
     
     today = date.today()
     current_time = timezone.now()
@@ -271,6 +232,66 @@ def scanner(request):
     if not request.user.is_staff:
         return redirect('profile')
     return render(request, 'office_head/scanner.html')
+
+@csrf_exempt
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def record_time(request):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+
+    try:
+        data = json.loads(request.body.decode('utf-8')) if isinstance(request.body, bytes) else json.loads(request.body)
+        qr_code = data.get('qr_code')
+        if not qr_code:
+            raise ValueError('Missing qr_code')
+
+        user_id_str, username = qr_code.split(':', 1)
+        user_id = int(user_id_str)
+    except (ValueError, IndexError, json.JSONDecodeError):
+        return JsonResponse({'success': False, 'error': 'Invalid QR code format'}, status=400)
+
+    try:
+        target_user = User.objects.get(id=user_id, username=username)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+
+    today = date.today()
+    last_record = TimeRecord.objects.filter(
+        user=target_user,
+        timestamp__date=today
+    ).order_by('-timestamp').first()
+
+    if last_record and last_record.record_type == 'in':
+        record_type = 'out'
+        message_text = 'Time out'
+    else:
+        record_type = 'in'
+        message_text = 'Time in'
+
+    time_record = TimeRecord.objects.create(
+        user=target_user,
+        qr_code=qr_code,
+        record_type=record_type
+    )
+
+    if record_type == 'out':
+        time_in_record = TimeRecord.objects.filter(
+            user=target_user,
+            timestamp__date=today,
+            record_type='in'
+        ).order_by('-timestamp').first()
+        if time_in_record:
+            duration = time_record.timestamp - time_in_record.timestamp
+            time_record.duration = duration
+            time_record.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': f'{message_text} recorded for {target_user.username} at {timezone.localtime(time_record.timestamp).strftime("%H:%M:%S")}',
+        'timestamp': time_record.timestamp.isoformat(),
+        'record_type': record_type
+    })
 
 @login_required(login_url='login')
 def logs(request):
@@ -335,7 +356,19 @@ def logs(request):
     
     return render(request, 'core/logs.html', {'logs_data': logs_data})
 
-<<<<<<< HEAD
+def dtr_acceptance(request):
+    search = request.GET.get("search", "")
+    status = request.GET.get("status", "")
+
+    dtr_records = DTRSubmission.objects.select_related("user", "user__userprofile")
+
+    if search:
+        dtr_records = dtr_records.filter(
+            user__first_name__icontains=search
+        ) | dtr_records.filter(
+            user__last_name__icontains=search
+        )
+
 def dtr_acceptance(request):
     search = request.GET.get("search", "")
     status = request.GET.get("status", "")
@@ -395,92 +428,6 @@ def user_progress(request):
     return render(request, 'caao_admin/user_progress.html', {
         'data': data
     })
-    
-=======
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
-@login_required(login_url='login')
-@require_http_methods(["POST"])
-def record_time(request):
-    """Record time when QR code is scanned"""
-    try:
-        print(f"Record time called by user: {request.user}")
-        print(f"Request body: {request.body}")
-        
-        data = json.loads(request.body)
-        qr_code = data.get('qr_code')
-        
-        if not qr_code:
-            return JsonResponse({'success': False, 'error': 'QR code data required'}, status=400)
-        
-        # Parse QR code to get user ID (format: "user_id:username")
-        try:
-            user_id_str, username = qr_code.split(':', 1)
-            user_id = int(user_id_str)
-        except (ValueError, IndexError):
-            return JsonResponse({'success': False, 'error': 'Invalid QR code format'}, status=400)
-        
-        # Get the user whose QR code was scanned
-        try:
-            target_user = User.objects.get(id=user_id, username=username)
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
-        
-        # Get today's date
-        today = date.today()
-        
-        # Get the last time record for today for the target user
-        last_record = TimeRecord.objects.filter(
-            user=target_user,
-            timestamp__date=today
-        ).order_by('-timestamp').first()
-        
-        # Determine record type: if last was 'in', make this 'out', else 'in'
-        if last_record and last_record.record_type == 'in':
-            record_type = 'out'
-            message_text = 'Time out'
-        else:
-            record_type = 'in'
-            message_text = 'Time in'
-        
-        # Create time record
-        time_record = TimeRecord.objects.create(
-            user=target_user,
-            qr_code=qr_code,
-            record_type=record_type
-        )
-        
-        # If this is a time out, calculate and store the duration
-        if record_type == 'out':
-            # Find the last time in record for today
-            time_in_record = TimeRecord.objects.filter(
-                user=target_user,
-                timestamp__date=today,
-                record_type='in'
-            ).order_by('-timestamp').first()
-            
-            if time_in_record:
-                # Calculate duration between time in and time out
-                duration = time_record.timestamp - time_in_record.timestamp
-                time_record.duration = duration
-                time_record.save()
-        
-        print(f"Time record created: {time_record}")
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'{message_text} recorded for {target_user.username} at {timezone.localtime(time_record.timestamp).strftime("%H:%M:%S")}',
-            'timestamp': time_record.timestamp.isoformat(),
-            'record_type': record_type
-        })
-        
-    except json.JSONDecodeError as e:
-        print(f"JSON Error: {e}")
-        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
-    except Exception as e:
-        print(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @user_passes_test(lambda u: u.is_superuser)
 def user_management(request):
@@ -544,10 +491,7 @@ def user_management(request):
     # Get all users with their profiles
     users = User.objects.all().select_related('userprofile').order_by('username')
     return render(request, 'caao_admin/user_management.html', {'users': users})
-<<<<<<< HEAD
     
-=======
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_http_methods(["POST"])
@@ -614,10 +558,7 @@ def user_progress(request):
     
     # Get all users with their profiles
     users = User.objects.all().select_related('userprofile')
-<<<<<<< HEAD
     users = User.objects.filter(is_staff=False, is_superuser=False)
-=======
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
     
     # Apply search filter if query exists
     if search_query:
@@ -694,7 +635,6 @@ def user_progress(request):
     
     return render(request, 'caao_admin/user_progress.html', context)
 
-<<<<<<< HEAD
 def student_assistant_progress(request):
     search = request.GET.get('search', '')
     status_filter = request.GET.get('status', 'all')
@@ -786,8 +726,6 @@ def export_students(request):
 
     return response
 
-=======
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 @user_passes_test(lambda u: u.is_superuser)
 def user_dtr_details(request, user_id):
     """View all DTR submissions for a specific user"""
@@ -1148,10 +1086,7 @@ def reject_dtr(request, dtr_id):
     return redirect('dtr_approvals')
 
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser)
-<<<<<<< HEAD
 
-=======
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
@@ -1244,7 +1179,6 @@ def delete_time_record(request, record_id):
 
 @user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
-<<<<<<< HEAD
 
 def add_time_record(request):
     """Admin manual time correction (simple system)"""
@@ -1306,54 +1240,6 @@ def time_correction_list(request):
     return render(request, 'caao_admin/time_correction.html', {
         'students': students
     })
-=======
-def add_time_record(request):
-    """Add a new time record"""
-    try:
-        dtr_id = request.POST.get('dtr_id')
-        dtr_submission = DTRSubmission.objects.get(id=dtr_id)
-        
-        timestamp_str = request.POST.get('timestamp')
-        record_type = request.POST.get('record_type')
-        qr_code = request.POST.get('qr_code', f"admin_{dtr_submission.user.username}")
-        
-        if timestamp_str and record_type:
-            # Parse the timestamp
-            timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
-            timestamp = timezone.make_aware(timestamp)
-            
-            # Create the time record
-            time_record = TimeRecord.objects.create(
-                user=dtr_submission.user,
-                qr_code=qr_code,
-                timestamp=timestamp,
-                record_type=record_type
-            )
-            
-            # If this is a time out, calculate duration
-            if record_type == 'out':
-                same_day = timestamp.date()
-                time_in_record = TimeRecord.objects.filter(
-                    user=dtr_submission.user,
-                    timestamp__date=same_day,
-                    record_type='in',
-                    timestamp__lt=timestamp
-                ).order_by('-timestamp').first()
-                
-                if time_in_record:
-                    duration = timestamp - time_in_record.timestamp
-                    time_record.duration = duration
-                    time_record.save()
-            
-            messages.success(request, f"Time record added successfully!")
-        else:
-            messages.error(request, "Please provide timestamp and record type.")
-            
-    except Exception as e:
-        messages.error(request, f"Error adding time record: {str(e)}")
-    
-    return redirect('time_correction', dtr_id=dtr_id)
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 
 @login_required(login_url='login')
 def chat(request):
@@ -1373,7 +1259,6 @@ def chat(request):
     
     return render(request, 'core/chat.html', context)
 
-<<<<<<< HEAD
     offices = UserProfile.objects.values('office').distinct()
 
     data = []
@@ -1393,8 +1278,6 @@ def chat(request):
         "data": data
     })
 
-=======
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def send_message(request):

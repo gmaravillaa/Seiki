@@ -139,22 +139,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login settings
 LOGIN_URL = 'login'
-<<<<<<< HEAD
 LOGIN_REDIRECT_URL = 'dashboard_redirect'
-=======
-LOGIN_REDIRECT_URL = 'profile'
->>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 LOGOUT_REDIRECT_URL = 'login'
 
-# Production security settings for Render
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_SECURITY_POLICY = {
-        'default-src': ("'self'",),
-    }
-    CSRF_TRUSTED_ORIGINS = [
-        'https://*.render.com',
-    ]
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_SECURITY_POLICY = {
+    'default-src': ("'self'",),
+}
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.render.com',
+]
