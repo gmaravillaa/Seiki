@@ -139,7 +139,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login settings
 LOGIN_URL = 'login'
+<<<<<<< HEAD
 LOGIN_REDIRECT_URL = 'dashboard_redirect'
+=======
+LOGIN_REDIRECT_URL = 'profile'
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 LOGOUT_REDIRECT_URL = 'login'
 
 # Production security settings for Render

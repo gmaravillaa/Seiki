@@ -5,16 +5,21 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
+<<<<<<< HEAD
 import csv
 from django.http import HttpResponse
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
+=======
+from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+<<<<<<< HEAD
 from django.db import models
 from django.contrib.auth.decorators import login_required
 from datetime import date, datetime
@@ -129,6 +134,10 @@ def profile(request):
 @login_required
 def dtr_records(request):
     return render(request, 'caao_admin/dtr.html')
+=======
+from datetime import date, datetime
+from django.db import models
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 
 def format_hours_minutes(decimal_hours):
     """Convert decimal hours to hours and minutes format (e.g., 8.5 -> '8h 30m')"""
@@ -148,7 +157,11 @@ def index(request):
         
         if user is not None:
             auth_login(request, user)
+<<<<<<< HEAD
             return redirect('dashboard_redirect')  # Redirect to dashboard after successful login
+=======
+            return redirect('dashboard')  # Redirect to dashboard after successful login
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
         else:
             # Display error message on login page
             return render(request, 'core/index.html', {'error': 'Invalid credentials'})
@@ -195,6 +208,11 @@ def profile(request):
 @login_required(login_url='login')
 def dashboard(request):
     """Dashboard/home page for students/users"""
+<<<<<<< HEAD
+=======
+    from datetime import date, datetime
+    from django.utils import timezone
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
     
     today = date.today()
     current_time = timezone.now()
@@ -317,6 +335,7 @@ def logs(request):
     
     return render(request, 'core/logs.html', {'logs_data': logs_data})
 
+<<<<<<< HEAD
 def dtr_acceptance(request):
     search = request.GET.get("search", "")
     status = request.GET.get("status", "")
@@ -377,6 +396,8 @@ def user_progress(request):
         'data': data
     })
     
+=======
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def record_time(request):
@@ -523,7 +544,10 @@ def user_management(request):
     # Get all users with their profiles
     users = User.objects.all().select_related('userprofile').order_by('username')
     return render(request, 'caao_admin/user_management.html', {'users': users})
+<<<<<<< HEAD
     
+=======
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_http_methods(["POST"])
@@ -590,7 +614,10 @@ def user_progress(request):
     
     # Get all users with their profiles
     users = User.objects.all().select_related('userprofile')
+<<<<<<< HEAD
     users = User.objects.filter(is_staff=False, is_superuser=False)
+=======
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
     
     # Apply search filter if query exists
     if search_query:
@@ -667,6 +694,7 @@ def user_progress(request):
     
     return render(request, 'caao_admin/user_progress.html', context)
 
+<<<<<<< HEAD
 def student_assistant_progress(request):
     search = request.GET.get('search', '')
     status_filter = request.GET.get('status', 'all')
@@ -758,6 +786,8 @@ def export_students(request):
 
     return response
 
+=======
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 @user_passes_test(lambda u: u.is_superuser)
 def user_dtr_details(request, user_id):
     """View all DTR submissions for a specific user"""
@@ -1118,7 +1148,10 @@ def reject_dtr(request, dtr_id):
     return redirect('dtr_approvals')
 
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser)
+<<<<<<< HEAD
 
+=======
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
@@ -1211,6 +1244,7 @@ def delete_time_record(request, record_id):
 
 @user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
+<<<<<<< HEAD
 
 def add_time_record(request):
     """Admin manual time correction (simple system)"""
@@ -1272,6 +1306,54 @@ def time_correction_list(request):
     return render(request, 'caao_admin/time_correction.html', {
         'students': students
     })
+=======
+def add_time_record(request):
+    """Add a new time record"""
+    try:
+        dtr_id = request.POST.get('dtr_id')
+        dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+        
+        timestamp_str = request.POST.get('timestamp')
+        record_type = request.POST.get('record_type')
+        qr_code = request.POST.get('qr_code', f"admin_{dtr_submission.user.username}")
+        
+        if timestamp_str and record_type:
+            # Parse the timestamp
+            timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
+            timestamp = timezone.make_aware(timestamp)
+            
+            # Create the time record
+            time_record = TimeRecord.objects.create(
+                user=dtr_submission.user,
+                qr_code=qr_code,
+                timestamp=timestamp,
+                record_type=record_type
+            )
+            
+            # If this is a time out, calculate duration
+            if record_type == 'out':
+                same_day = timestamp.date()
+                time_in_record = TimeRecord.objects.filter(
+                    user=dtr_submission.user,
+                    timestamp__date=same_day,
+                    record_type='in',
+                    timestamp__lt=timestamp
+                ).order_by('-timestamp').first()
+                
+                if time_in_record:
+                    duration = timestamp - time_in_record.timestamp
+                    time_record.duration = duration
+                    time_record.save()
+            
+            messages.success(request, f"Time record added successfully!")
+        else:
+            messages.error(request, "Please provide timestamp and record type.")
+            
+    except Exception as e:
+        messages.error(request, f"Error adding time record: {str(e)}")
+    
+    return redirect('time_correction', dtr_id=dtr_id)
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 
 @login_required(login_url='login')
 def chat(request):
@@ -1291,6 +1373,7 @@ def chat(request):
     
     return render(request, 'core/chat.html', context)
 
+<<<<<<< HEAD
     offices = UserProfile.objects.values('office').distinct()
 
     data = []
@@ -1310,6 +1393,8 @@ def chat(request):
         "data": data
     })
 
+=======
+>>>>>>> dc835a7b9b345912790d96161f04d388a8b39ec0
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def send_message(request):
