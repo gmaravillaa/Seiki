@@ -32,7 +32,7 @@ urlpatterns = [
     # AUTH
     # =======================
     path('login/', LoginView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', views.custom_logout, name='logout'),
 
     # =======================
     # ROOT
@@ -84,6 +84,15 @@ urlpatterns = [
     path('dtr-approvals/', views.dtr_approvals, name='dtr_approvals'),
     path('dtr-approvals/approve/<int:dtr_id>/', views.approve_dtr, name='approve_dtr'),
     path('dtr-approvals/reject/<int:dtr_id>/', views.reject_dtr, name='reject_dtr'),
+
+    # =======================
+    # NEW OFFICE HEAD ROUTES
+    # =======================
+    path('office/students/', views.office_student_assistants, name='office_student_assistants'),
+    path('office/logs/', views.office_logs, name='office_logs'),
+    path('office/dtr/', views.office_dtr_submissions, name='office_dtr_submissions'),
+    path('office/reports/', views.office_reports, name='office_reports'),
+    path('export-report/', views.export_students, name='export_report'),
 
     # =======================
     # TIME CORRECTION

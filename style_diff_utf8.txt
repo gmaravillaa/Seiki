@@ -1,0 +1,3689 @@
+﻿diff --git a/templates/time_correction.html b/templates/caao_admin/time_correction.html
+similarity index 100%
+rename from templates/time_correction.html
+rename to templates/caao_admin/time_correction.html
+diff --git a/templates/user_dtr_details.html b/templates/caao_admin/user_dtr_details.html
+similarity index 100%
+rename from templates/user_dtr_details.html
+rename to templates/caao_admin/user_dtr_details.html
+diff --git a/templates/user_management.html b/templates/caao_admin/user_management.html
+similarity index 100%
+rename from templates/user_management.html
+rename to templates/caao_admin/user_management.html
+diff --git a/templates/user_progress.html b/templates/caao_admin/user_progress.html
+similarity index 100%
+rename from templates/user_progress.html
+rename to templates/caao_admin/user_progress.html
+diff --git a/templates/chat.html b/templates/core/chat.html
+similarity index 62%
+rename from templates/chat.html
+rename to templates/core/chat.html
+index d8659f1..f6d52c2 100644
+--- a/templates/chat.html
++++ b/templates/core/chat.html
+@@ -1,310 +1,11 @@
+ <!DOCTYPE html>
++{% load static %}
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Seiki - Chat</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-      background-color: #f5f5f5;
+-      height: 100vh;
+-      overflow: hidden;
+-    }
+-
+-    /* Header */
+-    .header {
+-      background-color: #003a6c;
+-      padding: 1rem 1.5rem;
+-      color: white;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-      max-width: 1400px;
+-      margin: 0 auto;
+-    }
+-
+-    .header-title {
+-      font-size: 1.5rem;
+-      font-weight: 700;
+-    }
+-
+-    .back-button {
+-      background-color: rgba(255, 255, 255, 0.2);
+-      color: white;
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.5rem;
+-      text-decoration: none;
+-      font-weight: 500;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .back-button:hover {
+-      background-color: rgba(255, 255, 255, 0.3);
+-    }
+-
+-    /* Chat Container */
+-    .chat-container {
+-      display: flex;
+-      height: calc(100vh - 80px);
+-      max-width: 1400px;
+-      margin: 0 auto;
+-      padding: 1rem;
+-      gap: 1rem;
+-    }
+-
+-    /* Users Sidebar */
+-    .users-sidebar {
+-      width: 300px;
+-      background: white;
+-      border-radius: 0.5rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      display: flex;
+-      flex-direction: column;
+-    }
+-
+-    .users-header {
+-      padding: 1rem;
+-      border-bottom: 1px solid #eee;
+-      font-weight: 600;
+-      color: #003a6c;
+-    }
+-
+-    .users-list {
+-      flex: 1;
+-      overflow-y: auto;
+-      padding: 0.5rem;
+-    }
+-
+-    .user-item {
+-      display: flex;
+-      align-items: center;
+-      padding: 0.75rem;
+-      border-radius: 0.5rem;
+-      margin-bottom: 0.5rem;
+-      cursor: pointer;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .user-item:hover {
+-      background-color: #f8f9fa;
+-    }
+-
+-    .user-item.active {
+-      background-color: #e3f2fd;
+-      border-left: 3px solid #003a6c;
+-    }
+-
+-    .user-avatar {
+-      width: 40px;
+-      height: 40px;
+-      border-radius: 50%;
+-      background-color: #003a6c;
+-      color: white;
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      font-weight: 600;
+-      margin-right: 0.75rem;
+-    }
+-
+-    .user-info h4 {
+-      font-size: 0.9rem;
+-      font-weight: 600;
+-      color: #333;
+-      margin-bottom: 0.25rem;
+-    }
+-
+-    .user-info p {
+-      font-size: 0.8rem;
+-      color: #666;
+-    }
+-
+-    .global-chat {
+-      background-color: #f8f9fa;
+-      border: 1px solid #dee2e6;
+-    }
+-
+-    /* Chat Area */
+-    .chat-area {
+-      flex: 1;
+-      background: white;
+-      border-radius: 0.5rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      display: flex;
+-      flex-direction: column;
+-    }
+-
+-    .chat-header {
+-      padding: 1rem;
+-      border-bottom: 1px solid #eee;
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-    }
+-
+-    .chat-title {
+-      font-weight: 600;
+-      color: #003a6c;
+-    }
+-
+-    .chat-status {
+-      font-size: 0.8rem;
+-      color: #666;
+-    }
+-
+-    /* Messages */
+-    .messages-container {
+-      flex: 1;
+-      overflow-y: auto;
+-      padding: 1rem;
+-      display: flex;
+-      flex-direction: column;
+-      gap: 0.75rem;
+-    }
+-
+-    .message {
+-      display: flex;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .message.own {
+-      justify-content: flex-end;
+-    }
+-
+-    .message-content {
+-      max-width: 70%;
+-      padding: 0.75rem;
+-      border-radius: 1rem;
+-      position: relative;
+-    }
+-
+-    .message.own .message-content {
+-      background-color: #003a6c;
+-      color: white;
+-    }
+-
+-    .message.other .message-content {
+-      background-color: #f8f9fa;
+-      color: #333;
+-    }
+-
+-    .message-sender {
+-      font-size: 0.8rem;
+-      font-weight: 600;
+-      margin-bottom: 0.25rem;
+-      color: #666;
+-    }
+-
+-    .message-text {
+-      word-wrap: break-word;
+-    }
+-
+-    .message-time {
+-      font-size: 0.7rem;
+-      opacity: 0.7;
+-      margin-top: 0.25rem;
+-    }
+-
+-    /* Message Input */
+-    .message-input-area {
+-      padding: 1rem;
+-      border-top: 1px solid #eee;
+-      background-color: #f8f9fa;
+-    }
+-
+-    .input-group {
+-      display: flex;
+-      gap: 0.5rem;
+-    }
+-
+-    .message-input {
+-      flex: 1;
+-      padding: 0.75rem;
+-      border: 1px solid #ddd;
+-      border-radius: 0.5rem;
+-      font-size: 1rem;
+-      resize: none;
+-    }
+-
+-    .send-button {
+-      background-color: #003a6c;
+-      color: white;
+-      padding: 0.75rem 1.5rem;
+-      border: none;
+-      border-radius: 0.5rem;
+-      font-weight: 500;
+-      cursor: pointer;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .send-button:hover {
+-      background-color: #002a5c;
+-    }
+-
+-    .send-button:disabled {
+-      background-color: #ccc;
+-      cursor: not-allowed;
+-    }
+-
+-    /* Responsive */
+-    @media (max-width: 768px) {
+-      .chat-container {
+-        flex-direction: column;
+-        height: calc(100vh - 60px);
+-      }
+-
+-      .users-sidebar {
+-        width: 100%;
+-        height: 200px;
+-      }
+-
+-      .users-list {
+-        display: flex;
+-        overflow-x: auto;
+-        padding: 0.5rem;
+-      }
+-
+-      .user-item {
+-        flex-shrink: 0;
+-        width: 120px;
+-        margin-right: 0.5rem;
+-      }
+-
+-      .message-content {
+-        max-width: 85%;
+-      }
+-    }
+-
+-    /* Loading */
+-    .loading {
+-      text-align: center;
+-      padding: 2rem;
+-      color: #666;
+-    }
+-
+-    /* Empty state */
+-    .empty-chat {
+-      text-align: center;
+-      padding: 3rem 1rem;
+-      color: #666;
+-    }
+-
+-    .empty-chat h3 {
+-      margin-bottom: 0.5rem;
+-      color: #003a6c;
+-    }
+-  </style>
++  <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+ </head>
+ <body>
+   <header class="header">
+diff --git a/templates/core/dashboard.html b/templates/core/dashboard.html
+new file mode 100644
+index 0000000..ab7009c
+--- /dev/null
++++ b/templates/core/dashboard.html
+@@ -0,0 +1,171 @@
++<!DOCTYPE html>
++{% load custom_filters static %}
++<html lang="en">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <title>Seiki - Dashboard</title>
++  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
++</head>
++<body>
++  <div class="dashboard-page">
++    <!-- Header -->
++    <div class="dashboard-header">
++      <div class="header-content">
++        <div class="header-left">
++          <div class="header-logo">≡ƒÅá</div>
++          <h1 class="header-title">Dashboard</h1>
++        </div>
++        <div class="header-right">
++          <a href="{% url 'profile' %}" class="header-button">≡ƒæñ Profile</a>
++          <a href="{% url 'logs' %}" class="header-button">≡ƒôï Logs</a>
++          <a href="{% url 'chat' %}" class="header-button">≡ƒÆ¼ Chat</a>
++          {% if user.is_staff %}
++          <a href="{% url 'scanner' %}" class="header-button">≡ƒô╖ Scanner</a>
++          {% endif %}
++          {% if user.is_staff or user.is_superuser %}
++          <a href="{% url 'dtr_approvals' %}" class="header-button">Γ£à DTR Approvals</a>
++          {% endif %}
++          {% if user.is_superuser %}
++          <a href="{% url 'user_management' %}" class="header-button">≡ƒæÑ Users</a>
++          {% endif %}
++          <a href="{% url 'logout' %}" class="header-button">≡ƒÜ¬ Logout</a>
++        </div>
++      </div>
++    </div>
++
++    <!-- Welcome Section -->
++    <div class="welcome-section">
++      <h2 class="welcome-greeting">Welcome back, {{ user.first_name }}! ≡ƒæï</h2>
++      <p class="current-datetime">
++        Today is {{ current_date|date:"l, F j, Y" }} ΓÇó Current time: <span id="current-time">{{ current_time|date:"H:i:s" }}</span>
++      </p>
++    </div>
++
++    <!-- Dashboard Content -->
++    <div class="dashboard-content">
++      <div class="dashboard-grid">
++
++        <!-- QR Code Card - Most Important -->
++        <div class="dashboard-card qr-card">
++          <div class="card-header">
++            <div class="card-icon">≡ƒô▒</div>
++            <h3 class="card-title">Your Attendance QR Code</h3>
++          </div>
++          <div class="card-body">
++            <div class="qr-code-container">
++              <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" class="qr-code" />
++              <p style="margin-top: 1rem; opacity: 0.9;">Scan this code to mark your attendance</p>
++            </div>
++            <div class="qr-info">
++              <p><strong>ID:</strong> {{ user.id }}</p>
++              <p><strong>Username:</strong> {{ user.username }}</p>
++              <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
++            </div>
++          </div>
++        </div>
++
++        <!-- Today's Time Logs -->
++        <div class="dashboard-card">
++          <div class="card-header">
++            <div class="card-icon">≡ƒòÆ</div>
++            <h3 class="card-title">Today's Time Logs</h3>
++          </div>
++          <div class="card-body">
++            {% if today_logs %}
++              <div class="logs-list">
++                {% for log in today_logs %}
++                <div class="log-item">
++                  <div>
++                    <div class="log-time">{{ log.timestamp|date:"H:i" }}</div>
++                    <div style="font-size: 0.75rem; color: #666;">{{ log.timestamp|date:"M j, Y" }}</div>
++                  </div>
++                  <div class="log-type {{ log.record_type }}">
++                    {{ log.get_record_type_display }}
++                  </div>
++                </div>
++                {% endfor %}
++              </div>
++            {% else %}
++              <div class="no-logs">
++                <p>No time logs recorded today yet.</p>
++                <p style="margin-top: 0.5rem;">Use your QR code to check in/out!</p>
++              </div>
++            {% endif %}
++          </div>
++        </div>
++
++        <!-- DTR Status -->
++        <div class="dashboard-card">
++          <div class="card-header">
++            <div class="card-icon">≡ƒôä</div>
++            <h3 class="card-title">DTR Status</h3>
++          </div>
++          <div class="card-body">
++            <div class="dtr-status">
++              {% if dtr_submission %}
++                <div class="status-indicator status-{{ dtr_submission.status }}">
++                  <div class="status-dot"></div>
++                  <span>{{ dtr_submission.get_status_display }}</span>
++                </div>
++                <div class="dtr-details">
++                  <p><strong>Month:</strong> {{ month_names|get_item:dtr_submission.month }} {{ dtr_submission.year }}</p>
++                  <p><strong>Submitted:</strong> {{ dtr_submission.submitted_date|date:"M j, Y" }}</p>
++                  {% if dtr_submission.status == 'approved' and dtr_submission.approved_date %}
++                  <p><strong>Approved:</strong> {{ dtr_submission.approved_date|date:"M j, Y" }}</p>
++                  {% endif %}
++                  {% if dtr_submission.remarks %}
++                  <p><strong>Remarks:</strong> {{ dtr_submission.remarks }}</p>
++                  {% endif %}
++                </div>
++              {% else %}
++                <div class="status-indicator status-none">
++                  <div class="status-dot"></div>
++                  <span>No DTR Submitted</span>
++                </div>
++                <div class="dtr-details">
++                  <p>No DTR submission found for {{ current_date|date:"F Y" }}.</p>
++                  <p style="margin-top: 0.5rem;">Submit your DTR when ready!</p>
++                </div>
++              {% endif %}
++            </div>
++          </div>
++        </div>
++
++        <!-- Today's Hours -->
++        <div class="dashboard-card">
++          <div class="card-header">
++            <div class="card-icon">ΓÅ▒∩╕Å</div>
++            <h3 class="card-title">Today's Hours</h3>
++          </div>
++          <div class="card-body">
++            <div class="hours-summary">
++              <div class="hours-number">{{ today_hours }}</div>
++              <div class="hours-label">hours worked today</div>
++            </div>
++          </div>
++        </div>
++
++      </div>
++    </div>
++  </div>
++
++  <script>
++    // Update current time every second
++    function updateTime() {
++      const now = new Date();
++      const timeString = now.toLocaleTimeString('en-US', {
++        hour12: false,
++        hour: '2-digit',
++        minute: '2-digit',
++        second: '2-digit'
++      });
++      document.getElementById('current-time').textContent = timeString;
++    }
++
++    // Update time immediately and then every second
++    updateTime();
++    setInterval(updateTime, 1000);
++  </script>
++</body>
++</html>
+\ No newline at end of file
+diff --git a/templates/core/index.html b/templates/core/index.html
+new file mode 100644
+index 0000000..a887e88
+--- /dev/null
++++ b/templates/core/index.html
+@@ -0,0 +1,67 @@
++{% load static %}
++<!DOCTYPE html>
++<html lang="en">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <title>Seiki - Login</title>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/login.css' %}">
++</head>
++<body>
++  <div class="login-page">
++    <div class="login-container">
++      <!-- Logo Circle -->
++      <div class="logo-circle">
++        <div class="logo-wrapper"></div>
++      </div>
++
++      <!-- Brand Name -->
++      <h1 class="brand-name">
++        <span class="brand-sei">Sei</span><span class="brand-ki">ki</span>
++      </h1>
++
++      <!-- Error Message -->
++      {% if error %}
++      <div style="background-color: #ff6b6b; color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; text-align: center;">
++        {{ error }}
++      </div>
++      {% endif %}
++
++      <!-- Login Form -->
++      <form class="login-form" method="POST">
++        {% csrf_token %}
++        <!-- Username Field -->
++        <div class="form-group">
++          <label class="form-label">Username</label>
++          <input type="text" class="form-input" name="username" required />
++        </div>
++
++        <!-- Password Field -->
++        <div class="form-group">
++          <label class="form-label">Password</label>
++          <input type="password" class="form-input" name="password" required />
++        </div>
++
++        <!-- Remember Me Checkbox -->
++        <div class="checkbox-group">
++          <input type="checkbox" id="remember" class="checkbox" name="remember" />
++          <label for="remember" class="checkbox-label">Remember me</label>
++        </div>
++
++        <!-- Login Button -->
++        <button type="submit" class="btn-login">Log In</button>
++
++        <!-- Forgot Password Link -->
++        <a href="#" class="forgot-password">Forgot your Password?</a>
++
++        <!-- Gbox Login Button -->
++        <button type="button" class="btn-gbox">Continue with gbox</button>
++      </form>
++
++      <!-- Footer -->
++      <p class="footer-text">Powered by Ateneo de Naga IS</p>
++    </div>
++  </div>
++</body>
++</html>
+diff --git a/templates/core/logs.html b/templates/core/logs.html
+new file mode 100644
+index 0000000..cbe88e2
+--- /dev/null
++++ b/templates/core/logs.html
+@@ -0,0 +1,77 @@
++{% load static %}
++<!DOCTYPE html>
++<html lang="en">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <title>Seiki - Logs</title>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/logs.css' %}">
++</head>
++<body>
++  <div class="logs-page">
++    <!-- Header -->
++    <div class="logs-header">
++      <div class="header-content">
++        <div class="header-logo"></div>
++        <h1 class="header-title">Log History</h1>
++      </div>
++    </div>
++
++    <!-- Content -->
++    <div class="logs-content">
++      
++      <!-- Date Range Selector -->
++      <div class="date-selector">
++        <button class="date-button">
++          <span class="date-text">Select Date Range</span>
++          <span class="calendar-icon"></span>
++        </button>
++      </div>
++
++      <!-- Current Week & Submit Button -->
++      <div class="week-header">
++        <span class="week-label">Current Week</span>
++        <a href="{% url 'monthly_dtr' %}" class="btn-submit" style="text-decoration: none; display: inline-block;">Submit DTR</a>
++      </div>
++
++      <!-- Logs Table -->
++      <div class="logs-table">
++        <!-- Table Header -->
++        <div class="table-header">
++          <div>Date</div>
++          <div>Time In</div>
++          <div>Time Out</div>
++          <div>Duration</div>
++        </div>
++
++        <!-- Table Body -->
++        <div class="table-body">
++          {% if logs_data %}
++            {% for log_entry in logs_data %}
++            <div class="table-row">
++              <div class="row-date">{{ log_entry.date|date:"M d" }}</div>
++              <div class="row-time">
++                <div>{% if log_entry.time_in %}{{ log_entry.time_in|date:"h:i A" }}{% else %}-{% endif %}</div>
++              </div>
++              <div class="row-time">
++                <div>{% if log_entry.time_out %}{{ log_entry.time_out|date:"h:i A" }}{% else %}-{% endif %}</div>
++              </div>
++              <div class="row-hours">
++                <div>{{ log_entry.duration }}</div>
++              </div>
++            </div>
++            {% endfor %}
++          {% else %}
++            <div class="table-row">
++              <div colspan="4" style="text-align: center; padding: 1rem; color: #999;">
++                No time records yet
++              </div>
++            </div>
++          {% endif %}
++        </div>
++      </div>
++    </div>
++  </div>
++</body>
++</html>
+diff --git a/templates/core/monthly_dtr.html b/templates/core/monthly_dtr.html
+new file mode 100644
+index 0000000..77810f8
+--- /dev/null
++++ b/templates/core/monthly_dtr.html
+@@ -0,0 +1,159 @@
++{% load static %}
++<!DOCTYPE html>
++<html lang="en">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <title>Seiki - Monthly DTR</title>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/monthly_dtr.css' %}">
++</head>
++<body>
++  <header class="header">
++    <div class="header-content">
++      <h1 class="header-title">Monthly DTR</h1>
++      <div style="display: flex; gap: 1rem;">
++        <a href="{% url 'chat' %}" style="background-color: rgba(32, 201, 151, 0.2); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 500;">≡ƒÆ¼ Chat</a>
++        <a href="{% url 'logs' %}" class="back-button">Back to Logs</a>
++      </div>
++    </div>
++  </header>
++
++  <main class="main-content">
++    <!-- Messages -->
++    {% if messages %}
++      <div class="messages">
++        {% for message in messages %}
++          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
++            {{ message }}
++          </div>
++        {% endfor %}
++      </div>
++    {% endif %}
++
++    <!-- Month Selector -->
++    <div class="month-selector">
++      <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
++        <label for="month-select" style="font-weight: 500;">Select Month:</label>
++        <input type="month" id="month-select" name="month_year" value="{{ year }}-{% if month < 10 %}0{% endif %}{{ month }}" class="month-input">
++        <button type="submit" class="month-button">View DTR</button>
++      </form>
++    </div>
++
++    <!-- DTR Info -->
++    <div class="dtr-info">
++      <div class="dtr-month">{{ month_name }} {{ year }} DTR Summary</div>
++      <div class="dtr-stats">
++        <div class="stat-item">
++          <h3>Total Hours</h3>
++          <div class="stat-value">{{ total_hours_formatted }}</div>
++        </div>
++        <div class="stat-item">
++          <h3>Days Worked</h3>
++          <div class="stat-value">{{ daily_records|length }}</div>
++        </div>
++        <div class="stat-item">
++          <h3>Status</h3>
++          <div class="stat-value">
++            {% if dtr_submission %}
++              {% if dtr_submission.status == 'pending' %}
++                <span style="font-size: 1rem;">Pending</span>
++              {% elif dtr_submission.status == 'approved' %}
++                <span style="font-size: 1rem;">Γ£ô Approved</span>
++              {% else %}
++                <span style="font-size: 1rem;">Γ£ù Rejected</span>
++              {% endif %}
++            {% else %}
++              <span style="font-size: 1rem;">Not Submitted</span>
++            {% endif %}
++          </div>
++        </div>
++      </div>
++    </div>
++
++    <!-- Status Section -->
++    {% if dtr_submission %}
++      <div class="status-section">
++        <div class="status-title">Submission Status</div>
++        <span class="status-badge status-{{ dtr_submission.status }}">
++          {% if dtr_submission.status == 'pending' %}
++            Pending Approval
++          {% elif dtr_submission.status == 'approved' %}
++            Approved
++          {% else %}
++            Rejected
++          {% endif %}
++        </span>
++        <div class="status-info">
++          Submitted on: {{ dtr_submission.submitted_date|date:"M d, Y H:i" }}
++          {% if dtr_submission.approved_date %}
++            <br>Processed on: {{ dtr_submission.approved_date|date:"M d, Y H:i" }}
++            {% if dtr_submission.approver %}
++              <br>By: {{ dtr_submission.approver.first_name }} {{ dtr_submission.approver.last_name }}
++            {% endif %}
++          {% endif %}
++          {% if dtr_submission.remarks %}
++            <br><strong>Remarks:</strong> {{ dtr_submission.remarks }}
++          {% endif %}
++        </div>
++      </div>
++    {% endif %}
++
++    <!-- Records Table -->
++    <div class="records-section">
++      <div class="records-title">Daily Records for {{ month_name }} {{ year }}</div>
++      {% if daily_records %}
++        <div style="overflow-x: auto;">
++          <table class="records-table">
++            <thead>
++              <tr>
++                <th>Date</th>
++                <th>Time In</th>
++                <th>Time Out</th>
++                <th>Cumulative Hours</th>
++              </tr>
++            </thead>
++            <tbody>
++              {% for date, record in daily_records %}
++                <tr>
++                  <td>{{ date|date:"l, M d, Y" }}</td>
++                  <td>{{ record.in|date:"H:i"|default:"-" }}</td>
++                  <td>{{ record.out|date:"H:i"|default:"-" }}</td>
++                  <td>{{ record.cumulative_duration_formatted|default:"0h 0m" }}</td>
++                </tr>
++              {% endfor %}
++            </tbody>
++          </table>
++        </div>
++      {% else %}
++        <div class="no-records">
++          No time records found for {{ month_name }} {{ year }}
++        </div>
++      {% endif %}
++    </div>
++
++    <!-- Submit Section -->
++    {% if can_submit %}
++      <div class="action-section">
++        <h2 style="margin-bottom: 1rem; color: #003a6c;">Submit DTR</h2>
++        <form method="post" action="{% url 'submit_dtr' %}" class="submit-form">
++          {% csrf_token %}
++          <input type="hidden" name="month" value="{{ month }}">
++          <input type="hidden" name="year" value="{{ year }}">
++          <button type="submit" class="submit-button">Submit DTR for {{ month_name }} {{ year }}</button>
++        </form>
++        <div class="button-info">
++          Once submitted, your DTR will be sent for approval. You can review it but cannot edit after submission.
++        </div>
++      </div>
++    {% else %}
++      <div class="action-section">
++        <div style="color: #666; font-size: 1.1rem;">
++          DTR for {{ month_name }} {{ year }} has already been submitted{% if dtr_submission.status != 'pending' %} and {{ dtr_submission.status }}{% endif %}
++        </div>
++        <button class="submit-button" disabled>Already Submitted</button>
++      </div>
++    {% endif %}
++  </main>
++</body>
++</html>
+\ No newline at end of file
+diff --git a/templates/notification.html b/templates/core/notification.html
+similarity index 53%
+rename from templates/notification.html
+rename to templates/core/notification.html
+index 20c3493..59099d0 100644
+--- a/templates/notification.html
++++ b/templates/core/notification.html
+@@ -1,214 +1,12 @@
++{% load static %}
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Seiki - Notifications</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-    }
+-
+-    /* Notifications Page */
+-    .notifications-page {
+-      min-height: 100vh;
+-      background-color: #dbdbdb;
+-      padding-bottom: 1rem;
+-    }
+-
+-    /* Header */
+-    .notifications-header {
+-      background-color: #003a6c;
+-      padding: 2rem 1.5rem 1.5rem;
+-      border-bottom-left-radius: 0.5rem;
+-      border-bottom-right-radius: 0.5rem;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      position: relative;
+-    }
+-
+-    .header-logo {
+-      position: absolute;
+-      right: 0;
+-      width: 4rem;
+-      height: 4rem;
+-      background-color: #d9d9d9;
+-      border-radius: 50%;
+-    }
+-
+-    .header-title {
+-      font-size: 1.125rem;
+-      font-weight: 800;
+-      color: white;
+-    }
+-
+-    /* Filter Buttons */
+-    .filter-buttons {
+-      display: flex;
+-      gap: 0.5rem;
+-      padding: 1rem;
+-      margin-top: 1rem;
+-    }
+-
+-    .filter-btn {
+-      flex: 1;
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.375rem;
+-      border: none;
+-      font-weight: 600;
+-      cursor: pointer;
+-      transition: all 0.2s;
+-      background-color: white;
+-      color: black;
+-    }
+-
+-    .filter-btn:hover {
+-      background-color: #f3f4f6;
+-    }
+-
+-    .filter-active {
+-      background-color: #003a6c;
+-      color: white;
+-    }
+-
+-    .filter-active:hover {
+-      background-color: #002a4c;
+-    }
+-
+-    /* Notifications List */
+-    .notifications-list {
+-      padding: 1rem;
+-      margin-top: 1rem;
+-    }
+-
+-    .notifications-grid {
+-      display: grid;
+-      grid-template-columns: 1fr;
+-      gap: 0.75rem;
+-    }
+-
+-    /* Notification Card */
+-    .notification-card {
+-      background-color: #003a6c;
+-      border-radius: 0.5rem;
+-      padding: 2px;
+-    }
+-
+-    .card-border {
+-      background-color: white;
+-      border-radius: 0.375rem;
+-      position: relative;
+-    }
+-
+-    .card-content {
+-      padding: 1rem;
+-      position: relative;
+-    }
+-
+-    /* Color Indicator */
+-    .indicator {
+-      position: absolute;
+-      left: 0.75rem;
+-      top: 1rem;
+-      width: 0.75rem;
+-      height: 0.75rem;
+-      border-radius: 0.125rem;
+-    }
+-
+-    .indicator-approved {
+-      background-color: #9df9a5;
+-    }
+-
+-    .indicator-rejected {
+-      background-color: #ff5b6e;
+-    }
+-
+-    .indicator-reminder {
+-      background-color: #e9f655;
+-    }
+-
+-    /* Content */
+-    .notif-content {
+-      margin-left: 1.5rem;
+-    }
+-
+-    .notif-title {
+-      font-size: 0.875rem;
+-      font-weight: 700;
+-      margin-bottom: 0.25rem;
+-    }
+-
+-    .notif-message {
+-      font-size: 0.75rem;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .notif-message p {
+-      margin: 0.125rem 0;
+-    }
+-
+-    .notif-time {
+-      font-size: 0.75rem;
+-      color: #6b7280;
+-    }
+-
+-    /* Responsive - Tablet/Desktop */
+-    @media (min-width: 768px) {
+-      .notifications-header {
+-        padding: 2.5rem 3rem 2rem;
+-        border-radius: 0;
+-      }
+-
+-      .header-content {
+-        justify-content: flex-start;
+-      }
+-
+-      .header-logo {
+-        position: static;
+-        width: 3rem;
+-        height: 3rem;
+-        margin-right: 1rem;
+-      }
+-
+-      .header-title {
+-        font-size: 1.5rem;
+-      }
+-
+-      .filter-buttons {
+-        padding: 1.5rem 3rem 0;
+-      }
+-
+-      .filter-btn {
+-        flex: 0;
+-        padding: 0.5rem 2rem;
+-      }
+-
+-      .notifications-list {
+-        padding: 1.5rem 3rem;
+-      }
+-    }
+-
+-    @media (min-width: 1024px) {
+-      .notifications-list {
+-        padding: 1.5rem 4rem;
+-      }
+-
+-      .notifications-grid {
+-        grid-template-columns: repeat(2, 1fr);
+-        gap: 1rem;
+-      }
+-    }
+-  </style>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/notification.css' %}">
+ </head>
+ <body>
+   <div class="notifications-page">
+diff --git a/templates/profile.html b/templates/core/profile.html
+similarity index 51%
+rename from templates/profile.html
+rename to templates/core/profile.html
+index 03c9697..e486c44 100644
+--- a/templates/profile.html
++++ b/templates/core/profile.html
+@@ -1,333 +1,12 @@
++{% load static %}
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Seiki - Profile</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-    }
+-
+-    /* Profile Page */
+-    .profile-page {
+-      min-height: 100vh;
+-      background-color: #dbdbdb;
+-      padding-bottom: 1rem;
+-    }
+-
+-    /* Header */
+-    .profile-header {
+-      background-color: #003a6c;
+-      padding: 2rem 1.5rem 3rem;
+-      border-bottom-left-radius: 0.5rem;
+-      border-bottom-right-radius: 0.5rem;
+-      position: relative;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      position: relative;
+-    }
+-
+-    .header-logo {
+-      position: absolute;
+-      left: 0;
+-      width: 4rem;
+-      height: 4rem;
+-      transform: rotate(-3deg);
+-      background-color: #d9d9d9;
+-      border-radius: 50%;
+-    }
+-
+-    .header-title {
+-      font-size: 1.125rem;
+-      font-weight: 800;
+-      color: white;
+-    }
+-
+-    /* Profile Picture */
+-    .profile-picture {
+-      display: flex;
+-      justify-content: center;
+-      margin-top: 1rem;
+-    }
+-
+-    .picture-outer {
+-      width: 6rem;
+-      height: 6rem;
+-      background-color: #d9d9d9;
+-      border-radius: 50%;
+-      padding: 4px;
+-    }
+-
+-    .picture-middle {
+-      width: 100%;
+-      height: 100%;
+-      background-color: #003a6c;
+-      border-radius: 50%;
+-      padding: 4px;
+-    }
+-
+-    .picture-inner {
+-      width: 100%;
+-      height: 100%;
+-      background-color: white;
+-      border-radius: 50%;
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-    }
+-
+-    .picture-initial {
+-      font-size: 2.25rem;
+-      font-weight: 700;
+-      color: #003a6c;
+-    }
+-
+-    /* Profile Info */
+-    .profile-info {
+-      text-align: center;
+-      margin-top: 0.75rem;
+-    }
+-
+-    .profile-name {
+-      font-size: 1rem;
+-      font-weight: 700;
+-      color: white;
+-    }
+-
+-    .profile-office {
+-      font-size: 0.75rem;
+-      font-weight: 500;
+-      color: black;
+-    }
+-
+-    .profile-status {
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      gap: 0.25rem;
+-      margin-top: 0.25rem;
+-    }
+-
+-    .status-dot {
+-      width: 0.5rem;
+-      height: 0.5rem;
+-      background-color: #9df9a5;
+-      border-radius: 50%;
+-    }
+-
+-    .status-text {
+-      font-size: 0.625rem;
+-      font-weight: 500;
+-      color: #9df9a5;
+-    }
+-
+-    /* Content */
+-    .profile-content {
+-      padding: 1rem;
+-      margin-top: 1rem;
+-    }
+-
+-    .content-grid {
+-      display: grid;
+-      grid-template-columns: 1fr;
+-      gap: 1rem;
+-    }
+-
+-    /* Cards */
+-    .info-card,
+-    .progress-card {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      overflow: hidden;
+-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .card-body {
+-      padding: 1rem;
+-    }
+-
+-    .card-title {
+-      font-size: 0.875rem;
+-      font-weight: 700;
+-      margin-bottom: 0.75rem;
+-    }
+-
+-    /* Student Information */
+-    .info-list {
+-      display: flex;
+-      flex-direction: column;
+-      gap: 0.75rem;
+-    }
+-
+-    .info-item {
+-      display: flex;
+-      align-items: flex-start;
+-      gap: 0.5rem;
+-      padding-bottom: 0.75rem;
+-      border-bottom: 1px solid #a9a9a9;
+-    }
+-
+-    .info-item-last {
+-      border-bottom: none;
+-    }
+-
+-    .info-icon {
+-      width: 1rem;
+-      height: 1rem;
+-      margin-top: 0.125rem;
+-    }
+-
+-    .info-details {
+-      flex: 1;
+-    }
+-
+-    .info-label {
+-      font-size: 0.75rem;
+-      margin-bottom: 0.25rem;
+-    }
+-
+-    .info-value {
+-      font-size: 0.75rem;
+-      font-weight: 600;
+-    }
+-
+-    .info-value-bold {
+-      font-weight: 700;
+-    }
+-
+-    /* Work Progress */
+-    .progress-container {
+-      margin-bottom: 1rem;
+-    }
+-
+-    .progress-bar {
+-      position: relative;
+-      height: 1.5rem;
+-      background-color: #d9d9d9;
+-      border-radius: 0.125rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      overflow: hidden;
+-    }
+-
+-    .progress-fill {
+-      position: absolute;
+-      inset: 0;
+-      background-color: #9df9a5;
+-      border-radius: 0.125rem;
+-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .progress-percentage {
+-      display: flex;
+-      justify-content: flex-end;
+-      margin-top: 0.25rem;
+-    }
+-
+-    .progress-percentage span {
+-      font-size: 0.75rem;
+-      font-weight: 700;
+-      color: #6a6a6a;
+-    }
+-
+-    /* Hours Information */
+-    .hours-info {
+-      display: flex;
+-      flex-direction: column;
+-      gap: 0.5rem;
+-      font-size: 0.75rem;
+-    }
+-
+-    .hours-row {
+-      display: flex;
+-      justify-content: space-between;
+-    }
+-
+-    .hours-bold {
+-      font-weight: 700;
+-    }
+-
+-    .hours-rendered {
+-      font-weight: 800;
+-      color: #9df9a5;
+-    }
+-
+-    .hours-remaining {
+-      font-weight: 700;
+-      color: #ff5b6e;
+-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+-    }
+-
+-    /* Responsive - Tablet/Desktop */
+-    @media (min-width: 768px) {
+-      .profile-header {
+-        padding: 2.5rem 3rem 4rem;
+-        border-radius: 0;
+-      }
+-
+-      .header-content {
+-        justify-content: flex-start;
+-      }
+-
+-      .header-logo {
+-        position: static;
+-        width: 3rem;
+-        height: 3rem;
+-        margin-right: 1rem;
+-        transform: rotate(0);
+-      }
+-
+-      .header-title {
+-        font-size: 1.5rem;
+-      }
+-
+-      .picture-outer {
+-        width: 8rem;
+-        height: 8rem;
+-      }
+-
+-      .picture-initial {
+-        font-size: 3rem;
+-      }
+-
+-      .profile-name {
+-        font-size: 1.125rem;
+-      }
+-
+-      .profile-office {
+-        font-size: 0.875rem;
+-      }
+-
+-      .status-text {
+-        font-size: 0.75rem;
+-      }
+-
+-      .profile-content {
+-        padding: 1.5rem 3rem;
+-      }
+-    }
+-
+-    @media (min-width: 1024px) {
+-      .profile-content {
+-        padding: 1.5rem 4rem;
+-      }
+-
+-      .content-grid {
+-        grid-template-columns: repeat(2, 1fr);
+-        gap: 1.5rem;
+-      }
+-    }
+-  </style>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+ </head>
+ <body>
+   <div class="profile-page">
+diff --git a/templates/core/qr.html b/templates/core/qr.html
+new file mode 100644
+index 0000000..6dc2419
+--- /dev/null
++++ b/templates/core/qr.html
+@@ -0,0 +1,45 @@
++{% load static %}
++<!DOCTYPE html>
++<html lang="en">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <title>Seiki - QR Code</title>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/qr.css' %}">
++</head>
++<body>
++  <div class="qr-page">
++    <!-- Header -->
++    <div class="qr-header">
++      <div class="header-content">
++        <div class="header-logo"></div>
++        <h1 class="header-title">Attendance QR Code</h1>
++      </div>
++    </div>
++
++    <!-- Content -->
++    <div class="qr-content">
++      <div class="qr-card">
++        <h2 class="qr-title">Your Attendance QR Code</h2>
++        <p class="qr-subtitle">Scan this code to mark your attendance</p>
++
++        <!-- QR Code -->
++        <div class="qr-code">
++          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" />
++        </div>
++
++        <!-- User Info -->
++        <div class="qr-info">
++          <p><strong>User ID:</strong> {{ user.id }}</p>
++          <p><strong>Username:</strong> {{ user.username }}</p>
++          <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
++        </div>
++
++        <!-- Back Button -->
++        <a href="{% url 'dashboard' %}" class="back-button">Back to Dashboard</a>
++      </div>
++    </div>
++  </div>
++</body>
++</html>
+\ No newline at end of file
+diff --git a/templates/dashboard.html b/templates/dashboard.html
+deleted file mode 100644
+index 9738c5b..0000000
+--- a/templates/dashboard.html
++++ /dev/null
+@@ -1,532 +0,0 @@
+-<!DOCTYPE html>
+-{% load custom_filters %}
+-<html lang="en">
+-<head>
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Seiki - Dashboard</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-      background-color: #f8f9fa;
+-    }
+-
+-    /* Dashboard Page */
+-    .dashboard-page {
+-      min-height: 100vh;
+-      background-color: #f8f9fa;
+-    }
+-
+-    /* Header */
+-    .dashboard-header {
+-      background: linear-gradient(135deg, #003a6c 0%, #0059ff 100%);
+-      padding: 2rem 1.5rem 3rem;
+-      border-bottom-left-radius: 1rem;
+-      border-bottom-right-radius: 1rem;
+-      position: relative;
+-      color: white;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-      max-width: 1200px;
+-      margin: 0 auto;
+-    }
+-
+-    .header-left {
+-      display: flex;
+-      align-items: center;
+-      gap: 1rem;
+-    }
+-
+-    .header-logo {
+-      width: 3rem;
+-      height: 3rem;
+-      background-color: rgba(255, 255, 255, 0.2);
+-      border-radius: 50%;
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      font-size: 1.5rem;
+-    }
+-
+-    .header-title {
+-      font-size: 1.5rem;
+-      font-weight: 700;
+-    }
+-
+-    .header-right {
+-      display: flex;
+-      gap: 0.5rem;
+-      flex-wrap: wrap;
+-    }
+-
+-    .header-button {
+-      color: white;
+-      text-decoration: none;
+-      font-size: 0.875rem;
+-      background-color: rgba(255, 255, 255, 0.2);
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.5rem;
+-      font-weight: 500;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .header-button:hover {
+-      background-color: rgba(255, 255, 255, 0.3);
+-    }
+-
+-    /* Welcome Section */
+-    .welcome-section {
+-      text-align: center;
+-      margin-top: 1rem;
+-      margin-bottom: 2rem;
+-    }
+-
+-    .welcome-greeting {
+-      font-size: 1.25rem;
+-      font-weight: 600;
+-      color: #003a6c;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .current-datetime {
+-      font-size: 0.875rem;
+-      color: #666;
+-    }
+-
+-    /* Dashboard Grid */
+-    .dashboard-content {
+-      max-width: 1200px;
+-      margin: 0 auto;
+-      padding: 0 1.5rem 2rem;
+-    }
+-
+-    .dashboard-grid {
+-      display: grid;
+-      grid-template-columns: 1fr;
+-      gap: 1.5rem;
+-    }
+-
+-    /* Cards */
+-    .dashboard-card {
+-      background: white;
+-      border-radius: 1rem;
+-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+-      overflow: hidden;
+-      transition: transform 0.2s, box-shadow 0.2s;
+-    }
+-
+-    .dashboard-card:hover {
+-      transform: translateY(-2px);
+-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .card-header {
+-      background: linear-gradient(135deg, #003a6c 0%, #0059ff 100%);
+-      color: white;
+-      padding: 1rem 1.5rem;
+-      display: flex;
+-      align-items: center;
+-      gap: 0.75rem;
+-    }
+-
+-    .card-icon {
+-      width: 2rem;
+-      height: 2rem;
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      font-size: 1.25rem;
+-    }
+-
+-    .card-title {
+-      font-size: 1.125rem;
+-      font-weight: 600;
+-      margin: 0;
+-    }
+-
+-    .card-body {
+-      padding: 1.5rem;
+-    }
+-
+-    /* QR Code Card - Most Important */
+-    .qr-card {
+-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+-      color: white;
+-    }
+-
+-    .qr-card .card-header {
+-      background: rgba(255, 255, 255, 0.1);
+-      backdrop-filter: blur(10px);
+-    }
+-
+-    .qr-code-container {
+-      text-align: center;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .qr-code {
+-      width: 200px;
+-      height: 200px;
+-      border: 3px solid rgba(255, 255, 255, 0.3);
+-      border-radius: 1rem;
+-      margin: 0 auto 1rem;
+-      display: block;
+-    }
+-
+-    .qr-info {
+-      background: rgba(255, 255, 255, 0.1);
+-      padding: 1rem;
+-      border-radius: 0.5rem;
+-      margin-top: 1rem;
+-    }
+-
+-    .qr-info p {
+-      margin-bottom: 0.5rem;
+-      font-size: 0.875rem;
+-    }
+-
+-    /* Time Logs Card */
+-    .logs-list {
+-      display: flex;
+-      flex-direction: column;
+-      gap: 0.75rem;
+-    }
+-
+-    .log-item {
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-      padding: 1rem;
+-      background: #f8f9fa;
+-      border-radius: 0.5rem;
+-      border-left: 4px solid #003a6c;
+-    }
+-
+-    .log-time {
+-      font-weight: 600;
+-      color: #003a6c;
+-    }
+-
+-    .log-type {
+-      padding: 0.25rem 0.75rem;
+-      border-radius: 1rem;
+-      font-size: 0.75rem;
+-      font-weight: 600;
+-      text-transform: uppercase;
+-    }
+-
+-    .log-type.in {
+-      background: #d4edda;
+-      color: #155724;
+-    }
+-
+-    .log-type.out {
+-      background: #f8d7da;
+-      color: #721c24;
+-    }
+-
+-    .no-logs {
+-      text-align: center;
+-      color: #666;
+-      padding: 2rem;
+-      font-style: italic;
+-    }
+-
+-    /* DTR Status Card */
+-    .dtr-status {
+-      text-align: center;
+-    }
+-
+-    .status-indicator {
+-      display: inline-flex;
+-      align-items: center;
+-      gap: 0.5rem;
+-      padding: 0.75rem 1.5rem;
+-      border-radius: 2rem;
+-      font-weight: 600;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .status-dot {
+-      width: 1rem;
+-      height: 1rem;
+-      border-radius: 50%;
+-    }
+-
+-    .status-pending {
+-      background: #fff3cd;
+-      color: #856404;
+-    }
+-
+-    .status-pending .status-dot {
+-      background: #ffc107;
+-    }
+-
+-    .status-approved {
+-      background: #d4edda;
+-      color: #155724;
+-    }
+-
+-    .status-approved .status-dot {
+-      background: #28a745;
+-    }
+-
+-    .status-rejected {
+-      background: #f8d7da;
+-      color: #721c24;
+-    }
+-
+-    .status-rejected .status-dot {
+-      background: #dc3545;
+-    }
+-
+-    .status-none {
+-      background: #e2e3e5;
+-      color: #383d41;
+-    }
+-
+-    .status-none .status-dot {
+-      background: #6c757d;
+-    }
+-
+-    .dtr-details {
+-      background: #f8f9fa;
+-      padding: 1rem;
+-      border-radius: 0.5rem;
+-      margin-top: 1rem;
+-    }
+-
+-    .dtr-details p {
+-      margin-bottom: 0.5rem;
+-      font-size: 0.875rem;
+-    }
+-
+-    /* Today's Hours Card */
+-    .hours-summary {
+-      text-align: center;
+-    }
+-
+-    .hours-number {
+-      font-size: 2.5rem;
+-      font-weight: 700;
+-      color: #003a6c;
+-      margin: 1rem 0;
+-    }
+-
+-    .hours-label {
+-      color: #666;
+-      font-size: 0.875rem;
+-    }
+-
+-    /* Responsive */
+-    @media (min-width: 768px) {
+-      .dashboard-grid {
+-        grid-template-columns: repeat(2, 1fr);
+-      }
+-
+-      .qr-card {
+-        grid-column: span 2;
+-      }
+-    }
+-
+-    @media (min-width: 1024px) {
+-      .dashboard-grid {
+-        grid-template-columns: repeat(3, 1fr);
+-      }
+-
+-      .qr-card {
+-        grid-column: span 3;
+-      }
+-    }
+-
+-    /* Mobile adjustments */
+-    @media (max-width: 767px) {
+-      .header-content {
+-        flex-direction: column;
+-        gap: 1rem;
+-        text-align: center;
+-      }
+-
+-      .header-right {
+-        justify-content: center;
+-      }
+-
+-      .qr-code {
+-        width: 150px;
+-        height: 150px;
+-      }
+-    }
+-  </style>
+-</head>
+-<body>
+-  <div class="dashboard-page">
+-    <!-- Header -->
+-    <div class="dashboard-header">
+-      <div class="header-content">
+-        <div class="header-left">
+-          <div class="header-logo">≡ƒÅá</div>
+-          <h1 class="header-title">Dashboard</h1>
+-        </div>
+-        <div class="header-right">
+-          <a href="{% url 'profile' %}" class="header-button">≡ƒæñ Profile</a>
+-          <a href="{% url 'logs' %}" class="header-button">≡ƒôï Logs</a>
+-          <a href="{% url 'chat' %}" class="header-button">≡ƒÆ¼ Chat</a>
+-          {% if user.is_staff %}
+-          <a href="{% url 'scanner' %}" class="header-button">≡ƒô╖ Scanner</a>
+-          {% endif %}
+-          {% if user.is_staff or user.is_superuser %}
+-          <a href="{% url 'dtr_approvals' %}" class="header-button">Γ£à DTR Approvals</a>
+-          {% endif %}
+-          {% if user.is_superuser %}
+-          <a href="{% url 'user_management' %}" class="header-button">≡ƒæÑ Users</a>
+-          {% endif %}
+-          <a href="{% url 'logout' %}" class="header-button">≡ƒÜ¬ Logout</a>
+-        </div>
+-      </div>
+-    </div>
+-
+-    <!-- Welcome Section -->
+-    <div class="welcome-section">
+-      <h2 class="welcome-greeting">Welcome back, {{ user.first_name }}! ≡ƒæï</h2>
+-      <p class="current-datetime">
+-        Today is {{ current_date|date:"l, F j, Y" }} ΓÇó Current time: <span id="current-time">{{ current_time|date:"H:i:s" }}</span>
+-      </p>
+-    </div>
+-
+-    <!-- Dashboard Content -->
+-    <div class="dashboard-content">
+-      <div class="dashboard-grid">
+-
+-        <!-- QR Code Card - Most Important -->
+-        <div class="dashboard-card qr-card">
+-          <div class="card-header">
+-            <div class="card-icon">≡ƒô▒</div>
+-            <h3 class="card-title">Your Attendance QR Code</h3>
+-          </div>
+-          <div class="card-body">
+-            <div class="qr-code-container">
+-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" class="qr-code" />
+-              <p style="margin-top: 1rem; opacity: 0.9;">Scan this code to mark your attendance</p>
+-            </div>
+-            <div class="qr-info">
+-              <p><strong>ID:</strong> {{ user.id }}</p>
+-              <p><strong>Username:</strong> {{ user.username }}</p>
+-              <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+-            </div>
+-          </div>
+-        </div>
+-
+-        <!-- Today's Time Logs -->
+-        <div class="dashboard-card">
+-          <div class="card-header">
+-            <div class="card-icon">≡ƒòÆ</div>
+-            <h3 class="card-title">Today's Time Logs</h3>
+-          </div>
+-          <div class="card-body">
+-            {% if today_logs %}
+-              <div class="logs-list">
+-                {% for log in today_logs %}
+-                <div class="log-item">
+-                  <div>
+-                    <div class="log-time">{{ log.timestamp|date:"H:i" }}</div>
+-                    <div style="font-size: 0.75rem; color: #666;">{{ log.timestamp|date:"M j, Y" }}</div>
+-                  </div>
+-                  <div class="log-type {{ log.record_type }}">
+-                    {{ log.get_record_type_display }}
+-                  </div>
+-                </div>
+-                {% endfor %}
+-              </div>
+-            {% else %}
+-              <div class="no-logs">
+-                <p>No time logs recorded today yet.</p>
+-                <p style="margin-top: 0.5rem;">Use your QR code to check in/out!</p>
+-              </div>
+-            {% endif %}
+-          </div>
+-        </div>
+-
+-        <!-- DTR Status -->
+-        <div class="dashboard-card">
+-          <div class="card-header">
+-            <div class="card-icon">≡ƒôä</div>
+-            <h3 class="card-title">DTR Status</h3>
+-          </div>
+-          <div class="card-body">
+-            <div class="dtr-status">
+-              {% if dtr_submission %}
+-                <div class="status-indicator status-{{ dtr_submission.status }}">
+-                  <div class="status-dot"></div>
+-                  <span>{{ dtr_submission.get_status_display }}</span>
+-                </div>
+-                <div class="dtr-details">
+-                  <p><strong>Month:</strong> {{ month_names|get_item:dtr_submission.month }} {{ dtr_submission.year }}</p>
+-                  <p><strong>Submitted:</strong> {{ dtr_submission.submitted_date|date:"M j, Y" }}</p>
+-                  {% if dtr_submission.status == 'approved' and dtr_submission.approved_date %}
+-                  <p><strong>Approved:</strong> {{ dtr_submission.approved_date|date:"M j, Y" }}</p>
+-                  {% endif %}
+-                  {% if dtr_submission.remarks %}
+-                  <p><strong>Remarks:</strong> {{ dtr_submission.remarks }}</p>
+-                  {% endif %}
+-                </div>
+-              {% else %}
+-                <div class="status-indicator status-none">
+-                  <div class="status-dot"></div>
+-                  <span>No DTR Submitted</span>
+-                </div>
+-                <div class="dtr-details">
+-                  <p>No DTR submission found for {{ current_date|date:"F Y" }}.</p>
+-                  <p style="margin-top: 0.5rem;">Submit your DTR when ready!</p>
+-                </div>
+-              {% endif %}
+-            </div>
+-          </div>
+-        </div>
+-
+-        <!-- Today's Hours -->
+-        <div class="dashboard-card">
+-          <div class="card-header">
+-            <div class="card-icon">ΓÅ▒∩╕Å</div>
+-            <h3 class="card-title">Today's Hours</h3>
+-          </div>
+-          <div class="card-body">
+-            <div class="hours-summary">
+-              <div class="hours-number">{{ today_hours }}</div>
+-              <div class="hours-label">hours worked today</div>
+-            </div>
+-          </div>
+-        </div>
+-
+-      </div>
+-    </div>
+-  </div>
+-
+-  <script>
+-    // Update current time every second
+-    function updateTime() {
+-      const now = new Date();
+-      const timeString = now.toLocaleTimeString('en-US', {
+-        hour12: false,
+-        hour: '2-digit',
+-        minute: '2-digit',
+-        second: '2-digit'
+-      });
+-      document.getElementById('current-time').textContent = timeString;
+-    }
+-
+-    // Update time immediately and then every second
+-    updateTime();
+-    setInterval(updateTime, 1000);
+-  </script>
+-</body>
+-</html>
+\ No newline at end of file
+diff --git a/templates/index.html b/templates/index.html
+deleted file mode 100644
+index d80736a..0000000
+--- a/templates/index.html
++++ /dev/null
+@@ -1,251 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Seiki - Login</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-    }
+-
+-    /* Login Page */
+-    .login-page {
+-      min-height: 100vh;
+-      background-color: #003a6c;
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      padding: 1rem;
+-    }
+-
+-    .login-container {
+-      width: 100%;
+-      max-width: 28rem;
+-    }
+-
+-    /* Logo */
+-    .logo-circle {
+-      display: flex;
+-      justify-content: center;
+-      margin-bottom: 2rem;
+-    }
+-
+-    .logo-wrapper {
+-      position: relative;
+-      width: 6rem;
+-      height: 6rem;
+-      background-color: #d9d9d9;
+-      border-radius: 50%;
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      overflow: hidden;
+-    }
+-
+-    .logo-image {
+-      width: 100%;
+-      height: 100%;
+-      object-fit: cover;
+-    }
+-
+-    /* Brand Name */
+-    .brand-name {
+-      text-align: center;
+-      margin-bottom: 3rem;
+-    }
+-
+-    .brand-sei {
+-      font-size: 3rem;
+-      font-weight: 800;
+-      color: #feacb5;
+-    }
+-
+-    .brand-ki {
+-      font-size: 3rem;
+-      font-weight: 800;
+-      color: #94e2aa;
+-    }
+-
+-    /* Form */
+-    .login-form {
+-      display: flex;
+-      flex-direction: column;
+-      gap: 1rem;
+-    }
+-
+-    .form-group {
+-      display: flex;
+-      flex-direction: column;
+-    }
+-
+-    .form-label {
+-      color: white;
+-      font-size: 0.875rem;
+-      font-weight: 600;
+-      margin-bottom: 0.5rem;
+-      opacity: 0.9;
+-    }
+-
+-    .form-input {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      height: 3rem;
+-      border: 0;
+-      padding: 0 1rem;
+-      font-size: 1rem;
+-    }
+-
+-    /* Checkbox */
+-    .checkbox-group {
+-      display: flex;
+-      align-items: center;
+-      gap: 0.5rem;
+-    }
+-
+-    .checkbox {
+-      background-color: #d9d9d9;
+-      border: 0;
+-      width: 1rem;
+-      height: 1rem;
+-      cursor: pointer;
+-    }
+-
+-    .checkbox-label {
+-      color: white;
+-      font-size: 0.75rem;
+-      opacity: 0.9;
+-      cursor: pointer;
+-    }
+-
+-    /* Buttons */
+-    .btn-login,
+-    .btn-gbox {
+-      width: 100%;
+-      background-color: #0059ff;
+-      color: white;
+-      border-radius: 0.5rem;
+-      height: 3rem;
+-      font-weight: 600;
+-      border: none;
+-      cursor: pointer;
+-      transition: background-color 0.2s;
+-      font-size: 1rem;
+-    }
+-
+-    .btn-login:hover,
+-    .btn-gbox:hover {
+-      background-color: #0046cc;
+-    }
+-
+-    .btn-gbox {
+-      margin-top: 0.5rem;
+-    }
+-
+-    /* Forgot Password Link */
+-    .forgot-password {
+-      display: block;
+-      text-align: center;
+-      color: #002bff;
+-      font-size: 0.875rem;
+-      text-decoration: underline;
+-      opacity: 0.9;
+-    }
+-
+-    /* Footer */
+-    .footer-text {
+-      color: white;
+-      font-size: 0.75rem;
+-      text-align: center;
+-      margin-top: 4rem;
+-      opacity: 0.9;
+-    }
+-
+-    /* Responsive - Tablet/Desktop */
+-    @media (min-width: 768px) {
+-      .login-container {
+-        max-width: 32rem;
+-      }
+-
+-      .logo-wrapper {
+-        width: 8rem;
+-        height: 8rem;
+-      }
+-
+-      .brand-sei,
+-      .brand-ki {
+-        font-size: 3.75rem;
+-      }
+-    }
+-
+-    @media (min-width: 1024px) {
+-      .brand-sei,
+-      .brand-ki {
+-        font-size: 4.5rem;
+-      }
+-    }
+-  </style>
+-</head>
+-<body>
+-  <div class="login-page">
+-    <div class="login-container">
+-      <!-- Logo Circle -->
+-      <div class="logo-circle">
+-        <div class="logo-wrapper"></div>
+-      </div>
+-
+-      <!-- Brand Name -->
+-      <h1 class="brand-name">
+-        <span class="brand-sei">Sei</span><span class="brand-ki">ki</span>
+-      </h1>
+-
+-      <!-- Error Message -->
+-      {% if error %}
+-      <div style="background-color: #ff6b6b; color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; text-align: center;">
+-        {{ error }}
+-      </div>
+-      {% endif %}
+-
+-      <!-- Login Form -->
+-      <form class="login-form" method="POST">
+-        {% csrf_token %}
+-        <!-- Username Field -->
+-        <div class="form-group">
+-          <label class="form-label">Username</label>
+-          <input type="text" class="form-input" name="username" required />
+-        </div>
+-
+-        <!-- Password Field -->
+-        <div class="form-group">
+-          <label class="form-label">Password</label>
+-          <input type="password" class="form-input" name="password" required />
+-        </div>
+-
+-        <!-- Remember Me Checkbox -->
+-        <div class="checkbox-group">
+-          <input type="checkbox" id="remember" class="checkbox" name="remember" />
+-          <label for="remember" class="checkbox-label">Remember me</label>
+-        </div>
+-
+-        <!-- Login Button -->
+-        <button type="submit" class="btn-login">Log In</button>
+-
+-        <!-- Forgot Password Link -->
+-        <a href="#" class="forgot-password">Forgot your Password?</a>
+-
+-        <!-- Gbox Login Button -->
+-        <button type="button" class="btn-gbox">Continue with gbox</button>
+-      </form>
+-
+-      <!-- Footer -->
+-      <p class="footer-text">Powered by Ateneo de Naga IS</p>
+-    </div>
+-  </div>
+-</body>
+-</html>
+diff --git a/templates/logs.html b/templates/logs.html
+deleted file mode 100644
+index ed07a83..0000000
+--- a/templates/logs.html
++++ /dev/null
+@@ -1,316 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Seiki - Logs</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-    }
+-
+-    /* Logs Page */
+-    .logs-page {
+-      min-height: 100vh;
+-      background-color: #dbdbdb;
+-      padding-bottom: 1rem;
+-    }
+-
+-    /* Header */
+-    .logs-header {
+-      background-color: #003a6c;
+-      padding: 2rem 1.5rem 1.5rem;
+-      border-bottom-left-radius: 0.5rem;
+-      border-bottom-right-radius: 0.5rem;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      position: relative;
+-    }
+-
+-    .header-logo {
+-      position: absolute;
+-      right: 0;
+-      width: 4rem;
+-      height: 4rem;
+-      background-color: #d9d9d9;
+-      border-radius: 50%;
+-    }
+-
+-    .header-title {
+-      font-size: 1.125rem;
+-      font-weight: 800;
+-      color: white;
+-    }
+-
+-    /* Content */
+-    .logs-content {
+-      padding: 1rem;
+-    }
+-
+-    /* Date Selector */
+-    .date-selector {
+-      margin-top: 1rem;
+-    }
+-
+-    .date-button {
+-      width: 100%;
+-      background-color: white;
+-      border-radius: 0.375rem;
+-      padding: 0.75rem 1rem;
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-      border: none;
+-      cursor: pointer;
+-      transition: box-shadow 0.2s;
+-    }
+-
+-    .date-button:hover {
+-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .date-text {
+-      font-size: 0.875rem;
+-      color: #a19b9b;
+-    }
+-
+-    .calendar-icon {
+-      width: 1.5rem;
+-      height: 1.5rem;
+-      opacity: 0.5;
+-    }
+-
+-    /* Week Header */
+-    .week-header {
+-      margin-top: 0.75rem;
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-    }
+-
+-    .week-label {
+-      font-size: 0.75rem;
+-      font-weight: 700;
+-    }
+-
+-    .btn-submit {
+-      background-color: #ebfff2;
+-      color: #16eb41;
+-      font-size: 0.75rem;
+-      font-weight: 700;
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.375rem;
+-      border: none;
+-      cursor: pointer;
+-      transition: all 0.2s;
+-    }
+-
+-    .btn-submit:hover {
+-      background-color: #d8ffe0;
+-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    /* Logs Table */
+-    .logs-table {
+-      background-color: white;
+-      border-radius: 0.375rem;
+-      margin-top: 0.75rem;
+-      overflow: hidden;
+-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    /* Table Header */
+-    .table-header {
+-      display: grid;
+-      grid-template-columns: repeat(5, 1fr);
+-      gap: 0.25rem;
+-      font-size: 0.625rem;
+-      font-weight: 600;
+-      padding: 0.75rem;
+-      border-bottom: 1px solid #a9a9a9;
+-    }
+-
+-    /* Table Body */
+-    .table-body {
+-      border-top: 1px solid #a9a9a9;
+-    }
+-
+-    .table-row {
+-      display: grid;
+-      grid-template-columns: repeat(5, 1fr);
+-      gap: 0.25rem;
+-      font-size: 0.625rem;
+-      padding: 0.75rem;
+-      border-bottom: 1px solid #a9a9a9;
+-    }
+-
+-    .table-row:last-child {
+-      border-bottom: none;
+-    }
+-
+-    .row-time,
+-    .row-hours {
+-      display: flex;
+-      flex-direction: column;
+-      gap: 0.25rem;
+-    }
+-
+-    /* Status Badges */
+-    .status-badge {
+-      padding: 0.25rem 0.5rem;
+-      border-radius: 0.375rem;
+-      font-size: 0.5625rem;
+-      font-weight: 700;
+-      display: inline-block;
+-    }
+-
+-    .status-approved {
+-      background-color: #9df9a5;
+-    }
+-
+-    .status-rejected {
+-      background-color: #ff5b6e;
+-    }
+-
+-    .status-pending {
+-      background-color: #f3fe77;
+-    }
+-
+-    .status-checkedout {
+-      background-color: #ffcc00;
+-    }
+-
+-    /* Responsive - Tablet/Desktop */
+-    @media (min-width: 768px) {
+-      .logs-header {
+-        padding: 2.5rem 3rem 2rem;
+-        border-radius: 0;
+-      }
+-
+-      .header-content {
+-        justify-content: flex-start;
+-      }
+-
+-      .header-logo {
+-        position: static;
+-        width: 3rem;
+-        height: 3rem;
+-        margin-right: 1rem;
+-      }
+-
+-      .header-title {
+-        font-size: 1.5rem;
+-      }
+-
+-      .logs-content {
+-        padding: 1.5rem 3rem;
+-      }
+-
+-      .date-button {
+-        max-width: 28rem;
+-        padding: 1rem;
+-      }
+-
+-      .date-text {
+-        font-size: 1rem;
+-      }
+-
+-      .calendar-icon {
+-        width: 1.75rem;
+-        height: 1.75rem;
+-      }
+-
+-      .week-label {
+-        font-size: 0.875rem;
+-      }
+-
+-      .btn-submit {
+-        font-size: 0.875rem;
+-        padding: 0.75rem 1.5rem;
+-      }
+-    }
+-
+-    @media (min-width: 1024px) {
+-      .logs-content {
+-        padding: 1.5rem 4rem;
+-      }
+-    }
+-  </style>
+-</head>
+-<body>
+-  <div class="logs-page">
+-    <!-- Header -->
+-    <div class="logs-header">
+-      <div class="header-content">
+-        <div class="header-logo"></div>
+-        <h1 class="header-title">Log History</h1>
+-      </div>
+-    </div>
+-
+-    <!-- Content -->
+-    <div class="logs-content">
+-      
+-      <!-- Date Range Selector -->
+-      <div class="date-selector">
+-        <button class="date-button">
+-          <span class="date-text">Select Date Range</span>
+-          <span class="calendar-icon"></span>
+-        </button>
+-      </div>
+-
+-      <!-- Current Week & Submit Button -->
+-      <div class="week-header">
+-        <span class="week-label">Current Week</span>
+-        <a href="{% url 'monthly_dtr' %}" class="btn-submit" style="text-decoration: none; display: inline-block;">Submit DTR</a>
+-      </div>
+-
+-      <!-- Logs Table -->
+-      <div class="logs-table">
+-        <!-- Table Header -->
+-        <div class="table-header">
+-          <div>Date</div>
+-          <div>Time In</div>
+-          <div>Time Out</div>
+-          <div>Duration</div>
+-        </div>
+-
+-        <!-- Table Body -->
+-        <div class="table-body">
+-          {% if logs_data %}
+-            {% for log_entry in logs_data %}
+-            <div class="table-row">
+-              <div class="row-date">{{ log_entry.date|date:"M d" }}</div>
+-              <div class="row-time">
+-                <div>{% if log_entry.time_in %}{{ log_entry.time_in|date:"h:i A" }}{% else %}-{% endif %}</div>
+-              </div>
+-              <div class="row-time">
+-                <div>{% if log_entry.time_out %}{{ log_entry.time_out|date:"h:i A" }}{% else %}-{% endif %}</div>
+-              </div>
+-              <div class="row-hours">
+-                <div>{{ log_entry.duration }}</div>
+-              </div>
+-            </div>
+-            {% endfor %}
+-          {% else %}
+-            <div class="table-row">
+-              <div colspan="4" style="text-align: center; padding: 1rem; color: #999;">
+-                No time records yet
+-              </div>
+-            </div>
+-          {% endif %}
+-        </div>
+-      </div>
+-    </div>
+-  </div>
+-</body>
+-</html>
+diff --git a/templates/monthly_dtr.html b/templates/monthly_dtr.html
+deleted file mode 100644
+index 993ec93..0000000
+--- a/templates/monthly_dtr.html
++++ /dev/null
+@@ -1,462 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Seiki - Monthly DTR</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-      background-color: #f5f5f5;
+-    }
+-
+-    /* Header */
+-    .header {
+-      background-color: #003a6c;
+-      padding: 2rem 1.5rem;
+-      color: white;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-      max-width: 1200px;
+-      margin: 0 auto;
+-    }
+-
+-    .header-title {
+-      font-size: 1.5rem;
+-      font-weight: 700;
+-    }
+-
+-    .back-button {
+-      background-color: rgba(255, 255, 255, 0.2);
+-      color: white;
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.5rem;
+-      text-decoration: none;
+-      font-weight: 500;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .back-button:hover {
+-      background-color: rgba(255, 255, 255, 0.3);
+-    }
+-
+-    /* Main Content */
+-    .main-content {
+-      max-width: 1200px;
+-      margin: 2rem auto;
+-      padding: 0 1.5rem;
+-    }
+-
+-    /* Month Selector */
+-    .month-selector {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 1.5rem;
+-      margin-bottom: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      display: flex;
+-      align-items: center;
+-      gap: 1rem;
+-      flex-wrap: wrap;
+-    }
+-
+-    .month-input {
+-      padding: 0.5rem;
+-      border: 1px solid #ddd;
+-      border-radius: 0.25rem;
+-      font-size: 1rem;
+-    }
+-
+-    .month-button {
+-      background-color: #003a6c;
+-      color: white;
+-      padding: 0.5rem 1rem;
+-      border: none;
+-      border-radius: 0.25rem;
+-      font-size: 1rem;
+-      font-weight: 500;
+-      cursor: pointer;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .month-button:hover {
+-      background-color: #002a5c;
+-    }
+-
+-    /* DTR Info */
+-    .dtr-info {
+-      background: linear-gradient(135deg, #003a6c 0%, #004a8c 100%);
+-      color: white;
+-      border-radius: 0.5rem;
+-      padding: 2rem;
+-      margin-bottom: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .dtr-month {
+-      font-size: 1.75rem;
+-      font-weight: 700;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .dtr-stats {
+-      display: grid;
+-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+-      gap: 1.5rem;
+-    }
+-
+-    .stat-item h3 {
+-      font-size: 0.875rem;
+-      font-weight: 500;
+-      opacity: 0.8;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .stat-value {
+-      font-size: 1.5rem;
+-      font-weight: 700;
+-    }
+-
+-    /* Status Section */
+-    .status-section {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 1.5rem;
+-      margin-bottom: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .status-title {
+-      font-size: 1rem;
+-      font-weight: 600;
+-      color: #003a6c;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .status-badge {
+-      display: inline-block;
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.25rem;
+-      font-weight: 500;
+-      font-size: 0.875rem;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .status-pending {
+-      background-color: #fff3cd;
+-      color: #856404;
+-    }
+-
+-    .status-approved {
+-      background-color: #d4edda;
+-      color: #155724;
+-    }
+-
+-    .status-rejected {
+-      background-color: #f8d7da;
+-      color: #721c24;
+-    }
+-
+-    .status-info {
+-      font-size: 0.875rem;
+-      color: #666;
+-      margin-top: 1rem;
+-    }
+-
+-    /* Records Table */
+-    .records-section {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      margin-bottom: 2rem;
+-    }
+-
+-    .records-title {
+-      font-size: 1.25rem;
+-      font-weight: 700;
+-      color: #003a6c;
+-      margin-bottom: 1.5rem;
+-    }
+-
+-    .records-table {
+-      width: 100%;
+-      border-collapse: collapse;
+-    }
+-
+-    .records-table th,
+-    .records-table td {
+-      padding: 1rem;
+-      text-align: left;
+-      border-bottom: 1px solid #eee;
+-    }
+-
+-    .records-table th {
+-      background-color: #f8f9fa;
+-      font-weight: 600;
+-      color: #333;
+-    }
+-
+-    .records-table tr:hover {
+-      background-color: #f8f9fa;
+-    }
+-
+-    .no-records {
+-      text-align: center;
+-      padding: 2rem;
+-      color: #999;
+-    }
+-
+-    /* Submit Button */
+-    .action-section {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      text-align: center;
+-    }
+-
+-    .submit-form {
+-      display: inline-block;
+-    }
+-
+-    .submit-button {
+-      background-color: #28a745;
+-      color: white;
+-      padding: 0.75rem 2rem;
+-      border: none;
+-      border-radius: 0.25rem;
+-      font-size: 1rem;
+-      font-weight: 600;
+-      cursor: pointer;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .submit-button:hover:not(:disabled) {
+-      background-color: #218838;
+-    }
+-
+-    .submit-button:disabled {
+-      background-color: #6c757d;
+-      cursor: not-allowed;
+-      opacity: 0.7;
+-    }
+-
+-    .button-info {
+-      font-size: 0.875rem;
+-      color: #666;
+-      margin-top: 1rem;
+-    }
+-
+-    /* Messages */
+-    .messages {
+-      margin-bottom: 2rem;
+-    }
+-
+-    .message {
+-      padding: 1rem;
+-      border-radius: 0.25rem;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .message.success {
+-      background-color: #d4edda;
+-      color: #155724;
+-      border: 1px solid #c3e6cb;
+-    }
+-
+-    .message.error {
+-      background-color: #f8d7da;
+-      color: #721c24;
+-      border: 1px solid #f5c6cb;
+-    }
+-
+-    /* Responsive */
+-    @media (max-width: 768px) {
+-      .header-content {
+-        flex-direction: column;
+-        gap: 1rem;
+-        text-align: center;
+-      }
+-
+-      .month-selector {
+-        flex-direction: column;
+-        align-items: stretch;
+-      }
+-
+-      .month-input,
+-      .month-button {
+-        width: 100%;
+-      }
+-
+-      .dtr-stats {
+-        grid-template-columns: 1fr;
+-      }
+-
+-      .records-table th,
+-      .records-table td {
+-        padding: 0.75rem;
+-        font-size: 0.875rem;
+-      }
+-    }
+-  </style>
+-</head>
+-<body>
+-  <header class="header">
+-    <div class="header-content">
+-      <h1 class="header-title">Monthly DTR</h1>
+-      <div style="display: flex; gap: 1rem;">
+-        <a href="{% url 'chat' %}" style="background-color: rgba(32, 201, 151, 0.2); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 500;">≡ƒÆ¼ Chat</a>
+-        <a href="{% url 'logs' %}" class="back-button">Back to Logs</a>
+-      </div>
+-    </div>
+-  </header>
+-
+-  <main class="main-content">
+-    <!-- Messages -->
+-    {% if messages %}
+-      <div class="messages">
+-        {% for message in messages %}
+-          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+-            {{ message }}
+-          </div>
+-        {% endfor %}
+-      </div>
+-    {% endif %}
+-
+-    <!-- Month Selector -->
+-    <div class="month-selector">
+-      <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+-        <label for="month-select" style="font-weight: 500;">Select Month:</label>
+-        <input type="month" id="month-select" name="month_year" value="{{ year }}-{% if month < 10 %}0{% endif %}{{ month }}" class="month-input">
+-        <button type="submit" class="month-button">View DTR</button>
+-      </form>
+-    </div>
+-
+-    <!-- DTR Info -->
+-    <div class="dtr-info">
+-      <div class="dtr-month">{{ month_name }} {{ year }} DTR Summary</div>
+-      <div class="dtr-stats">
+-        <div class="stat-item">
+-          <h3>Total Hours</h3>
+-          <div class="stat-value">{{ total_hours_formatted }}</div>
+-        </div>
+-        <div class="stat-item">
+-          <h3>Days Worked</h3>
+-          <div class="stat-value">{{ daily_records|length }}</div>
+-        </div>
+-        <div class="stat-item">
+-          <h3>Status</h3>
+-          <div class="stat-value">
+-            {% if dtr_submission %}
+-              {% if dtr_submission.status == 'pending' %}
+-                <span style="font-size: 1rem;">Pending</span>
+-              {% elif dtr_submission.status == 'approved' %}
+-                <span style="font-size: 1rem;">Γ£ô Approved</span>
+-              {% else %}
+-                <span style="font-size: 1rem;">Γ£ù Rejected</span>
+-              {% endif %}
+-            {% else %}
+-              <span style="font-size: 1rem;">Not Submitted</span>
+-            {% endif %}
+-          </div>
+-        </div>
+-      </div>
+-    </div>
+-
+-    <!-- Status Section -->
+-    {% if dtr_submission %}
+-      <div class="status-section">
+-        <div class="status-title">Submission Status</div>
+-        <span class="status-badge status-{{ dtr_submission.status }}">
+-          {% if dtr_submission.status == 'pending' %}
+-            Pending Approval
+-          {% elif dtr_submission.status == 'approved' %}
+-            Approved
+-          {% else %}
+-            Rejected
+-          {% endif %}
+-        </span>
+-        <div class="status-info">
+-          Submitted on: {{ dtr_submission.submitted_date|date:"M d, Y H:i" }}
+-          {% if dtr_submission.approved_date %}
+-            <br>Processed on: {{ dtr_submission.approved_date|date:"M d, Y H:i" }}
+-            {% if dtr_submission.approver %}
+-              <br>By: {{ dtr_submission.approver.first_name }} {{ dtr_submission.approver.last_name }}
+-            {% endif %}
+-          {% endif %}
+-          {% if dtr_submission.remarks %}
+-            <br><strong>Remarks:</strong> {{ dtr_submission.remarks }}
+-          {% endif %}
+-        </div>
+-      </div>
+-    {% endif %}
+-
+-    <!-- Records Table -->
+-    <div class="records-section">
+-      <div class="records-title">Daily Records for {{ month_name }} {{ year }}</div>
+-      {% if daily_records %}
+-        <div style="overflow-x: auto;">
+-          <table class="records-table">
+-            <thead>
+-              <tr>
+-                <th>Date</th>
+-                <th>Time In</th>
+-                <th>Time Out</th>
+-                <th>Cumulative Hours</th>
+-              </tr>
+-            </thead>
+-            <tbody>
+-              {% for date, record in daily_records %}
+-                <tr>
+-                  <td>{{ date|date:"l, M d, Y" }}</td>
+-                  <td>{{ record.in|date:"H:i"|default:"-" }}</td>
+-                  <td>{{ record.out|date:"H:i"|default:"-" }}</td>
+-                  <td>{{ record.cumulative_duration_formatted|default:"0h 0m" }}</td>
+-                </tr>
+-              {% endfor %}
+-            </tbody>
+-          </table>
+-        </div>
+-      {% else %}
+-        <div class="no-records">
+-          No time records found for {{ month_name }} {{ year }}
+-        </div>
+-      {% endif %}
+-    </div>
+-
+-    <!-- Submit Section -->
+-    {% if can_submit %}
+-      <div class="action-section">
+-        <h2 style="margin-bottom: 1rem; color: #003a6c;">Submit DTR</h2>
+-        <form method="post" action="{% url 'submit_dtr' %}" class="submit-form">
+-          {% csrf_token %}
+-          <input type="hidden" name="month" value="{{ month }}">
+-          <input type="hidden" name="year" value="{{ year }}">
+-          <button type="submit" class="submit-button">Submit DTR for {{ month_name }} {{ year }}</button>
+-        </form>
+-        <div class="button-info">
+-          Once submitted, your DTR will be sent for approval. You can review it but cannot edit after submission.
+-        </div>
+-      </div>
+-    {% else %}
+-      <div class="action-section">
+-        <div style="color: #666; font-size: 1.1rem;">
+-          DTR for {{ month_name }} {{ year }} has already been submitted{% if dtr_submission.status != 'pending' %} and {{ dtr_submission.status }}{% endif %}
+-        </div>
+-        <button class="submit-button" disabled>Already Submitted</button>
+-      </div>
+-    {% endif %}
+-  </main>
+-</body>
+-</html>
+\ No newline at end of file
+diff --git a/templates/dtr_approvals.html b/templates/office_head/dtr_approvals.html
+similarity index 53%
+rename from templates/dtr_approvals.html
+rename to templates/office_head/dtr_approvals.html
+index 0a037c2..561fd2e 100644
+--- a/templates/dtr_approvals.html
++++ b/templates/office_head/dtr_approvals.html
+@@ -1,439 +1,13 @@
++{% load static %}
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Seiki - DTR Approvals</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-      background-color: #f5f5f5;
+-    }
+-
+-    /* Header */
+-    .header {
+-      background-color: #003a6c;
+-      padding: 2rem 1.5rem;
+-      color: white;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: space-between;
+-      max-width: 1400px;
+-      margin: 0 auto;
+-    }
+-
+-    .header-title {
+-      font-size: 1.5rem;
+-      font-weight: 700;
+-    }
+-
+-    .back-button {
+-      background-color: rgba(255, 255, 255, 0.2);
+-      color: white;
+-      padding: 0.5rem 1rem;
+-      border-radius: 0.5rem;
+-      text-decoration: none;
+-      font-weight: 500;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .back-button:hover {
+-      background-color: rgba(255, 255, 255, 0.3);
+-    }
+-
+-    /* Main Content */
+-    .main-content {
+-      max-width: 1400px;
+-      margin: 2rem auto;
+-      padding: 0 1.5rem;
+-    }
+-
+-    /* Filters Section */
+-    .filters-section {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 1.5rem;
+-      margin-bottom: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .filters-title {
+-      font-size: 1rem;
+-      font-weight: 600;
+-      color: #003a6c;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .filters-grid {
+-      display: grid;
+-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+-      gap: 1rem;
+-    }
+-
+-    .filter-group {
+-      display: flex;
+-      flex-direction: column;
+-      gap: 0.5rem;
+-    }
+-
+-    .filter-label {
+-      font-weight: 500;
+-      color: #333;
+-      font-size: 0.875rem;
+-    }
+-
+-    .filter-input {
+-      padding: 0.5rem;
+-      border: 1px solid #ddd;
+-      border-radius: 0.25rem;
+-      font-size: 1rem;
+-    }
+-
+-    .filter-select {
+-      padding: 0.5rem;
+-      border: 1px solid #ddd;
+-      border-radius: 0.25rem;
+-      font-size: 1rem;
+-    }
+-
+-    .filter-button {
+-      background-color: #003a6c;
+-      color: white;
+-      padding: 0.5rem 1rem;
+-      border: none;
+-      border-radius: 0.25rem;
+-      font-weight: 500;
+-      cursor: pointer;
+-      align-self: flex-end;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .filter-button:hover {
+-      background-color: #002a5c;
+-    }
+-
+-    /* Messages */
+-    .messages {
+-      margin-bottom: 2rem;
+-    }
+-
+-    .message {
+-      padding: 1rem;
+-      border-radius: 0.25rem;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .message.success {
+-      background-color: #d4edda;
+-      color: #155724;
+-      border: 1px solid #c3e6cb;
+-    }
+-
+-    .message.error {
+-      background-color: #f8d7da;
+-      color: #721c24;
+-      border: 1px solid #f5c6cb;
+-    }
+-
+-    /* DTR List */
+-    .dtr-list {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      overflow: hidden;
+-    }
+-
+-    .dtr-table {
+-      width: 100%;
+-      border-collapse: collapse;
+-    }
+-
+-    .dtr-table th,
+-    .dtr-table td {
+-      padding: 1rem;
+-      text-align: left;
+-      border-bottom: 1px solid #eee;
+-    }
+-
+-    .dtr-table th {
+-      background-color: #f8f9fa;
+-      font-weight: 600;
+-      color: #333;
+-      font-size: 0.875rem;
+-    }
+-
+-    .dtr-table tr:hover {
+-      background-color: #f8f9fa;
+-    }
+-
+-    .dtr-table tr:last-child td {
+-      border-bottom: none;
+-    }
+-
+-    /* Status Badge */
+-    .status-badge {
+-      display: inline-block;
+-      padding: 0.25rem 0.75rem;
+-      border-radius: 0.25rem;
+-      font-size: 0.75rem;
+-      font-weight: 600;
+-    }
+-
+-    .status-pending {
+-      background-color: #fff3cd;
+-      color: #856404;
+-    }
+-
+-    .status-approved {
+-      background-color: #d4edda;
+-      color: #155724;
+-    }
+-
+-    .status-rejected {
+-      background-color: #f8d7da;
+-      color: #721c24;
+-    }
+-
+-    /* Action Buttons */
+-    .action-buttons {
+-      display: flex;
+-      gap: 0.5rem;
+-    }
+-
+-    .action-btn {
+-      padding: 0.3rem 0.6rem;
+-      border: none;
+-      border-radius: 0.2rem;
+-      font-size: 0.75rem;
+-      font-weight: 500;
+-      cursor: pointer;
+-      transition: opacity 0.2s;
+-    }
+-
+-    .action-btn:hover {
+-      opacity: 0.8;
+-    }
+-
+-    .btn-approve {
+-      background-color: #d4edda;
+-      color: #155724;
+-    }
+-
+-    .btn-reject {
+-      background-color: #f8d7da;
+-      color: #721c24;
+-    }
+-
+-    .btn-view {
+-      background-color: #e3f2fd;
+-      color: #1976d2;
+-    }
+-
+-    /* Modal */
+-    .modal {
+-      display: none;
+-      position: fixed;
+-      z-index: 1;
+-      left: 0;
+-      top: 0;
+-      width: 100%;
+-      height: 100%;
+-      background-color: rgba(0, 0, 0, 0.4);
+-    }
+-
+-    .modal.show {
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-    }
+-
+-    .modal-content {
+-      background-color: white;
+-      padding: 2rem;
+-      border-radius: 0.5rem;
+-      max-width: 500px;
+-      width: 90%;
+-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+-    }
+-
+-    .modal-header {
+-      font-size: 1.25rem;
+-      font-weight: 700;
+-      color: #003a6c;
+-      margin-bottom: 1rem;
+-    }
+-
+-    .modal-form {
+-      margin-bottom: 1rem;
+-    }
+-
+-    .form-group {
+-      margin-bottom: 1rem;
+-    }
+-
+-    .form-label {
+-      display: block;
+-      font-weight: 500;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .form-textarea {
+-      width: 100%;
+-      padding: 0.75rem;
+-      border: 1px solid #ddd;
+-      border-radius: 0.25rem;
+-      font-size: 1rem;
+-      font-family: inherit;
+-      resize: vertical;
+-      min-height: 100px;
+-    }
+-
+-    .modal-buttons {
+-      display: flex;
+-      gap: 0.5rem;
+-      justify-content: flex-end;
+-    }
+-
+-    .modal-btn {
+-      padding: 0.5rem 1rem;
+-      border: none;
+-      border-radius: 0.25rem;
+-      font-weight: 500;
+-      cursor: pointer;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .modal-btn-primary {
+-      background-color: #003a6c;
+-      color: white;
+-    }
+-
+-    .modal-btn-primary:hover {
+-      background-color: #002a5c;
+-    }
+-
+-    .modal-btn-secondary {
+-      background-color: #6c757d;
+-      color: white;
+-    }
+-
+-    .modal-btn-secondary:hover {
+-      background-color: #545b62;
+-    }
+-
+-    .close-modal {
+-      color: #999;
+-      float: right;
+-      font-size: 1.5rem;
+-      font-weight: bold;
+-      cursor: pointer;
+-    }
+-
+-    .close-modal:hover {
+-      color: #333;
+-    }
+-
+-    /* Empty State */
+-    .empty-state {
+-      text-align: center;
+-      padding: 3rem;
+-      color: #999;
+-    }
+-
+-    .empty-state-icon {
+-      font-size: 3rem;
+-      margin-bottom: 1rem;
+-    }
+-
+-    /* Pagination */
+-    .pagination {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 1.5rem;
+-      margin-top: 2rem;
+-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+-      display: flex;
+-      justify-content: space-between;
+-      align-items: center;
+-    }
+-
+-    .pagination-info {
+-      font-weight: 500;
+-      color: #666;
+-      font-size: 0.875rem;
+-    }
+-
+-    .pagination-controls {
+-      display: flex;
+-      align-items: center;
+-      gap: 0.5rem;
+-    }
+-
+-    .page-link {
+-      background-color: #f8f9fa;
+-      color: #003a6c;
+-      padding: 0.4rem 0.8rem;
+-      border-radius: 0.25rem;
+-      text-decoration: none;
+-      font-weight: 500;
+-      font-size: 0.875rem;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .page-link:hover {
+-      background-color: #e9ecef;
+-    }
+-
+-    .current-page {
+-      background-color: #003a6c;
+-      color: white;
+-      padding: 0.4rem 0.8rem;
+-      border-radius: 0.25rem;
+-      font-weight: 500;
+-      font-size: 0.875rem;
+-    }
+-
+-    /* Responsive */
+-    @media (max-width: 768px) {
+-      .header-content {
+-        flex-direction: column;
+-        gap: 1rem;
+-        text-align: center;
+-      }
+-
+-      .filters-grid {
+-        grid-template-columns: 1fr;
+-      }
+-
+-      .action-buttons {
+-        flex-direction: column;
+-      }
+-
+-      .dtr-table {
+-        font-size: 0.875rem;
+-      }
+-
+-      .dtr-table th,
+-      .dtr-table td {
+-        padding: 0.75rem 0.5rem;
+-      }
+-
+-      .pagination {
+-        flex-direction: column;
+-        gap: 1rem;
+-        text-align: center;
+-      }
+-    }
+-  </style>
++  <link rel="stylesheet" href="{% static 'css/base.css' %}">
++  <link rel="stylesheet" href="{% static 'css/layout-modules.css' %}">
++  <link rel="stylesheet" href="{% static 'css/staff_styles.css' %}">
+ </head>
+ <body>
+   <header class="header">
+diff --git a/templates/office_users.html b/templates/office_head/office_users.html
+similarity index 100%
+rename from templates/office_users.html
+rename to templates/office_head/office_users.html
+diff --git a/templates/scanner.html b/templates/office_head/scanner.html
+similarity index 100%
+rename from templates/scanner.html
+rename to templates/office_head/scanner.html
+diff --git a/templates/qr.html b/templates/qr.html
+deleted file mode 100644
+index 25bbb90..0000000
+--- a/templates/qr.html
++++ /dev/null
+@@ -1,179 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Seiki - QR Code</title>
+-  <style>
+-    * {
+-      margin: 0;
+-      padding: 0;
+-      box-sizing: border-box;
+-    }
+-
+-    body {
+-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+-    }
+-
+-    /* QR Page */
+-    .qr-page {
+-      min-height: 100vh;
+-      background-color: #dbdbdb;
+-      padding-bottom: 1rem;
+-    }
+-
+-    /* Header */
+-    .qr-header {
+-      background-color: #003a6c;
+-      padding: 2rem 1.5rem 3rem;
+-      border-bottom-left-radius: 0.5rem;
+-      border-bottom-right-radius: 0.5rem;
+-      position: relative;
+-    }
+-
+-    .header-content {
+-      display: flex;
+-      align-items: center;
+-      justify-content: center;
+-      position: relative;
+-    }
+-
+-    .header-logo {
+-      position: absolute;
+-      left: 0;
+-      width: 4rem;
+-      height: 4rem;
+-      transform: rotate(-3deg);
+-      background-color: #d9d9d9;
+-      border-radius: 50%;
+-    }
+-
+-    .header-title {
+-      font-size: 1.125rem;
+-      font-weight: 800;
+-      color: white;
+-    }
+-
+-    /* Content */
+-    .qr-content {
+-      padding: 2rem 1.5rem;
+-      text-align: center;
+-    }
+-
+-    .qr-card {
+-      background-color: white;
+-      border-radius: 0.5rem;
+-      padding: 2rem;
+-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+-      max-width: 28rem;
+-      margin: 0 auto;
+-    }
+-
+-    .qr-title {
+-      font-size: 1.5rem;
+-      font-weight: 700;
+-      margin-bottom: 1rem;
+-      color: #003a6c;
+-    }
+-
+-    .qr-subtitle {
+-      font-size: 1rem;
+-      color: #666;
+-      margin-bottom: 2rem;
+-    }
+-
+-    .qr-code {
+-      margin: 2rem 0;
+-    }
+-
+-    .qr-code img {
+-      width: 200px;
+-      height: 200px;
+-      border: 2px solid #003a6c;
+-      border-radius: 0.5rem;
+-    }
+-
+-    .qr-info {
+-      margin-top: 2rem;
+-      padding-top: 2rem;
+-      border-top: 1px solid #e5e5e5;
+-    }
+-
+-    .qr-info p {
+-      font-size: 0.875rem;
+-      color: #666;
+-      margin-bottom: 0.5rem;
+-    }
+-
+-    .qr-info strong {
+-      color: #003a6c;
+-    }
+-
+-    .back-button {
+-      display: inline-block;
+-      margin-top: 2rem;
+-      padding: 0.75rem 1.5rem;
+-      background-color: #003a6c;
+-      color: white;
+-      text-decoration: none;
+-      border-radius: 0.5rem;
+-      font-weight: 600;
+-      transition: background-color 0.2s;
+-    }
+-
+-    .back-button:hover {
+-      background-color: #002a5c;
+-    }
+-
+-    /* Responsive */
+-    @media (min-width: 768px) {
+-      .qr-content {
+-        padding: 3rem 1.5rem;
+-      }
+-
+-      .qr-card {
+-        padding: 3rem;
+-      }
+-
+-      .qr-code img {
+-        width: 250px;
+-        height: 250px;
+-      }
+-    }
+-  </style>
+-</head>
+-<body>
+-  <div class="qr-page">
+-    <!-- Header -->
+-    <div class="qr-header">
+-      <div class="header-content">
+-        <div class="header-logo"></div>
+-        <h1 class="header-title">Attendance QR Code</h1>
+-      </div>
+-    </div>
+-
+-    <!-- Content -->
+-    <div class="qr-content">
+-      <div class="qr-card">
+-        <h2 class="qr-title">Your Attendance QR Code</h2>
+-        <p class="qr-subtitle">Scan this code to mark your attendance</p>
+-
+-        <!-- QR Code -->
+-        <div class="qr-code">
+-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" />
+-        </div>
+-
+-        <!-- User Info -->
+-        <div class="qr-info">
+-          <p><strong>User ID:</strong> {{ user.id }}</p>
+-          <p><strong>Username:</strong> {{ user.username }}</p>
+-          <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+-        </div>
+-
+-        <!-- Back Button -->
+-        <a href="{% url 'dashboard' %}" class="back-button">Back to Dashboard</a>
+-      </div>
+-    </div>
+-  </div>
+-</body>
+-</html>
+\ No newline at end of file

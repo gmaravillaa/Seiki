@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
@@ -9,7 +9,7 @@ from django.utils import timezone
 import json
 import csv
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.db import models
 from datetime import date, datetime
 
@@ -92,8 +92,71 @@ def student_progress_json(request, user_id):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
-    return render(request, 'office_head/dashboard.html')
+    """Office head dashboard with overview statistics"""
+    # Get office head's office
+    try:
+        user_office = request.user.userprofile.office
+    except:
+        user_office = None
+    
+    # Get students in the same office
+    if user_office:
+        students = User.objects.filter(
+            is_staff=False, 
+            is_superuser=False,
+            userprofile__office=user_office
+        ).select_related('userprofile')
+    else:
+        students = User.objects.filter(
+            is_staff=False, 
+            is_superuser=False
+        ).select_related('userprofile')
+    
+    # Calculate statistics
+    total_students = students.count()
+    active_students = students.filter(is_active=True).count()
+    
+    # Calculate total hours
+    total_hours = TimeRecord.objects.filter(
+        user__in=students,
+        timestamp__month=timezone.now().month,
+        timestamp__year=timezone.now().year
+    ).aggregate(total=Sum('duration'))['total']
+    
+    # Get pending DTR count
+    pending_dtrs = DTRSubmission.objects.filter(
+        user__in=students,
+        status='pending'
+    ).count()
+    
+    # Get today's attendance
+    today = timezone.now().date()
+    today_logs = TimeRecord.objects.filter(
+        user__in=students,
+        timestamp__date=today
+    ).values('user').distinct().count()
+    
+    today_attendance = round((today_logs / total_students * 100)) if total_students > 0 else 0
+    
+    # Get recent students and logs
+    recent_students = students[:5]
+    recent_logs = TimeRecord.objects.filter(
+        user__in=students
+    ).select_related('user').order_by('-timestamp')[:5]
+    
+    context = {
+        'active_page': 'dashboard',
+        'total_students': total_students,
+        'active_students': active_students,
+        'total_hours': int(total_hours.total_seconds() / 3600) if total_hours else 0,
+        'pending_dtrs': pending_dtrs,
+        'today_attendance': today_attendance,
+        'recent_students': recent_students,
+        'recent_logs': recent_logs,
+    }
+    return render(request, 'office_head/dashboard.html', context)
 
 @login_required
 def student_dashboard(request):
@@ -1364,5 +1427,224 @@ def mark_messages_read(request, user_id):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+# =======================
+# NEW OFFICE HEAD VIEWS
+# =======================
+
+@login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+def office_student_assistants(request):
+    """Student assistants list view for office heads"""
+    from django.core.paginator import Paginator
+    
+    # Get office head's office
+    try:
+        user_office = request.user.userprofile.office
+    except:
+        user_office = None
+    
+    # Get search and filter params
+    search_query = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status', '')
+    
+    # Get students in the same office
+    if user_office:
+        students = User.objects.filter(
+            is_staff=False, 
+            is_superuser=False,
+            userprofile__office=user_office
+        ).select_related('userprofile')
+    else:
+        students = User.objects.filter(
+            is_staff=False, 
+            is_superuser=False
+        ).select_related('userprofile')
+    
+    # Apply search filter
+    if search_query:
+        students = students.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(username__icontains=search_query) |
+            Q(userprofile__id_number__icontains=search_query)
+        )
+    
+    # Apply status filter
+    if status_filter == 'active':
+        students = students.filter(is_active=True)
+    elif status_filter == 'inactive':
+        students = students.filter(is_active=False)
+    
+    students = students.order_by('first_name', 'last_name')
+    
+    # Pagination
+    paginator = Paginator(students, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'active_page': 'students',
+        'students': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+    return render(request, 'office_head/student_assistants.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+def office_logs(request):
+    """Time logs view for office heads"""
+    from django.core.paginator import Paginator
+    
+    # Get office head's office
+    try:
+        user_office = request.user.userprofile.office
+    except:
+        user_office = None
+    
+    # Get students in the same office
+    if user_office:
+        students = User.objects.filter(
+            is_staff=False, 
+            is_superuser=False,
+            userprofile__office=user_office
+        )
+    else:
+        students = User.objects.filter(is_staff=False, is_superuser=False)
+    
+    # Get filter params
+    search_query = request.GET.get('search', '').strip()
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    status_filter = request.GET.get('status', '')
+    
+    # Get logs for these students
+    logs = TimeRecord.objects.filter(user__in=students).select_related('user').order_by('-timestamp')
+    
+    # Apply filters
+    if search_query:
+        logs = logs.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__username__icontains=search_query)
+        )
+    
+    if date_from:
+        logs = logs.filter(timestamp__date__gte=date_from)
+    if date_to:
+        logs = logs.filter(timestamp__date__lte=date_to)
+    
+    if status_filter == 'complete':
+        logs = logs.filter(record_type='out')
+    elif status_filter == 'incomplete':
+        logs = logs.filter(record_type='in')
+    
+    # Pagination
+    paginator = Paginator(logs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'active_page': 'logs',
+        'logs': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
+        'status_filter': status_filter,
+    }
+    return render(request, 'office_head/logs.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+def office_dtr_submissions(request):
+    """DTR submissions view for office heads"""
+    from django.core.paginator import Paginator
+    
+    # Get office head's office
+    try:
+        user_office = request.user.userprofile.office
+    except:
+        user_office = None
+    
+    # Get students in the same office
+    if user_office:
+        students = User.objects.filter(
+            is_staff=False, 
+            is_superuser=False,
+            userprofile__office=user_office
+        )
+    else:
+        students = User.objects.filter(is_staff=False, is_superuser=False)
+    
+    # Get filter params
+    search_query = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status', '')
+    month_filter = request.GET.get('month', '')
+    
+    # Get DTR submissions for these students
+    dtr_submissions = DTRSubmission.objects.filter(user__in=students).select_related('user').order_by('-submitted_at')
+    
+    # Apply filters
+    if search_query:
+        dtr_submissions = dtr_submissions.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__username__icontains=search_query)
+        )
+    
+    if status_filter:
+        dtr_submissions = dtr_submissions.filter(status=status_filter)
+    
+    if month_filter:
+        year, month = month_filter.split('-')
+        dtr_submissions = dtr_submissions.filter(year=year, month=month)
+    
+    # Get counts for summary cards
+    pending_count = dtr_submissions.filter(status='pending').count()
+    approved_count = dtr_submissions.filter(status='approved').count()
+    rejected_count = dtr_submissions.filter(status='rejected').count()
+    
+    # Pagination
+    paginator = Paginator(dtr_submissions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'active_page': 'dtr',
+        'dtr_submissions': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'month_filter': month_filter,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+    }
+    return render(request, 'office_head/dtr_submissions.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+def office_reports(request):
+    """Reports view for office heads"""
+    context = {
+        'active_page': 'reports',
+    }
+    return render(request, 'office_head/reports.html', context)
+
+
+def custom_logout(request):
+    """Custom logout view that supports both GET and POST"""
+    auth_logout(request)
+    return redirect('login')
 
 
