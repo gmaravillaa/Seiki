@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Office Head Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Office Head Portal</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item active">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="student-assistants.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <span>Student Assistants</span>
+        </a>
+        <a href="logs.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Logs</span>
+        </a>
+        <a href="dtr-submissions.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>DTR Submissions</span>
+        </a>
+        <a href="reports.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>Reports</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-search">
+          <svg class="header-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="search" placeholder="Search students, logs...">
+        </div>
+        <div class="header-actions">
+          <button class="icon-button">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span class="notification-badge"></span>
+          </button>
+          <div class="user-avatar">OH</div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-description">Welcome back! Here's an overview of your office.</p>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-content stat-card">
+              <div class="stat-info">
+                <h3>Total Student Assistants</h3>
+                <div class="stat-value">8</div>
+                <p class="stat-description">6 Active, 1 On Leave, 1 Inactive</p>
+              </div>
+              <div class="stat-icon blue">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-content stat-card">
+              <div class="stat-info">
+                <h3>Total Hours Rendered</h3>
+                <div class="stat-value">705</div>
+                <p class="stat-description">This month</p>
+              </div>
+              <div class="stat-icon green">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-content stat-card">
+              <div class="stat-info">
+                <h3>Pending DTR Approvals</h3>
+                <div class="stat-value">3</div>
+                <p class="stat-description">Requires action</p>
+              </div>
+              <div class="stat-icon orange">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-content stat-card">
+              <div class="stat-info">
+                <h3>Attendance Summary</h3>
+                <div class="stat-value">95%</div>
+                <p class="stat-description">Average attendance rate</p>
+              </div>
+              <div class="stat-icon blue">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="grid-2">
+          <!-- Active Student Assistants -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Active Student Assistants</h2>
+              <p class="card-description">Currently active student assistants</p>
+            </div>
+            <div class="card-content">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>ID</th>
+                      <th>Status</th>
+                      <th class="text-right">Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 500;">Juan Dela Cruz</td>
+                      <td style="color: var(--gray-500); font-size: 13px;">2021-12345</td>
+                      <td><span class="badge success">Active</span></td>
+                      <td class="text-right">120h</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500;">Maria Santos</td>
+                      <td style="color: var(--gray-500); font-size: 13px;">2021-12346</td>
+                      <td><span class="badge success">Active</span></td>
+                      <td class="text-right">98h</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500;">Pedro Garcia</td>
+                      <td style="color: var(--gray-500); font-size: 13px;">2021-12347</td>
+                      <td><span class="badge success">Active</span></td>
+                      <td class="text-right">110h</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500;">Ana Reyes</td>
+                      <td style="color: var(--gray-500); font-size: 13px;">2021-12348</td>
+                      <td><span class="badge success">Active</span></td>
+                      <td class="text-right">85h</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500;">Carlos Mendoza</td>
+                      <td style="color: var(--gray-500); font-size: 13px;">2021-12349</td>
+                      <td><span class="badge success">Active</span></td>
+                      <td class="text-right">102h</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-top: 16px;">
+                <a href="student-assistants.html" class="btn btn-outline" style="width: 100%; text-align: center;">View All Students</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Logs -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Recent Logs</h2>
+              <p class="card-description">Latest time in/out records</p>
+            </div>
+            <div class="card-content">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Time In</th>
+                      <th>Time Out</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 500; font-size: 13px;">Juan Dela Cruz</td>
+                      <td style="font-size: 13px;">08:00 AM</td>
+                      <td style="font-size: 13px;">05:00 PM</td>
+                      <td><span class="badge success">Complete</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500; font-size: 13px;">Maria Santos</td>
+                      <td style="font-size: 13px;">08:15 AM</td>
+                      <td style="font-size: 13px;">-</td>
+                      <td><span class="badge warning">In Progress</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500; font-size: 13px;">Pedro Garcia</td>
+                      <td style="font-size: 13px;">08:30 AM</td>
+                      <td style="font-size: 13px;">04:30 PM</td>
+                      <td><span class="badge success">Complete</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500; font-size: 13px;">Ana Reyes</td>
+                      <td style="font-size: 13px;">09:00 AM</td>
+                      <td style="font-size: 13px;">-</td>
+                      <td><span class="badge warning">Incomplete</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 500; font-size: 13px;">Carlos Mendoza</td>
+                      <td style="font-size: 13px;">08:00 AM</td>
+                      <td style="font-size: 13px;">05:15 PM</td>
+                      <td><span class="badge success">Complete</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-top: 16px;">
+                <a href="logs.html" class="btn btn-outline" style="width: 100%; text-align: center;">View All Logs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
