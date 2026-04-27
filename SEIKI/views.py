@@ -98,7 +98,10 @@ def student_progress_json(request, user_id):
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
     """Refined Dashboard for Office Heads"""
-    office = request.user.userprofile.office
+   office = request.user.userprofile.office
+    except UserProfile.DoesNotExist:
+        messages.error(request, "Your profile information is incomplete.")
+        return redirect('profile')
     
     # 1. Dashboard Stats
     total_sas = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
@@ -112,13 +115,13 @@ def office_dashboard(request):
         user__userprofile__office=office
     ).order_by('-timestamp')[:5]
 
-    context = {
+      context = {
         'total_sas': total_sas,
         'pending_dtrs': pending_dtrs,
         'recent_logs': recent_logs,
         'office_name': office
     }
-    return render(request, 'office_head/office-dashboard.html')
+   return render(request, 'office_head/office-dashboard.html', context)
 
 @login_required
 def office_student_assistants(request):
