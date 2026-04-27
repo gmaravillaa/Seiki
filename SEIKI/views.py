@@ -1381,15 +1381,37 @@ def update_time_record(request, record_id):
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def delete_time_record(request, record_id):
-    """Permanently delete a record and redirect back to the correction page"""
+    # 1. Fetch the record
     record = get_object_or_404(TimeRecord, id=record_id)
-    dtr_id = request.POST.get('dtr_id') # Hidden field in your template form
     
+    # 2. Get dtr_id from POST, but fallback to calculating it 
+    # to prevent redirect crashes
+    dtr_id = request.POST.get('dtr_id')
+    
+    if not dtr_id:
+        # Fallback logic: Find the submission matching this record's month/year/user
+        # This prevents the 500 error if your HTML hidden input fails
+        dtr = DTRSubmission.objects.filter(
+            user=record.user, 
+            month=record.timestamp.month, 
+            year=record.timestamp.year
+        ).first()
+        dtr_id = dtr.id if dtr else None
+
+    # 3. Security Check: Ensure the staff is from the same office (Optional but Recommended)
+    if record.user.userprofile.office != request.user.userprofile.office:
+        messages.error(request, "Unauthorized: This student is not in your department.")
+        return redirect('office_dashboard')
+
+    # 4. Perform the deletion
     record.delete()
     messages.success(request, "Record deleted successfully.")
     
-    return redirect('time_correction', dtr_id=dtr_id)
-
+    # 5. Safe Redirect
+    if dtr_id:
+        return redirect('time_correction', dtr_id=dtr_id)
+    return redirect('dtr_approvals')
+    
 @login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
