@@ -25,7 +25,7 @@ def dashboard_redirect(request):
     if user.is_superuser:
         return redirect('admin_dashboard')
 
-    elif user.is_staff:
+    elif hasattr(user, 'userprofile') and user.userprofile.office:
         return redirect('office_dashboard')
 
     else:
@@ -97,7 +97,7 @@ def student_progress_json(request, user_id):
     })
 
 @login_required(login_url='login')
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def office_dashboard(request):
     """Refined Dashboard for Office Heads aligned with System Logic"""
     try:
@@ -167,6 +167,7 @@ def office_dashboard(request):
     
     return render(request, 'office_head/office-dashboard.html', context)
 @login_required
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def office_student_assistants(request):
     """View list of all SAs in the department"""
     try:
@@ -189,12 +190,13 @@ def office_student_assistants(request):
             Q(userprofile__id_number__icontains=search_query)
         )
 
-    return render(request, 'office_head/officeheadstudentassistant.html', {
+    return render(request, 'office_head/office_users.html', {
         'students': students,
         'office_name': office,
     })
 
 @login_required
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def office_logs(request):
     """Detailed logs for the office head to monitor attendance"""
     try:
@@ -213,6 +215,7 @@ def office_logs(request):
     })
 
 @login_required
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def office_dtr_submissions(request):
     """View all DTR submissions for the department"""
     try:
@@ -231,12 +234,14 @@ def office_dtr_submissions(request):
     })
 
 @login_required
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def office_reports(request):
     """Departmental analytics and hour breakdowns"""
     # Logic for rendering officeheadreport.html
     return render(request, 'office_head/officeheadreport.html')
 
 @login_required
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def dtr_approvals_view(request):
     """Detail view for dtr_approvals.html"""
     return render(request, 'office_head/dtr_approvals.html')
@@ -935,7 +940,7 @@ def user_dtr_details(request, user_id):
 
 #office head
 @login_required(login_url='login')
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
 def office_users(request):
     """Office users page for office heads to view users in their office"""
     from django.core.paginator import Paginator
