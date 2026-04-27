@@ -42,7 +42,7 @@ urlpatterns = [
     # =======================
     # DASHBOARDS
     # =======================
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('office-dashboard/', views.office_dashboard, name='office_dashboard'),
     path('student-dashboard/', views.student_dashboard, name='student_dashboard'),
     path('office-student-assistants/', views.office_student_assistants, name='office_student_assistants'),
