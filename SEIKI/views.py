@@ -25,10 +25,13 @@ def dashboard_redirect(request):
     if user.is_superuser:
         return redirect('admin_dashboard')
 
-    elif hasattr(user, 'userprofile') and user.userprofile.office:
-        return redirect('office_dashboard')
-
-    else:
+    try:
+        profile = user.userprofile
+        if profile.office:
+            return redirect('office_dashboard')
+        else:
+            return redirect('student_dashboard')
+    except UserProfile.DoesNotExist:
         return redirect('student_dashboard')
 
 @login_required
@@ -59,7 +62,10 @@ def admin_dashboard(request):
             duration__isnull=False
         ).aggregate(total=Sum('duration'))['total']
 
-        s.total_hours = round(total.total_seconds() / 3600, 2) if total else 0
+        try:
+            s.total_hours = round(total.total_seconds() / 3600, 2) if total else 0
+        except AttributeError:
+            s.total_hours = 0
 
     context = {
         'total_students': total_students,
@@ -83,14 +89,17 @@ def student_progress_json(request, user_id):
         duration__isnull=False
     ).aggregate(total=models.Sum('duration'))['total']
 
-    hours = round(total.total_seconds()/3600, 2) if total else 0
+    try:
+        hours = round(total.total_seconds()/3600, 2) if total else 0
+    except AttributeError:
+        hours = 0
     required = user.userprofile.required_hours if hasattr(user, 'userprofile') else 80
 
-    percent = min(100, (hours / required) * 100)
+    percent = min(100, (hours / required) * 100) if required > 0 else 0
 
     return JsonResponse({
         'name': user.get_full_name(),
-        'office': user.userprofile.office,
+        'office': user.userprofile.office if hasattr(user, 'userprofile') else '',
         'hours': hours,
         'required': required,
         'percent': round(percent, 1)
@@ -131,7 +140,10 @@ def office_dashboard(request):
     
     # CRITICAL FIX: Sum() returns None if no records exist. 
     # Check for None before calling .total_seconds() to prevent a 500 error.
-    total_hours = round(total_hours_duration.total_seconds() / 3600, 2) if total_hours_duration else 0
+    try:
+        total_hours = round(total_hours_duration.total_seconds() / 3600, 2) if total_hours_duration else 0
+    except AttributeError:
+        total_hours = 0
 
     # 2. Daily Attendance Percentage
     today_count = TimeRecord.objects.filter(
@@ -284,14 +296,22 @@ def student_assistants(request):
 
 @login_required
 def profile(request):
+    try:
+        user_profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+    
     total_duration = TimeRecord.objects.filter(
         user=request.user,
         record_type='out',
         duration__isnull=False
     ).aggregate(total=Sum('duration'))['total']
 
-    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
-    required = request.user.userprofile.required_hours if hasattr(request.user, 'userprofile') else 80
+    try:
+        total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    except AttributeError:
+        total_hours = 0
+    required = user_profile.required_hours
     remaining = max(0, float(required) - total_hours)
     percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
 
@@ -335,8 +355,11 @@ def notification(request):
     # Convert duration to hours (duration is in seconds)
     total_hours_rendered = 0
     if total_duration:
-        total_seconds = total_duration.total_seconds()
-        total_hours_rendered = total_seconds / 3600  # Convert to hours
+        try:
+            total_seconds = total_duration.total_seconds()
+            total_hours_rendered = total_seconds / 3600  # Convert to hours
+        except AttributeError:
+            total_hours_rendered = 0
     
     # Get required hours from user profile
     required_hours = request.user.userprofile.required_hours if hasattr(request.user, 'userprofile') else 80.0
@@ -919,8 +942,11 @@ def user_dtr_details(request, user_id):
     
     total_hours_rendered = 0
     if total_duration:
-        total_seconds = total_duration.total_seconds()
-        total_hours_rendered = total_seconds / 3600
+        try:
+            total_seconds = total_duration.total_seconds()
+            total_hours_rendered = total_seconds / 3600
+        except AttributeError:
+            total_hours_rendered = 0
     
     required_hours = user.userprofile.required_hours if hasattr(user, 'userprofile') else 80.0
     remaining_hours = max(0, float(required_hours) - total_hours_rendered)
