@@ -12,8 +12,7 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
 from django.db import models
 from datetime import date, datetime
-from django.contrib.auth import logout
-from django.shortcuts import redirect
+
 
 
 @login_required
@@ -277,7 +276,7 @@ def notification(request):
     
 def logout_view(request):
     logout(request)
-    return redirect('index')  
+    return redirect('logout')  
     
 @login_required
 def profile(request):
