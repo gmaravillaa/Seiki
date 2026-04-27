@@ -1,7 +1,11 @@
 {% extends 'office_head/base.html' %}
-{% load custom_filters %}
+{% load static %} {% load custom_filters %}
 
 {% block title %}Dashboard - Office Head Portal{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/office_head/dashboard.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="page-header">

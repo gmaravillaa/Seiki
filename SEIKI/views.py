@@ -6,6 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.contrib import messages
 import json
 import csv
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
@@ -142,7 +143,7 @@ def office_student_assistants(request):
             Q(userprofile__id_number__icontains=search_query)
         )
 
-    return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
+    return render(request, 'office_head/student_assistants.html', {'students': students})
 
 @login_required
 def office_logs(request):
@@ -152,7 +153,7 @@ def office_logs(request):
         user__userprofile__office=office
     ).order_by('-timestamp')
     
-    return render(request, 'office_head/officeheadlogs.html', {'logs': logs})
+    return render(request, 'office_head/logs.html', {'logs': logs})
 
 @login_required
 def office_dtr_submissions(request):
@@ -162,13 +163,13 @@ def office_dtr_submissions(request):
         user__userprofile__office=office
     ).order_by('-submitted_date')
     
-    return render(request, 'office_head/officeheaddtrsubmission.html', {'submissions': submissions})
+    return render(request, 'office_head/dtr_submissions.html', {'submissions': submissions})
 
 @login_required
 def office_reports(request):
     """Departmental analytics and hour breakdowns"""
     # Logic for rendering officeheadreport.html
-    return render(request, 'office_head/officeheadreport.html')
+    return render(request, 'office_head/reports.html')
 
 @login_required
 def dtr_approvals_view(request):
@@ -186,7 +187,7 @@ def user_progress(request):
 @login_required
 def user_management(request):
     return render(request, 'caao_admin/user_management.html')
-
+   
 @login_required
 def student_assistants(request):
     return render(request, 'caao_admin/student_assistants.html')
@@ -567,7 +568,8 @@ def user_management(request):
         email = request.POST.get('email')
         office = request.POST.get('office')
         id_number = request.POST.get('id_number')
-        required_hours = request.POST.get('required_hours')
+        raw_hours = request.POST.get('required_hours')
+        required_hours = float(raw_hours) if raw_hours and raw_hours.strip() else 0.0
         role = request.POST.get('role')
         
         # Set permissions based on role
