@@ -1400,59 +1400,60 @@ def delete_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=dtr_id)
 
+@login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def add_time_record(request):
-    """Add a new time record for time correction"""
+    """Add a new time record for time correction with safety redirects"""
+    dtr_id = request.POST.get('dtr_id') # Get this first for redirect safety
+    
+    if not dtr_id:
+        messages.error(request, "Invalid request: Missing DTR ID.")
+        return redirect('office_dashboard')
+
     try:
-        dtr_id = request.POST.get('dtr_id')
         timestamp_str = request.POST.get('timestamp')
         record_type = request.POST.get('record_type')
         qr_code = request.POST.get('qr_code', 'admin_correction')
         
         # Get the DTR submission to know which user this is for
-        dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+        dtr_submission = get_object_or_404(DTRSubmission, id=dtr_id)
         user = dtr_submission.user
         
-        # Parse the timestamp
+        # Parse the timestamp from the datetime-local input
         timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
         timestamp = timezone.make_aware(timestamp)
         
-        # Create the time record with edit tracking
+        # Create the time record
         time_record = TimeRecord.objects.create(
             user=user,
             timestamp=timestamp,
             record_type=record_type,
-            qr_code=qr_code,
-            edited_by=request.user,  # Track who created this record
-            edited_date=timezone.now()  # Track when it was created
+            qr_code=qr_code
+            # Note: Ensure 'edited_by' and 'edited_date' exist in your TimeRecord model 
+            # if you want to keep the tracking lines from your current code.
         )
         
-        # If this is a time out record, calculate duration
+        # If this is a 'out' record, calculate duration immediately
         if record_type == 'out':
-            # Find the last time in record for the same day
-            same_day = timestamp.date()
             time_in_record = TimeRecord.objects.filter(
                 user=user,
-                timestamp__date=same_day,
+                timestamp__date=timestamp.date(),
                 record_type='in',
                 timestamp__lt=timestamp
             ).order_by('-timestamp').first()
             
             if time_in_record:
-                duration = timestamp - time_in_record.timestamp
-                time_record.duration = duration
+                time_record.duration = timestamp - time_in_record.timestamp
                 time_record.save()
         
-        messages.success(request, f"Time record added successfully!")
+        messages.success(request, "Time record added successfully!")
         
-    except DTRSubmission.DoesNotExist:
-        messages.error(request, "DTR submission not found.")
     except Exception as e:
-        messages.error(request, f"Error adding time record: {str(e)}")
+        messages.error(request, f"Error adding record: {str(e)}")
     
     return redirect('time_correction', dtr_id=dtr_id)
-
+    
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction_list(request):
     """Show list of students for time correction"""
