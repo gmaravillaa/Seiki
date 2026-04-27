@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db import models
 from django.db.models import Count, Sum, Q  # Combined all models.db imports
+from .models import DTRSubmission, TimeRecord
 
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.contrib.auth import logout
