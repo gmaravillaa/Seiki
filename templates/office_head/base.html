@@ -66,12 +66,11 @@
           <input type="search" name="search" placeholder="Search students..." value="{{ search_query }}">
         </form>
         <div class="header-actions">
-          <a href="{% url 'profile' %}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.3);">Profile</a>
           <form method="post" action="{% url 'logout' %}" style="display: inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: transparent; cursor: pointer;">Logout</button>
           </form>
-          <div class="user-avatar">{{ request.user.username|slice:":2"|upper }}</div>
+          <a href="{% url 'profile' %}" class="user-avatar" style="text-decoration: none; cursor: pointer;">{{ request.user.username|slice:":2"|upper }}</a>
         </div>
       </header>
 

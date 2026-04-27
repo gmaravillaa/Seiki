@@ -180,7 +180,7 @@ def office_users(request):
 
 @login_required
 def profile(request):
-    return render(request, 'caao_admin/profile.html')
+    return render(request, 'core/profile.html')
 
 @login_required
 def dtr_records(request):
@@ -1590,7 +1590,7 @@ def office_dtr_submissions(request):
     month_filter = request.GET.get('month', '')
     
     # Get DTR submissions for these students
-    dtr_submissions = DTRSubmission.objects.filter(user__in=students).select_related('user').order_by('-submitted_at')
+    dtr_submissions = DTRSubmission.objects.filter(user__in=students).select_related('user').order_by('-submitted_date')
     
     # Apply filters
     if search_query:
