@@ -13,7 +13,7 @@ from django.db.models import Count, Sum
 from django.db import models
 from datetime import date, datetime
 from django.db.models import Q, Sum
-from .models import TimeRecord, UserProfile, DTRSubmission, User
+from django.contrib import messages
 
 
 @login_required
@@ -98,8 +98,9 @@ def student_progress_json(request, user_id):
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
     """Refined Dashboard for Office Heads"""
-   office = request.user.userprofile.office  
-    except UserProfile.DoesNotExist:         
+    try:
+        office = request.user.userprofile.office
+    except UserProfile.DoesNotExist:
         messages.error(request, "Your profile information is incomplete.")
         return redirect('profile')
     
@@ -115,13 +116,13 @@ def office_dashboard(request):
         user__userprofile__office=office
     ).order_by('-timestamp')[:5]
 
-      context = {
+    context = {
         'total_sas': total_sas,
         'pending_dtrs': pending_dtrs,
         'recent_logs': recent_logs,
         'office_name': office
     }
-      return render(request, 'office_head/office-dashboard.html', context)  
+    return render(request, 'office_head/office-dashboard.html', context)
 
 
 @login_required
@@ -215,7 +216,7 @@ def profile(request):
         'percentage': round(percent, 1),
     }
     
-    return render(request, 'caao_admin/profile.html')
+    return render(request, 'core/profile.html', context)
 
 @login_required
 def dtr_records(request):
@@ -267,35 +268,7 @@ def notification(request):
         'percentage': round(percentage, 1),
     }
     
-    return render(request, 'core/profile.html', context)
-
-@login_required
-def profile(request):
-    user = request.user
-    profile = getattr(user, 'userprofile', None)
-    
-    # Calculate Work Progress
-    total_duration = TimeRecord.objects.filter(
-        user=user,
-        record_type='out',
-        duration__isnull=False
-    ).aggregate(total=Sum('duration'))['total']
-    
-    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
-    required = profile.required_hours if profile else 80
-    remaining = max(0, float(required) - total_hours)
-    percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
-
-    context = {
-        'user': user,
-        'profile': profile,
-        'total_hours': total_hours,
-        'required_hours': required,
-        'remaining_hours': round(remaining, 2),
-        'percentage': round(percent, 1),
-    }
-    # Using the 'caao_admin/profile.html' or 'core/profile.html' depending on where you saved it
-    return render(request, 'core/profile.html', context)
+    return render(request, 'core/notification.html', context)
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -495,19 +468,6 @@ def dtr_acceptance(request):
             user__last_name__icontains=search
         )
 
-def dtr_acceptance(request):
-    search = request.GET.get("search", "")
-    status = request.GET.get("status", "")
-
-    dtr_records = DTRSubmission.objects.select_related("user", "user__userprofile")
-
-    if search:
-        dtr_records = dtr_records.filter(
-            user__first_name__icontains=search
-        ) | dtr_records.filter(
-            user__last_name__icontains=search
-        )
-
     if status:
         dtr_records = dtr_records.filter(status=status)
 
@@ -522,7 +482,7 @@ def accept_dtr(request, dtr_id):
     dtr.save()
     return redirect("dtr_acceptance")
 
-def user_progress(request):
+def user_progress_data(request):
     students = User.objects.filter(is_staff=False, is_superuser=False)
 
     data = []
@@ -891,6 +851,7 @@ def user_dtr_details(request, user_id):
     }
     
     return render(request, 'caao_admin/user_dtr_details.html', context)
+
 #office head
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
@@ -1066,6 +1027,15 @@ def monthly_dtr(request):
     
     return render(request, 'core/monthly_dtr.html', context)
 
+def format_hours_minutes(decimal_hours):
+    """Convert decimal hours to hours and minutes format (e.g., 8.5 -> '8h 30m')"""
+    if decimal_hours is None or decimal_hours == 0:
+        return "0h 0m"
+    
+    hours = int(decimal_hours)
+    minutes = int((decimal_hours - hours) * 60)
+    return f"{hours}h {minutes}m"
+
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def submit_dtr(request):
@@ -1212,7 +1182,6 @@ def reject_dtr(request, dtr_id):
     return redirect('dtr_approvals')
 
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser)
-
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
@@ -1305,7 +1274,6 @@ def delete_time_record(request, record_id):
 
 @user_passes_test(lambda u: u.is_staff)
 @require_http_methods(["POST"])
-
 def add_time_record(request):
     """Admin manual time correction (simple system)"""
 
@@ -1384,25 +1352,6 @@ def chat(request):
     }
     
     return render(request, 'core/chat.html', context)
-
-    offices = UserProfile.objects.values('office').distinct()
-
-    data = []
-
-    for office in offices:
-        office_name = office['office']
-
-        students = User.objects.filter(userprofile__office=office_name)
-
-        data.append({
-            "office": office_name,
-            "count": students.count(),
-            "students": students
-        })
-
-    return render(request, "caao_admin/offices.html", {
-        "data": data
-    })
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
