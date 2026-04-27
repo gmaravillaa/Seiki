@@ -20,7 +20,7 @@ from django.contrib.auth import logout
 
 def dashboard_redirect(request):
     if request.user.is_superuser:
-        return redirect('/admin_dashboard/')  # Django admin panel
+        return redirect('admin_dashboard')  # Django admin panel
 
     elif request.user.is_staff:
         return redirect('officehead_dashboard')
