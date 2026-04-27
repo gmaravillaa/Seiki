@@ -1,24 +1,20 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 import json
 import csv
-from django.http import HttpResponse
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
-from django.contrib.auth.models import User
-from django.utils import timezone
 from django.db import models
-from django.db.models import Q
-from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
-from django.db import models
-from django.contrib.auth.decorators import login_required
 from datetime import date, datetime
-from .models import TimeRecord
+from django.db.models import Q, Sum
+from .models import TimeRecord, UserProfile, DTRSubmission, User
+
 
 @login_required
 def dashboard_redirect(request):
@@ -99,8 +95,85 @@ def student_progress_json(request, user_id):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
-    return render(request, 'office_head/officehead-dashboard.html')
+    """Refined Dashboard for Office Heads"""
+   office = request.user.userprofile.office  
+    except UserProfile.DoesNotExist:         
+        messages.error(request, "Your profile information is incomplete.")
+        return redirect('profile')
+    
+    # 1. Dashboard Stats
+    total_sas = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
+    pending_dtrs = DTRSubmission.objects.filter(
+        user__userprofile__office=office, 
+        status='pending'
+    ).count()
+    
+    # 2. Recent Logs Table (Top 5)
+    recent_logs = TimeRecord.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-timestamp')[:5]
+
+      context = {
+        'total_sas': total_sas,
+        'pending_dtrs': pending_dtrs,
+        'recent_logs': recent_logs,
+        'office_name': office
+    }
+      return render(request, 'office_head/office-dashboard.html', context)  
+
+
+@login_required
+def office_student_assistants(request):
+    """View list of all SAs in the department"""
+    office = request.user.userprofile.office
+    search_query = request.GET.get('search', '')
+    
+    students = User.objects.filter(
+        userprofile__office=office,
+        is_staff=False
+    ).select_related('userprofile')
+
+    if search_query:
+        students = students.filter(
+            Q(first_name__icontains=search_query) | 
+            Q(last_name__icontains=search_query) |
+            Q(userprofile__id_number__icontains=search_query)
+        )
+
+    return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
+
+@login_required
+def office_logs(request):
+    """Detailed logs for the office head to monitor attendance"""
+    office = request.user.userprofile.office
+    logs = TimeRecord.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-timestamp')
+    
+    return render(request, 'office_head/officeheadlogs.html', {'logs': logs})
+
+@login_required
+def office_dtr_submissions(request):
+    """View all DTR submissions for the department"""
+    office = request.user.userprofile.office
+    submissions = DTRSubmission.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-submitted_date')
+    
+    return render(request, 'office_head/officeheaddtrsubmission.html', {'submissions': submissions})
+
+@login_required
+def office_reports(request):
+    """Departmental analytics and hour breakdowns"""
+    # Logic for rendering officeheadreport.html
+    return render(request, 'office_head/officeheadreport.html')
+
+@login_required
+def dtr_approvals_view(request):
+    """Detail view for dtr_approvals.html"""
+    return render(request, 'office_head/dtr_approvals.html')
 
 @login_required
 def student_dashboard(request):
@@ -124,20 +197,29 @@ def office_users(request):
 
 @login_required
 def profile(request):
+    total_duration = TimeRecord.objects.filter(
+        user=request.user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+
+    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    required = request.user.userprofile.required_hours if hasattr(request.user, 'userprofile') else 80
+    remaining = max(0, float(required) - total_hours)
+    percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
+
+    context = {
+        'total_hours': total_hours,
+        'required_hours': required,
+        'remaining_hours': round(remaining, 2),
+        'percentage': round(percent, 1),
+    }
+    
     return render(request, 'caao_admin/profile.html')
 
 @login_required
 def dtr_records(request):
     return render(request, 'caao_admin/dtr.html')
-
-def format_hours_minutes(decimal_hours):
-    """Convert decimal hours to hours and minutes format (e.g., 8.5 -> '8h 30m')"""
-    if decimal_hours is None or decimal_hours == 0:
-        return "0h 0m"
-    
-    hours = int(decimal_hours)
-    minutes = int((decimal_hours - hours) * 60)
-    return f"{hours}h {minutes}m"
 
 def index(request):
     if request.method == 'POST':
@@ -157,11 +239,6 @@ def index(request):
 
 @login_required(login_url='login')
 def notification(request):
-    return render(request, 'core/notification.html')
-
-@login_required(login_url='login')
-def profile(request):
-    # Calculate total hours rendered
     total_duration = TimeRecord.objects.filter(
         user=request.user,
         record_type='out',
@@ -190,6 +267,34 @@ def profile(request):
         'percentage': round(percentage, 1),
     }
     
+    return render(request, 'core/profile.html', context)
+
+@login_required
+def profile(request):
+    user = request.user
+    profile = getattr(user, 'userprofile', None)
+    
+    # Calculate Work Progress
+    total_duration = TimeRecord.objects.filter(
+        user=user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    required = profile.required_hours if profile else 80
+    remaining = max(0, float(required) - total_hours)
+    percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
+
+    context = {
+        'user': user,
+        'profile': profile,
+        'total_hours': total_hours,
+        'required_hours': required,
+        'remaining_hours': round(remaining, 2),
+        'percentage': round(percent, 1),
+    }
+    # Using the 'caao_admin/profile.html' or 'core/profile.html' depending on where you saved it
     return render(request, 'core/profile.html', context)
 
 @login_required(login_url='login')
@@ -253,6 +358,66 @@ def scanner(request):
     if not request.user.is_staff:
         return redirect('profile')
     return render(request, 'office_head/scanner.html')
+
+@csrf_exempt
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def record_time(request):
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+
+    try:
+        data = json.loads(request.body.decode('utf-8')) if isinstance(request.body, bytes) else json.loads(request.body)
+        qr_code = data.get('qr_code')
+        if not qr_code:
+            raise ValueError('Missing qr_code')
+
+        user_id_str, username = qr_code.split(':', 1)
+        user_id = int(user_id_str)
+    except (ValueError, IndexError, json.JSONDecodeError):
+        return JsonResponse({'success': False, 'error': 'Invalid QR code format'}, status=400)
+
+    try:
+        target_user = User.objects.get(id=user_id, username=username)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+
+    today = date.today()
+    last_record = TimeRecord.objects.filter(
+        user=target_user,
+        timestamp__date=today
+    ).order_by('-timestamp').first()
+
+    if last_record and last_record.record_type == 'in':
+        record_type = 'out'
+        message_text = 'Time out'
+    else:
+        record_type = 'in'
+        message_text = 'Time in'
+
+    time_record = TimeRecord.objects.create(
+        user=target_user,
+        qr_code=qr_code,
+        record_type=record_type
+    )
+
+    if record_type == 'out':
+        time_in_record = TimeRecord.objects.filter(
+            user=target_user,
+            timestamp__date=today,
+            record_type='in'
+        ).order_by('-timestamp').first()
+        if time_in_record:
+            duration = time_record.timestamp - time_in_record.timestamp
+            time_record.duration = duration
+            time_record.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': f'{message_text} recorded for {target_user.username} at {timezone.localtime(time_record.timestamp).strftime("%H:%M:%S")}',
+        'timestamp': time_record.timestamp.isoformat(),
+        'record_type': record_type
+    })
 
 @login_required(login_url='login')
 def logs(request):
@@ -330,6 +495,19 @@ def dtr_acceptance(request):
             user__last_name__icontains=search
         )
 
+def dtr_acceptance(request):
+    search = request.GET.get("search", "")
+    status = request.GET.get("status", "")
+
+    dtr_records = DTRSubmission.objects.select_related("user", "user__userprofile")
+
+    if search:
+        dtr_records = dtr_records.filter(
+            user__first_name__icontains=search
+        ) | dtr_records.filter(
+            user__last_name__icontains=search
+        )
+
     if status:
         dtr_records = dtr_records.filter(status=status)
 
@@ -376,90 +554,6 @@ def user_progress(request):
     return render(request, 'caao_admin/user_progress.html', {
         'data': data
     })
-    
-@login_required(login_url='login')
-@require_http_methods(["POST"])
-def record_time(request):
-    """Record time when QR code is scanned"""
-    try:
-        print(f"Record time called by user: {request.user}")
-        print(f"Request body: {request.body}")
-        
-        data = json.loads(request.body)
-        qr_code = data.get('qr_code')
-        
-        if not qr_code:
-            return JsonResponse({'success': False, 'error': 'QR code data required'}, status=400)
-        
-        # Parse QR code to get user ID (format: "user_id:username")
-        try:
-            user_id_str, username = qr_code.split(':', 1)
-            user_id = int(user_id_str)
-        except (ValueError, IndexError):
-            return JsonResponse({'success': False, 'error': 'Invalid QR code format'}, status=400)
-        
-        # Get the user whose QR code was scanned
-        try:
-            target_user = User.objects.get(id=user_id, username=username)
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
-        
-        # Get today's date
-        today = date.today()
-        
-        # Get the last time record for today for the target user
-        last_record = TimeRecord.objects.filter(
-            user=target_user,
-            timestamp__date=today
-        ).order_by('-timestamp').first()
-        
-        # Determine record type: if last was 'in', make this 'out', else 'in'
-        if last_record and last_record.record_type == 'in':
-            record_type = 'out'
-            message_text = 'Time out'
-        else:
-            record_type = 'in'
-            message_text = 'Time in'
-        
-        # Create time record
-        time_record = TimeRecord.objects.create(
-            user=target_user,
-            qr_code=qr_code,
-            record_type=record_type
-        )
-        
-        # If this is a time out, calculate and store the duration
-        if record_type == 'out':
-            # Find the last time in record for today
-            time_in_record = TimeRecord.objects.filter(
-                user=target_user,
-                timestamp__date=today,
-                record_type='in'
-            ).order_by('-timestamp').first()
-            
-            if time_in_record:
-                # Calculate duration between time in and time out
-                duration = time_record.timestamp - time_in_record.timestamp
-                time_record.duration = duration
-                time_record.save()
-        
-        print(f"Time record created: {time_record}")
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'{message_text} recorded for {target_user.username} at {timezone.localtime(time_record.timestamp).strftime("%H:%M:%S")}',
-            'timestamp': time_record.timestamp.isoformat(),
-            'record_type': record_type
-        })
-        
-    except json.JSONDecodeError as e:
-        print(f"JSON Error: {e}")
-        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
-    except Exception as e:
-        print(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @user_passes_test(lambda u: u.is_superuser)
 def user_management(request):
@@ -797,7 +891,7 @@ def user_dtr_details(request, user_id):
     }
     
     return render(request, 'caao_admin/user_dtr_details.html', context)
-
+#office head
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_users(request):
@@ -1396,5 +1490,3 @@ def mark_messages_read(request, user_id):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
-
-
