@@ -1,4 +1,9 @@
+import json
+import csv
+from datetime import date, datetime
+
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -6,14 +11,11 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-import json
-import csv
-from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
-from django.db.models import Count, Sum
 from django.db import models
-from datetime import date, datetime
-from django.db.models import Q, Sum
-from django.contrib import messages
+from django.db.models import Count, Sum, Q  # Combined all models.db imports
+
+from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
+
 
 
 @login_required
@@ -97,8 +99,9 @@ def student_progress_json(request, user_id):
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_dashboard(request):
-    """Refined Dashboard for Office Heads"""
+    """Refined Dashboard for Office Heads aligned with System Logic"""
     try:
+        # Identify the Office Head's office
         office = request.user.userprofile.office
     except (UserProfile.DoesNotExist, AttributeError):
         messages.error(request, "Your profile information is incomplete.")
@@ -107,48 +110,58 @@ def office_dashboard(request):
     if not office:
         messages.error(request, "Your office information is not set.")
         return redirect('profile')
-    
-    # 1. Dashboard Stats
+
+    # 1. Dashboard Stats (Scope limited to the specific office)
+    # Total students assigned to this office
     total_students = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
+    
+    # Count pending DTRs only for students in this office
     pending_dtrs = DTRSubmission.objects.filter(
         user__userprofile__office=office, 
         status='pending'
     ).count()
     
+    # Calculate total hours rendered across all students in this office
     total_hours_duration = TimeRecord.objects.filter(
         user__userprofile__office=office,
         record_type='out',
         duration__isnull=False
     ).aggregate(total=Sum('duration'))['total']
+    
     total_hours = round(total_hours_duration.total_seconds() / 3600, 2) if total_hours_duration else 0
 
+    # 2. Daily Attendance Percentage
+    # Count how many unique students from this office checked in today
     today_count = TimeRecord.objects.filter(
         user__userprofile__office=office,
         timestamp__date=date.today()
     ).values('user').distinct().count()
+    
     today_attendance = round((today_count / total_students) * 100, 0) if total_students else 0
     
+    # 3. Tables/Lists
+    # Recent activity: Students in this office ordered by their last login
     recent_students = User.objects.filter(
         userprofile__office=office,
         is_staff=False
     ).select_related('userprofile').order_by('-last_login')[:5]
     
+    # Live Logs: The 5 most recent time records for this office
     recent_logs = TimeRecord.objects.filter(
         user__userprofile__office=office
     ).order_by('-timestamp')[:5]
 
     context = {
+        'office_name': office,
         'total_students': total_students,
-        'active_students': total_students,
         'total_hours': total_hours,
-        'today_attendance': today_attendance,
         'pending_dtrs': pending_dtrs,
+        'today_attendance': today_attendance,
         'recent_students': recent_students,
         'recent_logs': recent_logs,
-        'office_name': office,
     }
+    
     return render(request, 'office_head/office-dashboard.html', context)
-
 
 @login_required
 def office_student_assistants(request):
