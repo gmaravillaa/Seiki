@@ -109,22 +109,43 @@ def office_dashboard(request):
         return redirect('profile')
     
     # 1. Dashboard Stats
-    total_sas = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
+    total_students = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
     pending_dtrs = DTRSubmission.objects.filter(
         user__userprofile__office=office, 
         status='pending'
     ).count()
     
-    # 2. Recent Logs Table (Top 5)
+    total_hours_duration = TimeRecord.objects.filter(
+        user__userprofile__office=office,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    total_hours = round(total_hours_duration.total_seconds() / 3600, 2) if total_hours_duration else 0
+
+    today_count = TimeRecord.objects.filter(
+        user__userprofile__office=office,
+        timestamp__date=date.today()
+    ).values('user').distinct().count()
+    today_attendance = round((today_count / total_students) * 100, 0) if total_students else 0
+    
+    recent_students = User.objects.filter(
+        userprofile__office=office,
+        is_staff=False
+    ).select_related('userprofile').order_by('-last_login')[:5]
+    
     recent_logs = TimeRecord.objects.filter(
         user__userprofile__office=office
     ).order_by('-timestamp')[:5]
 
     context = {
-        'total_sas': total_sas,
+        'total_students': total_students,
+        'active_students': total_students,
+        'total_hours': total_hours,
+        'today_attendance': today_attendance,
         'pending_dtrs': pending_dtrs,
+        'recent_students': recent_students,
         'recent_logs': recent_logs,
-        'office_name': office
+        'office_name': office,
     }
     return render(request, 'office_head/office-dashboard.html', context)
 
@@ -152,7 +173,10 @@ def office_student_assistants(request):
             Q(userprofile__id_number__icontains=search_query)
         )
 
-    return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
+    return render(request, 'office_head/officeheadstudentassistant.html', {
+        'students': students,
+        'office_name': office,
+    })
 
 @login_required
 def office_logs(request):
@@ -167,7 +191,10 @@ def office_logs(request):
         user__userprofile__office=office
     ).order_by('-timestamp')
     
-    return render(request, 'office_head/officeheadlogs.html', {'logs': logs})
+    return render(request, 'office_head/officeheadlogs.html', {
+        'logs': logs,
+        'office_name': office,
+    })
 
 @login_required
 def office_dtr_submissions(request):
@@ -182,7 +209,10 @@ def office_dtr_submissions(request):
         user__userprofile__office=office
     ).order_by('-submitted_date')
     
-    return render(request, 'office_head/officeheaddtrsubmission.html', {'submissions': submissions})
+    return render(request, 'office_head/officeheaddtrsubmission.html', {
+        'submissions': submissions,
+        'office_name': office,
+    })
 
 @login_required
 def office_reports(request):
@@ -197,7 +227,7 @@ def dtr_approvals_view(request):
 
 @login_required
 def student_dashboard(request):
-    return render(request, 'student/dashboard.html')
+    return render(request, 'student/studentdashboard.html')
 
 @login_required
 def student_logs(request):
@@ -230,10 +260,6 @@ def user_management(request):
 @login_required
 def student_assistants(request):
     return render(request, 'caao_admin/student_assistants.html')
-
-@login_required
-def office_users(request):
-    return render(request, 'caao_admin/office_users.html')
 
 @login_required
 def profile(request):

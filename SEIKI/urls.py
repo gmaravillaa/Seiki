@@ -46,6 +46,11 @@ urlpatterns = [
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('office-dashboard/', views.office_dashboard, name='office_dashboard'),
     path('student-dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('office-student-assistants/', views.office_student_assistants, name='office_student_assistants'),
+    path('office-logs/', views.office_logs, name='office_logs'),
+    path('office-dtr-submissions/', views.office_dtr_submissions, name='office_dtr_submissions'),
+    path('office-reports/', views.office_reports, name='office_reports'),
+    path('office-dtr-approvals/', views.dtr_approvals_view, name='office_dtr_approvals'),
 
     # =======================
     # MODULE PAGES
