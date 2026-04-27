@@ -1,6 +1,6 @@
 import json
 import csv
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -1340,25 +1340,24 @@ def time_correction(request, dtr_id):
     }
     return render(request, 'office_head/time_correction.html', context)
 
-@user_passes_test(lambda u: u.is_staff, login_url='login')
-@require_http_methods(["POST"])
 @login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
-    """Update an existing time record via the template's modal"""
+    """Update an existing time record and recalculate related durations"""
     record = get_object_or_404(TimeRecord, id=record_id)
     dtr_id = request.POST.get('dtr_id')
     
     try:
         timestamp_str = request.POST.get('timestamp')
         if timestamp_str:
-            # Parse and make timezone aware
+            # 1. Parse and update the timestamp
             new_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
             record.timestamp = timezone.make_aware(new_timestamp)
             record.save()
             
-            # If we updated a 'Time Out', we must recalculate the duration
+            # 2. Recalculate Durations
+            # Case A: We edited a 'Time Out'. Update THIS record's duration.
             if record.record_type == 'out':
                 time_in = TimeRecord.objects.filter(
                     user=record.user,
@@ -1370,7 +1369,19 @@ def update_time_record(request, record_id):
                     record.duration = record.timestamp - time_in.timestamp
                     record.save()
 
-            messages.success(request, "Record updated successfully.")
+            # Case B: We edited a 'Time In'. Update the NEXT 'Time Out' duration.
+            else:
+                time_out = TimeRecord.objects.filter(
+                    user=record.user,
+                    record_type='out',
+                    timestamp__gt=record.timestamp
+                ).order_by('timestamp').first()
+                
+                if time_out:
+                    time_out.duration = time_out.timestamp - record.timestamp
+                    time_out.save()
+
+            messages.success(request, "Record updated and durations recalculated.")
             
     except Exception as e:
         messages.error(request, f"Update failed: {str(e)}")
