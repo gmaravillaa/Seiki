@@ -12,6 +12,9 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
 from django.db import models
 from datetime import date, datetime
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
 
 @login_required
 def dashboard_redirect(request):
@@ -144,7 +147,9 @@ def office_reports(request):
         'office_name': office
     }
     return render(request, 'office_head/officeheadreport.html', context)
+    
 
+    
 @login_required
 def office_student_assistants(request):
     """Matches officeheadstudentassistant.html"""
@@ -269,7 +274,11 @@ def notification(request):
     }
     
     return render(request, 'core/profile.html', context)
-
+    
+def logout_view(request):
+    logout(request)
+    return redirect('index')  
+    
 @login_required
 def profile(request):
     user = request.user
