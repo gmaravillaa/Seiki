@@ -34,7 +34,11 @@ def dashboard_redirect(request):
         # If staff without an office profile, fall back to student dashboard.
 
     return redirect('student_dashboard')
-
+    
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+    
 @login_required
 def dtr_approvals(request):
     office = request.user.userprofile.office
