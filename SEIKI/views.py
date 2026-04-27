@@ -23,7 +23,7 @@ def dashboard_redirect(request):
         return redirect('admin_dashboard')  # Django admin panel
 
     elif request.user.is_staff:
-        return redirect('officehead_dashboard')
+        return redirect('office_dashboard')
 
     else:
         return redirect('user_dashboard')
