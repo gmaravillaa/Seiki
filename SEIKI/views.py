@@ -95,7 +95,7 @@ def student_progress_json(request, user_id):
     })
 
 @login_required
-    @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
     """Refined Dashboard for Office Heads"""
     office = request.user.userprofile.office
@@ -139,8 +139,8 @@ def office_student_assistants(request):
         )
 
     return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
-    
-    @login_required
+
+@login_required
 def office_logs(request):
     """Detailed logs for the office head to monitor attendance"""
     office = request.user.userprofile.office
@@ -209,7 +209,8 @@ def profile(request):
         'required_hours': required,
         'remaining_hours': round(remaining, 2),
         'percentage': round(percent, 1),
-        
+    }
+    
     return render(request, 'caao_admin/profile.html')
 
 @login_required
