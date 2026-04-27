@@ -118,7 +118,7 @@ def office_dashboard(request):
         'recent_logs': recent_logs,
         'office_name': office
     }
-    return render(request, 'office_head/dashboard.html')
+    return render(request, 'office_head/office-dashboard.html')
 
 @login_required
 def office_student_assistants(request):
