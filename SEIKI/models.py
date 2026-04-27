@@ -22,6 +22,8 @@ class TimeRecord(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     record_type = models.CharField(max_length=3, choices=RECORD_TYPES, default='in')
     duration = models.DurationField(null=True, blank=True)  # Duration in seconds for time out records
+    edited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='edited_time_records')
+    edited_date = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         ordering = ['-timestamp']

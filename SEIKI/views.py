@@ -1361,7 +1361,6 @@ def update_time_record(request, record_id):
             # Make it timezone aware
             new_timestamp = timezone.make_aware(new_timestamp)
             time_record.timestamp = new_timestamp
-            time_record.save()
             
             # If this is a time out record, recalculate duration
             if time_record.record_type == 'out':
@@ -1377,7 +1376,11 @@ def update_time_record(request, record_id):
                 if time_in_record:
                     duration = time_record.timestamp - time_in_record.timestamp
                     time_record.duration = duration
-                    time_record.save()
+            
+            # Track who edited this record
+            time_record.edited_by = request.user
+            time_record.edited_date = timezone.now()
+            time_record.save()
         
         messages.success(request, f"Time record updated successfully!")
     except TimeRecord.DoesNotExist:
@@ -1421,12 +1424,14 @@ def add_time_record(request):
         timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
         timestamp = timezone.make_aware(timestamp)
         
-        # Create the time record
+        # Create the time record with edit tracking
         time_record = TimeRecord.objects.create(
             user=user,
             timestamp=timestamp,
             record_type=record_type,
-            qr_code=qr_code
+            qr_code=qr_code,
+            edited_by=request.user,  # Track who created this record
+            edited_date=timezone.now()  # Track when it was created
         )
         
         # If this is a time out record, calculate duration
