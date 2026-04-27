@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Availability Schedule</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="studentschedule.css">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <h1 class="sidebar-logo">Student DTR</h1>
+          <button class="close-sidebar" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="logs.html" class="nav-item">ke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Logs</span>
+          </a>
+          <a href="submit.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Submit DTR</span>
+          </a>
+          <a href="schedule.html" class="nav-item active">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stro
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Schedule</span>
+          </a>
+          <a href="profile.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="logout-btn" onclick="showLogoutModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </button>
+          <p class="sidebar-powered">Powered by ADNU IS</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <button class="menu-btn" onclick="toggleSidebar()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="header-date">
+          <p>Thursday, April 16, 2026</p>
+        </div>
+
+        <div class="header-right">
+          <button class="notification-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notification-dot"></span>
+          </button>
+
+          <div class="user-profile">
+            <div class="user-info">
+              <p class="user-name">Juan Dela Cruz</p>
+              <p class="user-role">Student Assistant</p>
+            </div>
+            <div class="user-avatar">JD</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-content">
+        <!-- Page Header -->
+        <div class="schedule-header">
+          <div>
+            <h1 class="page-title">Availability Schedule</h1>
+            <p class="page-subtitle">Manage your weekly availability and schedule</p>
+          </div>
+          <div class="edit-actions" id="editActions">
+            <button class="btn-edit" id="editBtn" onclick="enableEdit()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edit Schedule
+            </button>
+            <div class="edit-action-buttons" id="editActionButtons" style="display: none;">
+              <button class="btn-save" onclick="saveSchedule()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Save Changes
+              </button>
+              <button class="btn-cancel-edit" onclick="cancelEdit()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Mode Banner -->
+        <div class="edit-banner" id="editBanner" style="display: none;">
+          <p>📝 You're now in edit mode. Click on days to toggle availability and adjust times.</p>
+        </div>
+
+        <div class="schedule-grid">
+          <!-- Weekly Schedule -->
+          <div class="schedule-main">
+            <div class="schedule-card">
+              <div class="schedule-card-header">
+                <h2>Weekly Availability</h2>
+              </div>
+              <div class="schedule-card-body">
+                <div class="day-list">
+                  <!-- Monday -->
+                  <div class="day-item available" data-day="Monday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Monday">MON</button>
+                      <div class="day-info">
+                        <p class="day-name">Monday</p>
+                        <p class="day-status">Available</p>
+                      </div>
+                    </div>
+                    <div class="day-times">
+                      <div class="time-input-group">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <input type="time" value="09:00" class="time-input" disabled />
+                      </div>
+                      <span class="time-separator">-</span>
+                      <input type="time" value="17:00" class="time-input" disabled />
+                    </div>
+                  </div>
+
+                  <!-- Tuesday -->
+                  <div class="day-item available" data-day="Tuesday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Tuesday">TUE</button>
+                      <div class="day-info">
+                        <p class="day-name">Tuesday</p>
+                        <p class="day-status">Available</p>
+                      </div>
+                    </div>
+                    <div class="day-times">
+                      <div class="time-input-group">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <input type="time" value="09:00" class="time-input" disabled />
+                      </div>
+                      <span class="time-separator">-</span>
+                      <input type="time" value="17:00" class="time-input" disabled />
+                    </div>
+                  </div>
+
+                  <!-- Wednesday -->
+                  <div class="day-item available" data-day="Wednesday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Wednesday">WED</button>
+                      <div class="day-info">
+                        <p class="day-name">Wednesday</p>
+                        <p class="day-status">Available</p>
+                      </div>
+                    </div>
+                    <div class="day-times">
+                      <div class="time-input-group">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <input type="time" value="09:00" class="time-input" disabled />
+                      </div>
+                      <span class="time-separator">-</span>
+                      <input type="time" value="17:00" class="time-input" disabled />
+                    </div>
+                  </div>
+
+                  <!-- Thursday -->
+                  <div class="day-item available" data-day="Thursday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Thursday">THU</button>
+                      <div class="day-info">
+                        <p class="day-name">Thursday</p>
+                        <p class="day-status">Available</p>
+                      </div>
+                    </div>
+                    <div class="day-times">
+                      <div class="time-input-group">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <input type="time" value="09:00" class="time-input" disabled />
+                      </div>
+                      <span class="time-separator">-</span>
+                      <input type="time" value="17:00" class="time-input" disabled />
+                    </div>
+                  </div>
+
+                  <!-- Friday -->
+                  <div class="day-item available" data-day="Friday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Friday">FRI</button>
+                      <div class="day-info">
+                        <p class="day-name">Friday</p>
+                        <p class="day-status">Available</p>
+                      </div>
+                    </div>
+                    <div class="day-times">
+                      <div class="time-input-group">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <input type="time" value="09:00" class="time-input" disabled />
+                      </div>
+                      <span class="time-separator">-</span>
+                      <input type="time" value="17:00" class="time-input" disabled />
+                    </div>
+                  </div>
+
+                  <!-- Saturday -->
+                  <div class="day-item" data-day="Saturday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Saturday">SAT</button>
+                      <div class="day-info">
+                        <p class="day-name unavailable">Saturday</p>
+                        <p class="day-status unavailable">Not Available</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Sunday -->
+                  <div class="day-item" data-day="Sunday">
+                    <div class="day-content">
+                      <button class="day-toggle" data-day="Sunday">SUN</button>
+                      <div class="day-info">
+                        <p class="day-name unavailable">Sunday</p>
+                        <p class="day-status unavailable">Not Available</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weekly Summary -->
+            <div class="summary-cards">
+              <div class="summary-small-card">
+                <p class="summary-small-label">Available Days</p>
+                <p class="summary-small-value green">5</p>
+              </div>
+              <div class="summary-small-card">
+                <p class="summary-small-label">Weekly Hours</p>
+                <p class="summary-small-value blue">40 hrs</p>
+              </div>
+              <div class="summary-small-card">
+                <p class="summary-small-label">Off Days</p>
+                <p class="summary-small-value gray">2</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="schedule-sidebar">
+            <!-- Upcoming Shifts -->
+            <div class="sidebar-card">
+              <div class="sidebar-card-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <h3>Upcoming Shifts</h3>
+              </div>
+              <div class="shift-list">
+                <div class="shift-item">
+                  <p class="shift-day">Thursday</p>
+                  <p class="shift-date">Apr 17, 2026</p>
+                  <p class="shift-time">9:00 AM - 5:00 PM</p>
+                </div>
+                <div class="shift-item">
+                  <p class="shift-day">Friday</p>
+                  <p class="shift-date">Apr 18, 2026</p>
+                  <p class="shift-time">9:00 AM - 5:00 PM</p>
+                </div>
+                <div class="shift-item">
+                  <p class="shift-day">Monday</p>
+                  <p class="shift-date">Apr 21, 2026</p>
+                  <p class="shift-time">9:00 AM - 5:00 PM</p>
+                </div>
+                <div class="shift-item">
+                  <p class="shift-day">Tuesday</p>
+                  <p class="shift-date">Apr 22, 2026</p>
+                  <p class="shift-time">9:00 AM - 5:00 PM</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-gradient-card">
+              <h3>This Month</h3>
+              <div class="stats-list">
+                <div class="stat-item">
+                  <span class="stat-label-white">Days Worked</span>
+                  <span class="stat-value-large">18</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label-white">Total Hours</span>
+                  <span class="stat-value-large">144</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label-white">Avg. Hours/Day</span>
+                  <span class="stat-value-large">8</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+              <p class="info-title">📌 Important Note</p>
+              <p class="info-text">
+                Changes to your schedule must be approved by your office head. Please submit any changes at least 24 hours in advance.
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div class="modal-overlay" id="logoutModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm Logout</h3>
+        <button onclick="hideLogoutModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p class="modal-text">Are you sure you want to logout from your account?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="hideLogoutModal()">Cancel</button>
+        <button class="btn-logout" onclick="logout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="schedule.js"></script>
+</body>
+</html>

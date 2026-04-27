@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Submit DTR</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .submit-header {
+      background: linear-gradient(to right, var(--primary-blue), var(--primary-blue-dark));
+      color: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem 0.75rem 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .submit-header-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .submit-badge {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+    }
+
+    .submit-badge-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .submit-badge-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .entry-card {
+      background-color: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .entry-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .entry-number {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .entry-field label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      margin-bottom: 0.25rem;
+    }
+
+    .entry-field p {
+      font-size: 0.875rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .entry-field.time-in p {
+      color: var(--green-900);
+    }
+
+    .entry-field.time-out p {
+      color: var(--red-900);
+    }
+
+    .entry-field.duration p {
+      color: var(--blue-900);
+    }
+
+    .total-summary {
+      background: linear-gradient(to right, var(--primary-blue), var(--primary-blue-dark));
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .total-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      margin-bottom: 0.25rem;
+    }
+
+    .total-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .remarks-section {
+      margin-top: 1.5rem;
+    }
+
+    .remarks-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .remarks-textarea {
+      width: 100%;
+      min-height: 6rem;
+      padding: 0.75rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      resize: vertical;
+    }
+
+    .remarks-textarea:focus {
+      outline: 2px solid var(--primary-blue);
+      border-color: transparent;
+    }
+
+    .submit-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-submit {
+      flex: 1;
+      background-color: var(--primary-blue);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-blue-dark);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .no-entries-alert {
+      background-color: var(--yellow-50);
+      border: 1px solid var(--yellow-200);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .no-entries-icon {
+      color: var(--yellow-600);
+      margin: 0 auto 0.5rem;
+    }
+
+    .no-entries-title {
+      font-size: 0.875rem;
+      color: var(--yellow-800);
+      font-weight: 600;
+    }
+
+    .no-entries-text {
+      font-size: 0.75rem;
+      color: var(--yellow-700);
+      margin-top: 0.25rem;
+    }
+
+    .confirmation-modal .modal-content {
+      max-width: 32rem;
+    }
+
+    .modal-date {
+      background-color: var(--gray-50);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-date-main {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .modal-date-sub {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+
+    .modal-entries {
+      background-color: var(--gray-50);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      border: 1px solid var(--gray-200);
+    }
+
+    .modal-entry {
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--gray-300);
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-entry:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .modal-entry-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-entry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .modal-entry-field label {
+      display: block;
+      color: var(--gray-500);
+      margin-bottom: 0.125rem;
+    }
+
+    .modal-entry-field p {
+      font-weight: 600;
+      color: var(--gray-900);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 2px solid var(--primary-blue);
+      margin-top: 0.75rem;
+    }
+
+    .modal-total-label {
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .modal-total-value {
+      font-weight: 700;
+      color: var(--primary-blue);
+      font-size: 1.125rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-remarks {
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--gray-300);
+      margin-top: 0.75rem;
+    }
+
+    .modal-remarks-label {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      margin-bottom: 0.25rem;
+    }
+
+    .modal-remarks-text {
+      font-size: 0.875rem;
+      color: var(--gray-900);
+      font-style: italic;
+    }
+
+    .success-message {
+      background-color: var(--green-50);
+      border: 1px solid var(--green-600);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .success-icon {
+      color: var(--green-600);
+      flex-shrink: 0;
+    }
+
+    .success-text {
+      color: var(--green-900);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar (same as dashboard) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <h1 class="sidebar-logo">Student DTR</h1>
+          <button class="close-sidebar" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="logs.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Logs</span>
+          </a>
+          <a href="submit.html" class="nav-item active">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Submit DTR</span>
+          </a>
+          <a href="schedule.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Schedule</span>
+          </a>
+          <a href="profile.html" class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="logout-btn" onclick="showLogoutModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </button>
+          <p class="sidebar-powered">Powered by ADNU IS</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <button class="menu-btn" onclick="toggleSidebar()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="header-date">
+          <p>Thursday, April 16, 2026</p>
+        </div>
+
+        <div class="header-right">
+          <button class="notification-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notification-dot"></span>
+          </button>
+
+          <div class="user-profile">
+            <div class="user-info">
+              <p class="user-name">Juan Dela Cruz</p>
+              <p class="user-role">Student Assistant</p>
+            </div>
+            <div class="user-avatar">JD</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-content">
+        <h2 class="section-title">Submit Daily Time Record</h2>
+
+        <!-- Success Message (hidden by default) -->
+        <div class="success-message" id="successMessage" style="display: none;">
+          <svg class="success-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <p class="success-text">DTR submitted successfully and pending approval!</p>
+        </div>
+
+        <!-- Today's Entries Card -->
+        <div class="recent-logs">
+          <div class="submit-header">
+            <div class="submit-header-content">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <div>
+                <h3 style="font-size: 1.125rem; font-weight: 700;">Today's Entries</h3>
+                <p style="font-size: 0.875rem; opacity: 0.8;">Apr 16, 2026 - Thursday</p>
+              </div>
+            </div>
+            <div class="submit-badge">
+              <p class="submit-badge-label">Total Entries</p>
+              <p class="submit-badge-value" id="totalEntriesCount">2</p>
+            </div>
+          </div>
+
+          <div style="padding: 1.5rem;">
+            <!-- Entry List -->
+            <div id="entriesList">
+              <!-- Entry 1 -->
+              <div class="entry-card">
+                <div class="entry-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span class="entry-number">Entry #1</span>
+                </div>
+                <div class="entry-grid">
+                  <div class="entry-field time-in">
+                    <label>Time In</label>
+                    <p>09:00:23 AM</p>
+                  </div>
+                  <div class="entry-field time-out">
+                    <label>Time Out</label>
+                    <p>12:00:15 PM</p>
+                  </div>
+                  <div class="entry-field duration">
+                    <label>Duration</label>
+                    <p>02:59:52</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Entry 2 -->
+              <div class="entry-card">
+                <div class="entry-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span class="entry-number">Entry #2</span>
+                </div>
+                <div class="entry-grid">
+                  <div class="entry-field time-in">
+                    <label>Time In</label>
+                    <p>01:00:10 PM</p>
+                  </div>
+                  <div class="entry-field time-out">
+                    <label>Time Out</label>
+                    <p>05:30:45 PM</p>
+                  </div>
+                  <div class="entry-field duration">
+                    <label>Duration</label>
+                    <p>04:30:35</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Summary -->
+            <div class="total-summary">
+              <div>
+                <p class="total-label">Total Hours Worked</p>
+                <p class="total-value" id="totalHours">07:30:27</p>
+              </div>
+              <div style="text-align: right;">
+                <p class="total-label">Total Entries</p>
+                <p class="total-value" id="totalEntries">2</p>
+              </div>
+            </div>
+
+            <!-- Remarks Section -->
+            <div class="remarks-section">
+              <label class="remarks-label">Remarks (Optional)</label>
+              <textarea class="remarks-textarea" id="remarks" placeholder="Add any notes or comments about today's work..."></textarea>
+            </div>
+
+            <!-- Submit Actions -->
+            <div class="submit-actions">
+              <button class="btn-submit" onclick="showConfirmationModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                Submit DTR for Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay confirmation-modal" id="confirmationModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm DTR Submission</h3>
+        <button onclick="hideConfirmationModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-date">
+        <p class="modal-date-main">Apr 16, 2026</p>
+        <p class="modal-date-sub">Thursday</p>
+      </div>
+
+      <div class="modal-entries">
+        <!-- Entry 1 -->
+        <div class="modal-entry">
+          <p class="modal-entry-label">Entry #1</p>
+          <div class="modal-entry-grid">
+            <div class="modal-entry-field">
+              <label>In</label>
+              <p>09:00:23 AM</p>
+            </div>
+            <div class="modal-entry-field">
+              <label>Out</label>
+              <p>12:00:15 PM</p>
+            </div>
+            <div class="modal-entry-field">
+              <label>Hours</label>
+              <p style="color: var(--blue-900);">02:59:52</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 2 -->
+        <div class="modal-entry">
+          <p class="modal-entry-label">Entry #2</p>
+          <div class="modal-entry-grid">
+            <div class="modal-entry-field">
+              <label>In</label>
+              <p>01:00:10 PM</p>
+            </div>
+            <div class="modal-entry-field">
+              <label>Out</label>
+              <p>05:30:45 PM</p>
+            </div>
+            <div class="modal-entry-field">
+              <label>Hours</label>
+              <p style="color: var(--blue-900);">04:30:35</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div class="modal-total">
+          <span class="modal-total-label">Total Hours:</span>
+          <span class="modal-total-value">07:30:27</span>
+        </div>
+
+        <!-- Remarks (if any) -->
+        <div class="modal-remarks" id="modalRemarks" style="display: none;">
+          <p class="modal-remarks-label">Remarks:</p>
+          <p class="modal-remarks-text" id="modalRemarksText">"Sample remarks"</p>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 1.5rem;">
+        <button class="btn-cancel" onclick="hideConfirmationModal()">Cancel</button>
+        <button class="btn-submit" onclick="submitDTR()" style="flex: initial;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout Modal (same as dashboard) -->
+  <div class="modal-overlay" id="logoutModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm Logout</h3>
+        <button onclick="hideLogoutModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p class="modal-text">Are you sure you want to logout from your account?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="hideLogoutModal()">Cancel</button>
+        <button class="btn-logout" onclick="logout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function showLogoutModal() {
+      document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function hideLogoutModal() {
+      document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    function logout() {
+      window.location.href = 'login.html';
+    }
+
+    function showConfirmationModal() {
+      const remarks = document.getElementById('remarks').value;
+      const modalRemarks = document.getElementById('modalRemarks');
+      const modalRemarksText = document.getElementById('modalRemarksText');
+      
+      if (remarks) {
+        modalRemarks.style.display = 'block';
+        modalRemarksText.textContent = `"${remarks}"`;
+      } else {
+        modalRemarks.style.display = 'none';
+      }
+      
+      document.getElementById('confirmationModal').style.display = 'flex';
+    }
+
+    function hideConfirmationModal() {
+      document.getElementById('confirmationModal').style.display = 'none';
+    }
+
+    function submitDTR() {
+      hideConfirmationModal();
+      document.getElementById('successMessage').style.display = 'flex';
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        document.getElementById('successMessage').style.display = 'none';
+      }, 5000);
+      
+      console.log('✅ DTR Submitted for approval');
+    }
+
+    // Close modals when clicking outside
+    document.getElementById('confirmationModal')?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideConfirmationModal();
+      }
+    });
+
+    document.getElementById('logoutModal')?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideLogoutModal();
+      }
+    });
+  </script>
+</body>
+</html>
