@@ -44,7 +44,7 @@
             </svg>
             <span>Submit DTR</span>
           </a>
-          <a href="{% url 'student_schedule' %}" class="nav-item">
+          <a href="{% url 'student_scanner' %}" class="nav-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
               <path d="M7 7h10v10H7z"></path>
@@ -86,26 +86,26 @@
           </svg>
         </button>
 
+        <div class="header-date">
+          <p>{% now "l, F j, Y" %}</p>
+        </div>
+
         <div class="header-right">
-          <button class="notification-btn">
+          <div class="user-profile">
+            <div class="user-avatar">{{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}</div>
+            <div class="user-info">
+              <p class="user-name">{{ request.user.get_full_name|default:request.user.username }}</p>
+              <p class="user-role">{{ request.user.userprofile.office|default:"Student Assistant" }}</p>
+            </div>
+          </div>
+
+          <button class="notification-btn" onclick="window.location.href='{% url 'notification' %}'">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
             <span class="notification-dot"></span>
           </button>
-
-          <div class="user-profile">
-            <div class="user-info">
-              <p class="user-name">Juan Dela Cruz</p>
-              <p class="user-role">Student Assistant</p>
-            </div>
-            <div class="user-avatar">JD</div>
-          </div>
-        </div>
-
-        <div class="header-date">
-          <p>Thursday, April 16, 2026</p>
         </div>
       </header>
 
@@ -148,8 +148,8 @@
                   </div>
                   <div class="profile-name-section">
                     <div>
-                      <h2 class="profile-name">Juan Dela Cruz</h2>
-                      <p class="profile-position">Student Assistant</p>
+                      <h2 class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                      <p class="profile-position">{{ request.user.userprofile.office|default:"Student Assistant" }}</p>
                     </div>
                     <span class="status-badge-active">Active</span>
                   </div>
@@ -169,11 +169,11 @@
               <div class="info-grid">
                 <div class="info-field">
                   <label class="info-label">Full Name</label>
-                  <div class="info-value">Juan Dela Cruz</div>
+                  <div class="info-value">{{ request.user.get_full_name|default:request.user.username }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">Student ID</label>
-                  <div class="info-value">2021-12345</div>
+                  <div class="info-value">{{ request.user.userprofile.id_number|default:"N/A" }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">
@@ -183,7 +183,7 @@
                     </svg>
                     Email Address
                   </label>
-                  <div class="info-value">juan.delacruz@g.msuiit.edu.ph</div>
+                  <div class="info-value">{{ user.email|default:"Not provided" }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">
@@ -192,7 +192,7 @@
                     </svg>
                     Phone Number
                   </label>
-                  <div class="info-value">+63 912 345 6789</div>
+                  <div class="info-value">Not provided</div>
                 </div>
               </div>
             </div>
@@ -211,7 +211,7 @@
               <div class="info-grid">
                 <div class="info-field">
                   <label class="info-label">Assigned Office</label>
-                  <div class="info-value">Office of the President</div>
+                  <div class="info-value">{{ request.user.userprofile.office|default:"N/A" }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">Position</label>
