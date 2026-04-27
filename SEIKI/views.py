@@ -264,6 +264,34 @@ def notification(request):
     
     return render(request, 'core/profile.html', context)
 
+@login_required
+def profile(request):
+    user = request.user
+    profile = getattr(user, 'userprofile', None)
+    
+    # Calculate Work Progress
+    total_duration = TimeRecord.objects.filter(
+        user=user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    required = profile.required_hours if profile else 80
+    remaining = max(0, float(required) - total_hours)
+    percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
+
+    context = {
+        'user': user,
+        'profile': profile,
+        'total_hours': total_hours,
+        'required_hours': required,
+        'remaining_hours': round(remaining, 2),
+        'percentage': round(percent, 1),
+    }
+    # Using the 'caao_admin/profile.html' or 'core/profile.html' depending on where you saved it
+    return render(request, 'core/profile.html', context)
+
 @login_required(login_url='login')
 def dashboard(request):
     """Dashboard/home page for students/users"""
