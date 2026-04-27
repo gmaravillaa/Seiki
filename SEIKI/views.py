@@ -12,6 +12,9 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
 from django.db import models
 from datetime import date, datetime
+from django.db.models import Q, Sum
+from .models import TimeRecord, UserProfile, DTRSubmission, User
+
 
 @login_required
 def dashboard_redirect(request):
@@ -92,8 +95,81 @@ def student_progress_json(request, user_id):
     })
 
 @login_required
+    @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
+    """Refined Dashboard for Office Heads"""
+    office = request.user.userprofile.office
+    
+    # 1. Dashboard Stats
+    total_sas = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
+    pending_dtrs = DTRSubmission.objects.filter(
+        user__userprofile__office=office, 
+        status='pending'
+    ).count()
+    
+    # 2. Recent Logs Table (Top 5)
+    recent_logs = TimeRecord.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-timestamp')[:5]
+
+    context = {
+        'total_sas': total_sas,
+        'pending_dtrs': pending_dtrs,
+        'recent_logs': recent_logs,
+        'office_name': office
+    }
     return render(request, 'office_head/dashboard.html')
+
+@login_required
+def office_student_assistants(request):
+    """View list of all SAs in the department"""
+    office = request.user.userprofile.office
+    search_query = request.GET.get('search', '')
+    
+    students = User.objects.filter(
+        userprofile__office=office,
+        is_staff=False
+    ).select_related('userprofile')
+
+    if search_query:
+        students = students.filter(
+            Q(first_name__icontains=search_query) | 
+            Q(last_name__icontains=search_query) |
+            Q(userprofile__id_number__icontains=search_query)
+        )
+
+    return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
+    
+    @login_required
+def office_logs(request):
+    """Detailed logs for the office head to monitor attendance"""
+    office = request.user.userprofile.office
+    logs = TimeRecord.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-timestamp')
+    
+    return render(request, 'office_head/officeheadlogs.html', {'logs': logs})
+
+@login_required
+def office_dtr_submissions(request):
+    """View all DTR submissions for the department"""
+    office = request.user.userprofile.office
+    submissions = DTRSubmission.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-submitted_date')
+    
+    return render(request, 'office_head/officeheaddtrsubmission.html', {'submissions': submissions})
+
+@login_required
+def office_reports(request):
+    """Departmental analytics and hour breakdowns"""
+    # Logic for rendering officeheadreport.html
+    return render(request, 'office_head/officeheadreport.html')
+
+@login_required
+def dtr_approvals_view(request):
+    """Detail view for dtr_approvals.html"""
+    return render(request, 'office_head/dtr_approvals.html')
 
 @login_required
 def student_dashboard(request):
@@ -117,6 +193,23 @@ def office_users(request):
 
 @login_required
 def profile(request):
+    total_duration = TimeRecord.objects.filter(
+        user=request.user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+
+    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    required = request.user.userprofile.required_hours if hasattr(request.user, 'userprofile') else 80
+    remaining = max(0, float(required) - total_hours)
+    percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
+
+    context = {
+        'total_hours': total_hours,
+        'required_hours': required,
+        'remaining_hours': round(remaining, 2),
+        'percentage': round(percent, 1),
+        
     return render(request, 'caao_admin/profile.html')
 
 @login_required
@@ -765,7 +858,7 @@ def user_dtr_details(request, user_id):
     }
     
     return render(request, 'caao_admin/user_dtr_details.html', context)
-
+#office head
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_users(request):
