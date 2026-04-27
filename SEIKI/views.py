@@ -1316,7 +1316,7 @@ def reject_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser, login_url='login')
+@login_required(login_url='login')
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
