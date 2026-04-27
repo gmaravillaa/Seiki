@@ -1316,7 +1316,7 @@ def reject_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
@@ -1458,12 +1458,24 @@ def add_time_record(request):
     
     return redirect('time_correction', dtr_id=dtr_id)
 
-def time_correction_list(request):
-    students = User.objects.filter(is_staff=False, is_superuser=False)
-
-    return render(request, 'caao_admin/time_correction.html', {
-        'students': students
-    })
+@user_passes_test(lambda u: u.is_staff, login_url='login')
+def time_correction_user(request, user_id):
+    """Show DTR submissions for a specific user"""
+    try:
+        user = User.objects.get(id=user_id, is_staff=False, is_superuser=False)
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('time_correction_list')
+    
+    # Get all DTR submissions for this user
+    dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month')
+    
+    context = {
+        'selected_user': user,
+        'dtr_submissions': dtr_submissions,
+    }
+    
+    return render(request, 'caao_admin/time_correction.html', context)
 
 @login_required(login_url='login')
 def chat(request):

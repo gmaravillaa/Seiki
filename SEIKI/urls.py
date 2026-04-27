@@ -98,6 +98,7 @@ urlpatterns = [
     # TIME CORRECTION
     # =======================
     path('time-correction/', views.time_correction_list, name='time_correction_list'),
+    path('time-correction/user/<int:user_id>/', views.time_correction_user, name='time_correction_user'),
     path('time-correction/<int:dtr_id>/', views.time_correction, name='time_correction'),
     path('time-correction/add/', views.add_time_record, name='add_time_record'),
     path('time-correction/update/<int:record_id>/', views.update_time_record, name='update_time_record'),
