@@ -620,102 +620,6 @@
     </div>
   </main>
 
-  <!-- Student List (when no specific DTR submission is selected) -->
-  {% if not dtr_submission %}
-  <main class="main-content">
-    <!-- Show DTR submissions for selected user -->
-    {% if selected_user %}
-    <div class="user-info">
-      <div class="user-name">{{ selected_user.first_name }} {{ selected_user.last_name }}</div>
-      <div class="user-details">
-        <div class="detail-item">
-          <h3>Username</h3>
-          <div class="detail-value">{{ selected_user.username }}</div>
-        </div>
-        <div class="detail-item">
-          <h3>Office</h3>
-          <div class="detail-value">{{ selected_user.userprofile.office|default:"-" }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="records-section">
-      <div class="section-title">DTR Submissions for {{ selected_user.get_full_name }}</div>
-      {% if dtr_submissions %}
-        <table class="records-table">
-          <thead>
-            <tr>
-              <th>Month/Year</th>
-              <th>Status</th>
-              <th>Submitted Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for submission in dtr_submissions %}
-              <tr>
-                <td>{{ submission.month }}/{{ submission.year }}</td>
-                <td>
-                  <span class="record-type-{{ submission.status }}">
-                    {% if submission.status == 'pending' %}Pending{% elif submission.status == 'approved' %}Approved{% else %}Rejected{% endif %}
-                  </span>
-                </td>
-                <td>{{ submission.created_at|date:"M d, Y" }}</td>
-                <td>
-                  <a href="{% url 'time_correction' submission.id %}" class="btn-edit" style="text-decoration: none;">Edit Time Records</a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div style="text-align: center; padding: 2rem; color: #999;">
-          No DTR submissions found for this user.
-        </div>
-      {% endif %}
-    </div>
-
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="{% url 'time_correction_list' %}" class="btn-secondary" style="text-decoration: none; display: inline-block; padding: 0.5rem 1rem;">Back to Student List</a>
-    </div>
-
-    <!-- Show student list when no user is selected -->
-    {% else %}
-    <div class="records-section">
-      <div class="section-title">Select Student for Time Correction</div>
-      {% if students %}
-        <table class="records-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Full Name</th>
-              <th>Office</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for student in students %}
-              <tr>
-                <td>{{ student.username }}</td>
-                <td>{{ student.first_name }} {{ student.last_name }}</td>
-                <td>{{ student.userprofile.office|default:"-" }}</td>
-                <td>
-                  <a href="{% url 'time_correction_user' student.id %}" class="btn-edit" style="text-decoration: none;">View DTR Submissions</a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div style="text-align: center; padding: 2rem; color: #999;">
-          No students found.
-        </div>
-      {% endif %}
-    </div>
-    {% endif %}
-  </main>
-  {% endif %}
-
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
@@ -723,7 +627,7 @@
         <h2 class="modal-title">Edit Time Record</h2>
         <span class="close" onclick="closeEditModal()">&times;</span>
       </div>
-      <form id="editForm" method="post" action="" data-update-url="{% url 'update_time_record' 0 %}">
+      <form id="editForm" method="post" action="">
         {% csrf_token %}
         <input type="hidden" name="dtr_id" value="{{ dtr_submission.id }}">
         <div class="modal-body">
@@ -743,8 +647,7 @@
   <script>
     function openEditModal(recordId, currentTimestamp) {
       document.getElementById('edit_timestamp').value = currentTimestamp.replace(' ', 'T');
-      const baseUrl = document.getElementById('editForm').getAttribute('data-update-url');
-      document.getElementById('editForm').action = baseUrl.replace('0', recordId);
+      document.getElementById('editForm').action = `/time-correction/update/${recordId}/`;
       document.getElementById('editModal').style.display = 'block';
     }
 
