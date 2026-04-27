@@ -166,7 +166,7 @@ body { font-family: 'Inter', sans-serif; }
     <!-- ACTION -->
     <td class="px-6 py-4 text-right">
 
-        <a href="{% url 'time_correction_list' %}"
+        <a href="{% url 'time_correction_user' item.student.id %}"
            class="text-sm font-bold text-[#003A6C] hover:underline">
             Manage Logs
         </a>
