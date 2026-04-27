@@ -1459,6 +1459,15 @@ def add_time_record(request):
     return redirect('time_correction', dtr_id=dtr_id)
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
+def time_correction_list(request):
+    """Show list of students for time correction"""
+    students = User.objects.filter(is_staff=False, is_superuser=False)
+
+    return render(request, 'caao_admin/time_correction.html', {
+        'students': students
+    })
+
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction_user(request, user_id):
     """Show DTR submissions for a specific user"""
     try:
