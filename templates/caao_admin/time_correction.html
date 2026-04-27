@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Time Correction Admin</title>
+<title>Time Correction - Seiki Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -10,74 +10,112 @@
 
 <div class="w-full h-2 bg-[#003A6C]"></div>
 
-<div class="p-6 max-w-6xl mx-auto space-y-6">
+<div class="p-6 max-w-7xl mx-auto space-y-6">
 
 <!-- HEADER -->
-<div class="border-b pb-4">
-    <h1 class="text-2xl font-bold text-[#003A6C]">Time Correction System</h1>
-    <p class="text-gray-500 text-sm">Admin can manually add missing time-in / time-out records</p>
+<div class="flex justify-between items-center border-b pb-4">
+    <div>
+        <h1 class="text-2xl font-bold text-[#003A6C]">⏱ Time Correction</h1>
+        <p class="text-gray-500 text-sm">
+            Add missing time-in / time-out for student assistants
+        </p>
+    </div>
+
+    <a href="{% url 'admin_dashboard' %}"
+       class="px-4 py-2 bg-white border rounded hover:bg-gray-100 text-sm">
+        ← Back to Dashboard
+    </a>
 </div>
 
-<!-- FORM CARD -->
-<div class="bg-white p-6 rounded-xl shadow-sm border">
+<!-- SUCCESS / ERROR MESSAGES -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="p-4 rounded-lg text-sm font-semibold
+            {% if message.tags == 'success' %}bg-green-100 text-green-700
+            {% elif message.tags == 'error' %}bg-red-100 text-red-700
+            {% else %}bg-gray-100 text-gray-700{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 
-<form method="POST" action="{% url 'add_time_record' %}" class="space-y-4">
+<!-- STUDENT LIST -->
+<div class="grid md:grid-cols-2 gap-6">
 
-    {% csrf_token %}
+{% for student in students %}
 
-    <!-- STUDENT SELECT -->
-    <div>
-        <label class="text-xs font-bold text-gray-500">Select Student</label>
+<div class="bg-white p-5 rounded-xl shadow-sm border hover:shadow-md transition">
 
-        <select name="user_id" class="w-full border rounded px-3 py-2 text-sm" required>
-            <option value="">-- Choose Student --</option>
-            {% for student in students %}
-                <option value="{{ student.id }}">
-                    {{ student.get_full_name }} ({{ student.userprofile.id_number|default:"No ID" }})
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <!-- DATE -->
-    <div>
-        <label class="text-xs font-bold text-gray-500">Date</label>
-        <input type="date" name="date"
-               class="w-full border rounded px-3 py-2 text-sm" required>
-    </div>
-
-    <!-- TIME -->
-    <div class="grid grid-cols-2 gap-4">
+    <!-- STUDENT INFO -->
+    <div class="flex justify-between items-center mb-4">
 
         <div>
-            <label class="text-xs font-bold text-gray-500">Time In</label>
-            <input type="time" name="time_in"
-                   class="w-full border rounded px-3 py-2 text-sm" required>
+            <p class="font-bold text-gray-900 text-lg">
+                {{ student.get_full_name }}
+            </p>
+            <p class="text-xs text-gray-500">
+                ID: {{ student.userprofile.id_number|default:"N/A" }}
+            </p>
         </div>
 
+        <span class="text-xs px-2 py-1 bg-blue-50 text-[#003A6C] rounded font-semibold">
+            {{ student.userprofile.office|default:"No Office" }}
+        </span>
+
+    </div>
+
+    <!-- FORM -->
+    <form method="POST" action="{% url 'add_time_record' %}" class="space-y-3">
+
+        {% csrf_token %}
+
+        <!-- Hidden user ID -->
+        <input type="hidden" name="user_id" value="{{ student.id }}">
+
+        <!-- DATE -->
         <div>
-            <label class="text-xs font-bold text-gray-500">Time Out</label>
-            <input type="time" name="time_out"
-                   class="w-full border rounded px-3 py-2 text-sm" required>
+            <label class="text-xs font-bold text-gray-400 uppercase">Date</label>
+            <input type="date" name="date"
+                   class="w-full border rounded px-3 py-2 text-sm mt-1 focus:ring-2 focus:ring-[#003A6C] focus:outline-none"
+                   required>
         </div>
 
-    </div>
+        <!-- TIME INPUTS -->
+        <div class="grid grid-cols-2 gap-3">
 
-    <!-- REMARKS -->
-    <div>
-        <label class="text-xs font-bold text-gray-500">Remarks</label>
-        <textarea name="remarks" rows="3"
-                  class="w-full border rounded px-3 py-2 text-sm"
-                  placeholder="Optional note (e.g. forgot to time-in)"></textarea>
-    </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Time In</label>
+                <input type="time" name="time_in"
+                       class="w-full border rounded px-3 py-2 text-sm mt-1 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                       required>
+            </div>
 
-    <!-- SUBMIT -->
-    <button type="submit"
-        class="w-full bg-[#003A6C] text-white py-2 rounded font-bold hover:bg-[#002a5c]">
-        Save Correction
-    </button>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Time Out</label>
+                <input type="time" name="time_out"
+                       class="w-full border rounded px-3 py-2 text-sm mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                       required>
+            </div>
 
-</form>
+        </div>
+
+        <!-- SUBMIT -->
+        <button type="submit"
+            class="w-full bg-[#003A6C] text-white py-2 rounded-md text-sm font-bold hover:bg-[#002a5c] transition">
+            Save Correction
+        </button>
+
+    </form>
+
+</div>
+
+{% empty %}
+
+<div class="col-span-2 text-center text-gray-400 py-10">
+    No student assistants found.
+</div>
+
+{% endfor %}
 
 </div>
 

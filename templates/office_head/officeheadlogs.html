@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logs - Office Head Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Office Head Portal</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="student-assistants.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <span>Student Assistants</span>
+        </a>
+        <a href="logs.html" class="nav-item active">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Logs</span>
+        </a>
+        <a href="dtr-submissions.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>DTR Submissions</span>
+        </a>
+        <a href="reports.html" class="nav-item">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>Reports</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-search">
+          <svg class="header-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="search" placeholder="Search students, logs...">
+        </div>
+        <div class="header-actions">
+          <button class="icon-button">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span class="notification-badge"></span>
+          </button>
+          <div class="user-avatar">OH</div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Time Logs</h1>
+            <p class="page-description">View and manage time in/out records</p>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-content">
+            <div class="filters">
+              <div class="filter-group">
+                <input type="search" placeholder="Search by student name..." style="width: 300px;">
+              </div>
+              <div class="filter-group">
+                <label style="font-size: 14px; color: var(--gray-600); margin-right: 8px;">From:</label>
+                <input type="date" style="width: 160px;">
+              </div>
+              <div class="filter-group">
+                <label style="font-size: 14px; color: var(--gray-600); margin-right: 8px;">To:</label>
+                <input type="date" style="width: 160px;">
+              </div>
+              <div class="filter-group">
+                <select>
+                  <option>All Status</option>
+                  <option>Complete</option>
+                  <option>In Progress</option>
+                  <option>Incomplete</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="card">
+          <div class="card-content">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Student Name</th>
+                    <th>Student ID</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Total Hours</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Apr 15, 2026</td>
+                    <td style="font-weight: 500;">Juan Dela Cruz</td>
+                    <td>2021-12345</td>
+                    <td>08:00 AM</td>
+                    <td>05:00 PM</td>
+                    <td>9h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 15, 2026</td>
+                    <td style="font-weight: 500;">Maria Santos</td>
+                    <td>2021-12346</td>
+                    <td>08:15 AM</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="badge warning">In Progress</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 15, 2026</td>
+                    <td style="font-weight: 500;">Pedro Garcia</td>
+                    <td>2021-12347</td>
+                    <td>08:30 AM</td>
+                    <td>04:30 PM</td>
+                    <td>8h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 15, 2026</td>
+                    <td style="font-weight: 500;">Ana Reyes</td>
+                    <td>2021-12348</td>
+                    <td>09:00 AM</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="badge warning">Incomplete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 15, 2026</td>
+                    <td style="font-weight: 500;">Carlos Mendoza</td>
+                    <td>2021-12349</td>
+                    <td>08:00 AM</td>
+                    <td>05:15 PM</td>
+                    <td>9.25h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 14, 2026</td>
+                    <td style="font-weight: 500;">Sofia Rodriguez</td>
+                    <td>2021-12350</td>
+                    <td>08:30 AM</td>
+                    <td>05:00 PM</td>
+                    <td>8.5h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 14, 2026</td>
+                    <td style="font-weight: 500;">Juan Dela Cruz</td>
+                    <td>2021-12345</td>
+                    <td>08:00 AM</td>
+                    <td>04:45 PM</td>
+                    <td>8.75h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 14, 2026</td>
+                    <td style="font-weight: 500;">Maria Santos</td>
+                    <td>2021-12346</td>
+                    <td>08:15 AM</td>
+                    <td>05:30 PM</td>
+                    <td>9.25h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 14, 2026</td>
+                    <td style="font-weight: 500;">Pedro Garcia</td>
+                    <td>2021-12347</td>
+                    <td>09:00 AM</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="badge danger">Incomplete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Apr 13, 2026</td>
+                    <td style="font-weight: 500;">Ana Reyes</td>
+                    <td>2021-12348</td>
+                    <td>08:00 AM</td>
+                    <td>05:00 PM</td>
+                    <td>9h</td>
+                    <td><span class="badge success">Complete</span></td>
+                    <td class="text-right">
+                      <button class="btn btn-sm btn-outline">Edit</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
