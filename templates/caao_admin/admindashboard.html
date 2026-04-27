@@ -5,62 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
 
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- CHART -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 :root {
     --primary-blue: #003a6c;
-    --sidebar-dark: #003a6c;
-    --accent-pink: #feacb5;
-    --accent-mint: #94e2aa;
-    --bg-light: #f4f7f9;
 
-    /* DIRTY WHITE THEME */
-    --card-white: #fdfdfc;
-    --soft-white: #f7f7f5;
+    /* SOFT DIRTY WHITE PALETTE */
+    --bg: #f6f7f5;
+    --card: #fdfdfc;
+    --soft: #f2f3f1;
 
-    --text-muted: #6b7280;
+    --pink: #f9c5d1;
+    --mint: #b7e4c7;
+    --blue-soft: #a8d8ff;
+
+    --text: #2f2f2f;
+    --muted: #6b7280;
 }
 
-/* GLOBAL */
 body {
-    background: var(--bg-light);
-    font-family: Inter, sans-serif;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
 }
 
 /* SIDEBAR */
 .sidebar {
-    background: var(--sidebar-dark);
+    background: var(--primary-blue);
     color: white;
 }
 
-/* LINKS */
 .sidebar a {
-    transition: all 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .sidebar a:hover {
     background: rgba(255,255,255,0.12);
-    transform: translateX(6px);
+    transform: translateX(5px);
 }
 
-/* ACTIVE */
-.active-link {
-    background: rgba(255,255,255,0.18);
-}
-
-/* MAIN CARD STYLE */
+/* CARDS */
 .card {
-    background: var(--card-white);
-    border-radius: 14px;
-    transition: all 0.25s ease;
+    background: var(--card);
+    border-radius: 16px;
     border: 1px solid #eee;
+    transition: 0.25s ease;
 }
 
-/* HOVER EFFECT (MODERN FLOAT) */
-.card-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 /* TABLE */
@@ -72,7 +73,7 @@ table tbody tr:hover {
     background: #f3f6ff;
 }
 
-/* BUTTONS */
+/* BUTTON */
 button {
     transition: 0.2s ease;
 }
@@ -81,9 +82,9 @@ button:hover {
     transform: scale(1.03);
 }
 
-/* HEADER GLASS EFFECT */
+/* HEADER */
 .header {
-    background: rgba(253,253,252,0.8);
+    background: rgba(253,253,252,0.85);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #eee;
 }
@@ -99,34 +100,34 @@ button:hover {
 
     <div>
         <div class="p-6 border-b border-white/20">
-            <h1 class="text-lg font-bold">CAOO Admin</h1>
-            <p class="text-xs opacity-70">Management Portal</p>
+            <h1 class="text-xl font-bold">CAOO Admin</h1>
+            <p class="text-xs opacity-70">Dashboard System</p>
         </div>
 
         <nav class="p-4 space-y-2 text-sm">
 
-            <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 rounded active-link">
+            <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 rounded">
                 Dashboard
             </a>
 
-            <a href="{% url 'user_progress' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+            <a href="{% url 'user_progress' %}" class="block px-4 py-2 rounded">
                 Progress
             </a>
 
-            <a href="{% url 'user_management' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+            <a href="{% url 'user_management' %}" class="block px-4 py-2 rounded">
                 Management
             </a>
 
-            <a href="{% url 'dtr_records' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+            <a href="{% url 'dtr_records' %}" class="block px-4 py-2 rounded">
                 DTR Records
             </a>
 
-            <a href="{% url 'chat' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+            <a href="{% url 'chat' %}" class="block px-4 py-2 rounded">
                 Chat
             </a>
 
-            <a href="{% url 'student_assistants' %}" class="block px-4 py-2 rounded hover:bg-white/10">
-                Student Assistants
+            <a href="{% url 'student_assistants' %}" class="block px-4 py-2 rounded">
+                Workforce
             </a>
 
         </nav>
@@ -136,8 +137,7 @@ button:hover {
     <div class="p-4 border-t border-white/20">
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit"
-                class="w-full py-2 rounded bg-red-500 hover:bg-red-600">
+            <button class="w-full bg-red-500 py-2 rounded text-white hover:bg-red-600">
                 Logout
             </button>
         </form>
@@ -149,82 +149,73 @@ button:hover {
 <div class="flex-1 p-6 space-y-6">
 
     <!-- HEADER -->
-    <div class="header flex justify-between items-center px-4 py-3 rounded-xl">
+    <div class="header flex justify-between items-center px-5 py-4 rounded-xl">
 
         <div>
-            <h1 class="text-2xl font-bold text-[var(--primary-blue)]">Good day!</h1>
+            <h1 class="text-2xl font-bold text-[var(--primary-blue)]">
+                Good day, {{ request.user.username }}
+            </h1>
             <p class="text-sm text-gray-500">
-                Welcome back, {{ request.user.username }}.
+                Admin overview dashboard
             </p>
         </div>
-
-        <!-- FILTER -->
-        <form method="GET">
-            <select name="month"
-                onchange="this.form.submit()"
-                class="bg-white border rounded px-3 py-2 text-sm">
-
-                <option value="">All Months</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-
-            </select>
-        </form>
 
     </div>
 
     <!-- STATS -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        <div class="card card-hover p-6 border-t-4 border-blue-700">
+        <div class="card p-5 border-t-4 border-blue-400">
             <p class="text-xs text-gray-400">Total Students</p>
             <p class="text-3xl font-bold">{{ total_students }}</p>
         </div>
 
-        <div class="card card-hover p-6 border-t-4 border-pink-300">
+        <div class="card p-5 border-t-4 border-pink-300">
             <p class="text-xs text-gray-400">Pending DTRs</p>
             <p class="text-3xl font-bold">{{ pending_dtrs }}</p>
         </div>
 
-        <div class="card card-hover p-6 border-t-4 border-green-300">
+        <div class="card p-5 border-t-4 border-green-300">
             <p class="text-xs text-gray-400">Approved DTRs</p>
             <p class="text-3xl font-bold">{{ approved_dtrs }}</p>
         </div>
 
-        <div class="card card-hover p-6 border-t-4 border-blue-300">
+        <div class="card p-5 border-t-4 border-indigo-300">
             <p class="text-xs text-gray-400">Active Offices</p>
             <p class="text-3xl font-bold">{{ active_offices }}</p>
         </div>
 
     </div>
 
-    <!-- TABLE -->
-    <div class="card p-4">
+    <!-- GRAPH -->
+    <div class="card p-6">
+        <h2 class="text-lg font-bold text-[var(--primary-blue)] mb-2">
+            DTR Status Overview
+        </h2>
+        <p class="text-sm text-gray-500 mb-4">
+            Visual breakdown of student submission status
+        </p>
 
-        <h2 class="text-xl font-bold text-[var(--primary-blue)] mb-4">
-            Student Assistants
+        <canvas id="dtrChart"></canvas>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card p-5">
+
+        <h2 class="text-lg font-bold text-[var(--primary-blue)] mb-4">
+            Workforce Overview
         </h2>
 
-        <table class="w-full">
+        <table class="w-full text-sm">
 
-            <thead class="text-xs text-gray-400 uppercase">
+            <thead class="text-gray-400 uppercase text-xs">
                 <tr>
-                    <th class="text-left p-3">Name</th>
-                    <th class="text-left p-3">ID</th>
-                    <th class="text-left p-3">Office</th>
-                    <th class="text-left p-3">Status</th>
-                    <th class="text-left p-3">Hours</th>
-                    <th class="text-right p-3">Actions</th>
+                    <th class="p-3 text-left">Name</th>
+                    <th class="p-3 text-left">ID</th>
+                    <th class="p-3 text-left">Office</th>
+                    <th class="p-3 text-left">Status</th>
+                    <th class="p-3 text-left">Hours</th>
+                    <th class="p-3 text-right">Actions</th>
                 </tr>
             </thead>
 
@@ -237,13 +228,9 @@ button:hover {
                         {{ student.get_full_name }}
                     </td>
 
-                    <td class="p-3">
-                        {{ student.userprofile.id_number|default:"N/A" }}
-                    </td>
+                    <td class="p-3">{{ student.userprofile.id_number|default:"N/A" }}</td>
 
-                    <td class="p-3">
-                        {{ student.userprofile.office|default:"No Office" }}
-                    </td>
+                    <td class="p-3">{{ student.userprofile.office|default:"No Office" }}</td>
 
                     <td class="p-3">
                         {% if student.is_active %}
@@ -253,9 +240,7 @@ button:hover {
                         {% endif %}
                     </td>
 
-                    <td class="p-3">
-                        {{ student.total_hours }} hrs
-                    </td>
+                    <td class="p-3">{{ student.total_hours }} hrs</td>
 
                     <td class="p-3 text-right space-x-2">
 
@@ -285,14 +270,26 @@ button:hover {
 </div>
 </div>
 
+<!-- GRAPH SCRIPT -->
 <script>
-function openProgress(userId) {
-    fetch(`/user-progress/${userId}/json/`)
-    .then(res => res.json())
-    .then(data => {
-        alert(data.name + " - " + data.percent + "%");
-    });
-}
+const ctx = document.getElementById('dtrChart');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Approved', 'Pending'],
+        datasets: [{
+            data: [{{ approved_dtrs }}, {{ pending_dtrs }}],
+            backgroundColor: ['#b7e4c7', '#f9c5d1'],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
 </script>
 
 </body>
