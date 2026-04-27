@@ -12,6 +12,9 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.db.models import Count, Sum
 from django.db import models
 from datetime import date, datetime
+from django.db.models import Q, Sum
+from .models import TimeRecord, UserProfile, DTRSubmission, User
+
 
 @login_required
 def dashboard_redirect(request):
@@ -92,82 +95,64 @@ def student_progress_json(request, user_id):
     })
 
 @login_required
-
+    @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
-    """Matches officeheaddashboard.html"""
-    # Ensure the user has a profile and office
-    try:
-        office = request.user.userprofile.office
-    except UserProfile.DoesNotExist:
-        return redirect('profile')
-
-    context = {
-        'total_sas': UserProfile.objects.filter(office=office, user__is_staff=False).count(),
-        'pending_dtrs': DTRSubmission.objects.filter(
-            user__userprofile__office=office, 
-            status='pending'
-        ).count(),
-        # Fetching the 5 most recent logs for the department
-        'recent_logs': TimeRecord.objects.filter(
-            user__userprofile__office=office
-        ).order_back('timestamp')[:5],
-        'office_name': office
-    }
-    return render(request, 'office_head/officeheaddashboard.html', context)
-
-@login_required
-def office_reports(request):
-    """Matches officeheadreport.html"""
+    """Refined Dashboard for Office Heads"""
     office = request.user.userprofile.office
     
-    # Aggregate total hours for the whole office
-    total_duration = TimeRecord.objects.filter(
-        user__userprofile__office=office,
-        duration__isnull=False
-    ).aggregate(total=Sum('duration'))['total']
+    # 1. Dashboard Stats
+    total_sas = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
+    pending_dtrs = DTRSubmission.objects.filter(
+        user__userprofile__office=office, 
+        status='pending'
+    ).count()
     
-    total_office_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
-    
-    # Breakdown by specific Student
-    student_stats = User.objects.filter(
-        userprofile__office=office, 
-        is_staff=False
-    ).annotate(
-        rendered=Sum('timerecord__duration')
-    )
+    # 2. Recent Logs Table (Top 5)
+    recent_logs = TimeRecord.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-timestamp')[:5]
 
     context = {
-        'total_sas': UserProfile.objects.filter(office=office, user__is_staff=False).count(),
-        'total_hours': total_office_hours,
-        'student_stats': student_stats,
-        'pending_dtrs': DTRSubmission.objects.filter(user__userprofile__office=office, status='pending').count(),
+        'total_sas': total_sas,
+        'pending_dtrs': pending_dtrs,
+        'recent_logs': recent_logs,
         'office_name': office
     }
-    return render(request, 'office_head/officeheadreport.html', context)
+    return render(request, 'office_head/dashboard.html')
 
 @login_required
 def office_student_assistants(request):
-    """Matches officeheadstudentassistant.html"""
+    """View list of all SAs in the department"""
     office = request.user.userprofile.office
-    query = request.GET.get('search', '')
+    search_query = request.GET.get('search', '')
     
     students = User.objects.filter(
         userprofile__office=office,
         is_staff=False
     ).select_related('userprofile')
 
-    if query:
+    if search_query:
         students = students.filter(
-            models.Q(first_name__icontains=query) | 
-            models.Q(last_name__icontains=query) |
-            models.Q(userprofile__id_number__icontains=query)
+            Q(first_name__icontains=search_query) | 
+            Q(last_name__icontains=search_query) |
+            Q(userprofile__id_number__icontains=search_query)
         )
 
     return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
+    
+    @login_required
+def office_logs(request):
+    """Detailed logs for the office head to monitor attendance"""
+    office = request.user.userprofile.office
+    logs = TimeRecord.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-timestamp')
+    
+    return render(request, 'office_head/officeheadlogs.html', {'logs': logs})
 
 @login_required
 def office_dtr_submissions(request):
-    """Matches officeheaddtrsubmission.html"""
+    """View all DTR submissions for the department"""
     office = request.user.userprofile.office
     submissions = DTRSubmission.objects.filter(
         user__userprofile__office=office
@@ -176,23 +161,15 @@ def office_dtr_submissions(request):
     return render(request, 'office_head/officeheaddtrsubmission.html', {'submissions': submissions})
 
 @login_required
-def approve_dtr(request, dtr_id):
-    """Action for the 'Approve' modal"""
-    submission = get_object_or_404(DTRSubmission, id=dtr_id)
-    submission.status = 'approved'
-    submission.remarks = "Approved by Office Head"
-    submission.save()
-    return redirect('office_dtr_submissions')
+def office_reports(request):
+    """Departmental analytics and hour breakdowns"""
+    # Logic for rendering officeheadreport.html
+    return render(request, 'office_head/officeheadreport.html')
 
 @login_required
-def reject_dtr(request, dtr_id):
-    """Action for the 'Reject' modal"""
-    if request.method == 'POST':
-        submission = get_object_or_404(DTRSubmission, id=dtr_id)
-        submission.status = 'rejected'
-        submission.remarks = request.POST.get('remarks', 'No remarks provided')
-        submission.save()
-    return redirect('office_dtr_submissions')
+def dtr_approvals_view(request):
+    """Detail view for dtr_approvals.html"""
+    return render(request, 'office_head/dtr_approvals.html')
 
 @login_required
 def student_dashboard(request):
@@ -216,6 +193,23 @@ def office_users(request):
 
 @login_required
 def profile(request):
+    total_duration = TimeRecord.objects.filter(
+        user=request.user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+
+    total_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    required = request.user.userprofile.required_hours if hasattr(request.user, 'userprofile') else 80
+    remaining = max(0, float(required) - total_hours)
+    percent = min(100, (total_hours / float(required)) * 100) if required > 0 else 0
+
+    context = {
+        'total_hours': total_hours,
+        'required_hours': required,
+        'remaining_hours': round(remaining, 2),
+        'percentage': round(percent, 1),
+        
     return render(request, 'caao_admin/profile.html')
 
 @login_required
@@ -892,7 +886,7 @@ def user_dtr_details(request, user_id):
     }
     
     return render(request, 'caao_admin/user_dtr_details.html', context)
-
+#office head
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_users(request):
