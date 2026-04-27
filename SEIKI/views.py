@@ -98,8 +98,8 @@ def student_progress_json(request, user_id):
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def office_dashboard(request):
     """Refined Dashboard for Office Heads"""
-   office = request.user.userprofile.office
-    except UserProfile.DoesNotExist:
+   office = request.user.userprofile.office  
+    except UserProfile.DoesNotExist:         
         messages.error(request, "Your profile information is incomplete.")
         return redirect('profile')
     
@@ -121,7 +121,8 @@ def office_dashboard(request):
         'recent_logs': recent_logs,
         'office_name': office
     }
-   return render(request, 'office_head/office-dashboard.html', context)
+      return render(request, 'office_head/office-dashboard.html', context)  
+
 
 @login_required
 def office_student_assistants(request):
