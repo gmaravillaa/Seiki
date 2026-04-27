@@ -1338,7 +1338,7 @@ def time_correction(request, dtr_id):
         'dtr_submission': dtr_submission,
         'daily_records': daily_records,
     }
-    return render(request, 'office_head/time_correction.html', context)
+    return render(request, 'office_head/time-correction.html', context)
 
 @login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
