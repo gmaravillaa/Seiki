@@ -112,3 +112,16 @@ urlpatterns = [
     path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),
     path("dtr/accept/<int:dtr_id>/", views.accept_dtr, name="accept_dtr"),
 ] + static(settings.STATIC_URL, document_root=str(settings.STATICFILES_DIRS[0]))
+
+
+    # =======================
+    # officehead
+    # =======================
+
+path('office/dashboard/', views.office_dashboard, name='office_dashboard'),
+path('office/students/', views.office_student_assistants, name='office_students'),
+path('office/logs/', views.office_logs, name='office_logs'),
+path('office/submissions/', views.office_dtr_submissions, name='office_submissions'),
+path('office/reports/', views.office_reports, name='office_reports'),
+path('office/approvals/', views.dtr_approvals_view, name='dtr_approvals'),
+
