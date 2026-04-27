@@ -9,214 +9,220 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-
 <body class="bg-gray-50">
 
-<div class="w-full h-2 bg-[#003A6C]"></div>
+<div class="flex">
 
-<div class="p-6 space-y-6">
-
-    <!-- HEADER -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
+    <!-- SIDEBAR -->
+    <div class="w-64 h-screen bg-white shadow-lg border-r flex flex-col justify-between">
 
         <div>
-            <h1 class="text-2xl font-bold text-[#003A6C]">Dashboard</h1>
-            <p class="text-gray-600 mt-1 text-sm">Welcome back, CAOO Admin. Here's your system overview.</p>
+            <div class="p-6 border-b">
+                <h1 class="text-xl font-bold text-[#003A6C]">Admin Panel</h1>
+            </div>
+
+            <nav class="p-4 space-y-2 text-sm">
+
+                <a href="{% url 'admin_dashboard' %}"
+                   class="block px-4 py-2 rounded bg-[#003A6C] text-white">
+                    Dashboard
+                </a>
+
+                <a href="{% url 'user_progress' %}"
+                   class="block px-4 py-2 rounded hover:bg-gray-100">
+                    Progress
+                </a>
+
+                <a href="{% url 'user_management' %}"
+                   class="block px-4 py-2 rounded hover:bg-gray-100">
+                    Management
+                </a>
+
+                <a href="{% url 'dtr_records' %}"
+                   class="block px-4 py-2 rounded hover:bg-gray-100">
+                    DTR Records
+                </a>
+
+                <a href="{% url 'chat' %}"
+                   class="block px-4 py-2 rounded hover:bg-gray-100">
+                    Chat
+                </a>
+
+                <a href="{% url 'student_assistants' %}"
+                   class="block px-4 py-2 rounded hover:bg-gray-100">
+                    Student Assistants
+                </a>
+
+            </nav>
         </div>
 
-        <!-- MONTH FILTER (CONNECTED) -->
-        <form method="GET" class="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 w-fit shadow-sm">
-
-            <select name="month" onchange="this.form.submit()"
-                class="text-sm font-medium text-gray-700 focus:outline-none bg-transparent">
-
-                <option value="">All Months</option>
-                <option value="1" {% if selected_month == "1" %}selected{% endif %}>January</option>
-                <option value="2" {% if selected_month == "2" %}selected{% endif %}>February</option>
-                <option value="3" {% if selected_month == "3" %}selected{% endif %}>March</option>
-                <option value="4" {% if selected_month == "4" %}selected{% endif %}>April</option>
-                <option value="5" {% if selected_month == "5" %}selected{% endif %}>May</option>
-                <option value="6" {% if selected_month == "6" %}selected{% endif %}>June</option>
-                <option value="7" {% if selected_month == "7" %}selected{% endif %}>July</option>
-                <option value="8" {% if selected_month == "8" %}selected{% endif %}>August</option>
-                <option value="9" {% if selected_month == "9" %}selected{% endif %}>September</option>
-                <option value="10" {% if selected_month == "10" %}selected{% endif %}>October</option>
-                <option value="11" {% if selected_month == "11" %}selected{% endif %}>November</option>
-                <option value="12" {% if selected_month == "12" %}selected{% endif %}>December</option>
-
-            </select>
-
-        </form>
-
-    </div>
-    <div class="bg-white rounded-lg shadow-sm p-2 flex flex-wrap gap-2 text-sm font-medium border border-gray-100">
-
-    <a href="{% url 'admin_dashboard' %}"
-       class="px-4 py-2 rounded bg-[#003A6C] text-white">
-        Dashboard
-    </a>
-
-    <a href="{% url 'user_progress' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        Progress
-    </a>
-
-    <a href="{% url 'user_management' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        Management
-    </a>
-
-    <a href="{% url 'dtr_records' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        DTR Records
-    </a>
-
-    <a href="{% url 'chat' %}"
-   class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-   Chat
-    </a>
-    
-    <a href="{% url 'student_assistants' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        Student Assistants
-    </a>
-
-</div>
-
-    <!-- STATS CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-[#003A6C] text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Students</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ total_students }}</p>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-yellow-500 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pending DTRs</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ pending_dtrs }}</p>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-green-500 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Approved DTRs</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ approved_dtrs }}</p>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-blue-400 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Active Offices</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ active_offices }}</p>
+        <!-- LOGOUT -->
+        <div class="p-4 border-t">
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition">
+                    Logout
+                </button>
+            </form>
         </div>
 
     </div>
 
-    <!-- TABLE -->
-    <div class="space-y-4 pt-4">
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 p-6 space-y-6">
 
-        <div>
-            <h2 class="text-xl font-bold text-[#003A6C]">Student Assistants</h2>
-            <p class="text-sm text-gray-500">Manage and monitor student assistant records</p>
+        <!-- HEADER -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
+
+            <div>
+                <h1 class="text-2xl font-bold text-[#003A6C]">Dashboard</h1>
+                <p class="text-gray-600 mt-1 text-sm">
+                    Welcome back, {{ request.user.username }}.
+                </p>
+            </div>
+
+            <!-- MONTH FILTER -->
+            <form method="GET" class="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm">
+
+                <select name="month" onchange="this.form.submit()"
+                    class="text-sm font-medium text-gray-700 focus:outline-none bg-transparent">
+
+                    <option value="">All Months</option>
+                    {% for i in "123456789101112"|make_list %}
+                    <option value="{{ forloop.counter }}"
+                        {% if selected_month == forloop.counter|stringformat:"s" %}selected{% endif %}>
+                        {{ forloop.counter }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+            </form>
+
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+        <!-- STATS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            <table class="w-full">
+            <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-[#003A6C] text-center 
+                        transform transition duration-300 hover:-translate-y-2 hover:shadow-lg">
+                <p class="text-xs font-bold text-gray-400 uppercase">Total Students</p>
+                <p class="text-3xl font-black text-gray-900 mt-2">{{ total_students }}</p>
+            </div>
 
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Name</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">ID</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Office</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Status</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Hours</th>
-                        <th class="px-6 py-4 text-right text-[10px] uppercase text-gray-400 font-black">Actions</th>
-                    </tr>
-                </thead>
+            <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-yellow-500 text-center 
+                        transform transition duration-300 hover:-translate-y-2 hover:shadow-lg">
+                <p class="text-xs font-bold text-gray-400 uppercase">Pending DTRs</p>
+                <p class="text-3xl font-black text-gray-900 mt-2">{{ pending_dtrs }}</p>
+            </div>
 
-                <tbody class="divide-y divide-gray-50">
+            <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-green-500 text-center 
+                        transform transition duration-300 hover:-translate-y-2 hover:shadow-lg">
+                <p class="text-xs font-bold text-gray-400 uppercase">Approved DTRs</p>
+                <p class="text-3xl font-black text-gray-900 mt-2">{{ approved_dtrs }}</p>
+            </div>
 
-                    {% for student in students %}
-                    <tr class="hover:bg-blue-50/30 transition">
+            <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-blue-400 text-center 
+                        transform transition duration-300 hover:-translate-y-2 hover:shadow-lg">
+                <p class="text-xs font-bold text-gray-400 uppercase">Active Offices</p>
+                <p class="text-3xl font-black text-gray-900 mt-2">{{ active_offices }}</p>
+            </div>
 
-                        <td class="px-6 py-4 font-bold text-gray-900">
-                            {{ student.get_full_name }}
-                        </td>
+        </div>
 
-                        <td class="px-6 py-4 text-sm text-gray-500">
-                            {{ student.userprofile.id_number|default:"N/A" }}
-                        </td>
+        <!-- TABLE -->
+        <div class="space-y-4 pt-4">
 
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 bg-blue-50 text-[#003A6C] text-[10px] font-bold uppercase rounded">
+            <div>
+                <h2 class="text-xl font-bold text-[#003A6C]">Student Assistants</h2>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border">
+
+                <table class="w-full">
+
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs uppercase text-gray-400">Name</th>
+                            <th class="px-6 py-4 text-left text-xs uppercase text-gray-400">ID</th>
+                            <th class="px-6 py-4 text-left text-xs uppercase text-gray-400">Office</th>
+                            <th class="px-6 py-4 text-left text-xs uppercase text-gray-400">Status</th>
+                            <th class="px-6 py-4 text-left text-xs uppercase text-gray-400">Hours</th>
+                            <th class="px-6 py-4 text-right text-xs uppercase text-gray-400">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for student in students %}
+                        <tr class="hover:bg-blue-50">
+
+                            <td class="px-6 py-4 font-bold">
+                                {{ student.get_full_name }}
+                            </td>
+
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ student.userprofile.id_number|default:"N/A" }}
+                            </td>
+
+                            <td class="px-6 py-4">
                                 {{ student.userprofile.office|default:"No Office" }}
-                            </span>
-                        </td>
+                            </td>
 
-                        <td class="px-6 py-4">
-                            {% if student.is_active %}
-                                <span class="px-2 py-1 bg-green-50 text-green-700 text-[10px] font-bold uppercase rounded">
-                                    Active
-                                </span>
-                            {% else %}
-                                <span class="px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase rounded">
-                                    Inactive
-                                </span>
-                            {% endif %}
-                        </td>
+                            <td class="px-6 py-4">
+                                {% if student.is_active %}
+                                    <span class="text-green-600">Active</span>
+                                {% else %}
+                                    <span class="text-red-600">Inactive</span>
+                                {% endif %}
+                            </td>
 
-                        <td class="px-6 py-4 font-bold text-gray-700">
-                            {{ student.total_hours }} hrs
-                        </td>
+                            <td class="px-6 py-4">
+                                {{ student.total_hours }} hrs
+                            </td>
 
-                        <!-- ACTIONS (VIEW + DELETE ONLY) -->
-                        <td class="px-6 py-4">
-
-                            <div class="flex justify-end gap-2">
+                            <td class="px-6 py-4 text-right">
 
                                 <button onclick="openProgress({{ student.id }})"
-                                    class="w-8 h-8 flex items-center justify-center bg-blue-50 text-[#003A6C] rounded hover:bg-[#003A6C] hover:text-white transition">
-                                    <i class="fas fa-eye text-xs"></i>
+                                    class="bg-blue-500 text-white px-2 py-1 rounded">
+                                    View
                                 </button>
 
-                                <form method="POST" action="{% url 'delete_user' student.id %}">
+                                <form method="POST" action="{% url 'delete_user' student.id %}" class="inline">
                                     {% csrf_token %}
                                     <button type="submit"
                                         onclick="return confirm('Delete this user?')"
-                                        class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition">
-                                        <i class="fas fa-trash text-xs"></i>
+                                        class="bg-red-500 text-white px-2 py-1 rounded">
+                                        Delete
                                     </button>
                                 </form>
 
-                            </div>
+                            </td>
 
-                        </td>
+                        </tr>
+                        {% endfor %}
 
-                    </tr>
-                    {% endfor %}
+                    </tbody>
 
-                </tbody>
-                
+                </table>
 
-            </table>
-
-        </div>
-    </div>
-</div>
-
-<!-- MODAL (UNCHANGED) -->
-<div id="progressModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6">
-
-        <h3 id="pName" class="text-xl font-bold">Student</h3>
-
-        <div class="mt-4">
-            <div class="w-full bg-gray-200 h-3 rounded">
-                <div id="pBar" class="bg-[#003A6C] h-3 rounded" style="width:0%"></div>
             </div>
         </div>
 
-        <button onclick="document.getElementById('progressModal').classList.add('hidden')"
-            class="mt-6 w-full bg-gray-100 py-2 rounded">
-            Close
-        </button>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="progressModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded">
+
+        <h3 id="pName"></h3>
+
+        <div class="w-full bg-gray-200 h-3 mt-4">
+            <div id="pBar" class="bg-blue-600 h-3"></div>
+        </div>
+
+        <button onclick="closeModal()" class="mt-4 bg-gray-200 px-4 py-2">Close</button>
 
     </div>
 </div>
@@ -230,6 +236,10 @@ function openProgress(userId) {
         document.getElementById("pBar").style.width = data.percent + "%";
         document.getElementById("progressModal").classList.remove("hidden");
     });
+}
+
+function closeModal() {
+    document.getElementById("progressModal").classList.add("hidden");
 }
 </script>
 
