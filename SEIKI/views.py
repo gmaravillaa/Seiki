@@ -92,8 +92,107 @@ def student_progress_json(request, user_id):
     })
 
 @login_required
+
 def office_dashboard(request):
-    return render(request, 'office_head/dashboard.html')
+    """Matches officeheaddashboard.html"""
+    # Ensure the user has a profile and office
+    try:
+        office = request.user.userprofile.office
+    except UserProfile.DoesNotExist:
+        return redirect('profile')
+
+    context = {
+        'total_sas': UserProfile.objects.filter(office=office, user__is_staff=False).count(),
+        'pending_dtrs': DTRSubmission.objects.filter(
+            user__userprofile__office=office, 
+            status='pending'
+        ).count(),
+        # Fetching the 5 most recent logs for the department
+        'recent_logs': TimeRecord.objects.filter(
+            user__userprofile__office=office
+        ).order_back('timestamp')[:5],
+        'office_name': office
+    }
+    return render(request, 'office_head/officeheaddashboard.html', context)
+
+@login_required
+def office_reports(request):
+    """Matches officeheadreport.html"""
+    office = request.user.userprofile.office
+    
+    # Aggregate total hours for the whole office
+    total_duration = TimeRecord.objects.filter(
+        user__userprofile__office=office,
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    total_office_hours = round(total_duration.total_seconds() / 3600, 2) if total_duration else 0
+    
+    # Breakdown by specific Student
+    student_stats = User.objects.filter(
+        userprofile__office=office, 
+        is_staff=False
+    ).annotate(
+        rendered=Sum('timerecord__duration')
+    )
+
+    context = {
+        'total_sas': UserProfile.objects.filter(office=office, user__is_staff=False).count(),
+        'total_hours': total_office_hours,
+        'student_stats': student_stats,
+        'pending_dtrs': DTRSubmission.objects.filter(user__userprofile__office=office, status='pending').count(),
+        'office_name': office
+    }
+    return render(request, 'office_head/officeheadreport.html', context)
+
+@login_required
+def office_student_assistants(request):
+    """Matches officeheadstudentassistant.html"""
+    office = request.user.userprofile.office
+    query = request.GET.get('search', '')
+    
+    students = User.objects.filter(
+        userprofile__office=office,
+        is_staff=False
+    ).select_related('userprofile')
+
+    if query:
+        students = students.filter(
+            models.Q(first_name__icontains=query) | 
+            models.Q(last_name__icontains=query) |
+            models.Q(userprofile__id_number__icontains=query)
+        )
+
+    return render(request, 'office_head/officeheadstudentassistant.html', {'students': students})
+
+@login_required
+def office_dtr_submissions(request):
+    """Matches officeheaddtrsubmission.html"""
+    office = request.user.userprofile.office
+    submissions = DTRSubmission.objects.filter(
+        user__userprofile__office=office
+    ).order_by('-submitted_date')
+    
+    return render(request, 'office_head/officeheaddtrsubmission.html', {'submissions': submissions})
+
+@login_required
+def approve_dtr(request, dtr_id):
+    """Action for the 'Approve' modal"""
+    submission = get_object_or_404(DTRSubmission, id=dtr_id)
+    submission.status = 'approved'
+    submission.remarks = "Approved by Office Head"
+    submission.save()
+    return redirect('office_dtr_submissions')
+
+@login_required
+def reject_dtr(request, dtr_id):
+    """Action for the 'Reject' modal"""
+    if request.method == 'POST':
+        submission = get_object_or_404(DTRSubmission, id=dtr_id)
+        submission.status = 'rejected'
+        submission.remarks = request.POST.get('remarks', 'No remarks provided')
+        submission.save()
+    return redirect('office_dtr_submissions')
 
 @login_required
 def student_dashboard(request):
