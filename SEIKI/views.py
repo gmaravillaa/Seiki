@@ -35,9 +35,6 @@ def dashboard_redirect(request):
 
     return redirect('student_dashboard')
     
-def logout_view(request):
-    logout(request)
-    return redirect('login')
     
 @login_required
 def dtr_approvals(request):
