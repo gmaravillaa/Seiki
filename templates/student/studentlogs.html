@@ -46,12 +46,10 @@
           </a>
           <a href="{% url 'student_schedule' %}" class="nav-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <path d="M7 7h10v10H7z"></path>
             </svg>
-            <span>Schedule</span>
+            <span>QR Scanner</span>
           </a>
           <a href="{% url 'student_profile' %}" class="nav-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -188,8 +186,6 @@
                   <th>Time In</th>
                   <th>Time Out</th>
                   <th>Total Hours</th>
-                  <th>Status</th>
-                  <th>Remarks</th>
                 </tr>
               </thead>
               <tbody>
@@ -199,8 +195,6 @@
                   <td>9:00 AM</td>
                   <td>5:00 PM</td>
                   <td class="font-semibold">8 hrs</td>
-                  <td><span class="badge badge-approved">Approved</span></td>
-                  <td class="text-gray">-</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 15, 2026</td>
@@ -208,8 +202,6 @@
                   <td>9:00 AM</td>
                   <td>5:00 PM</td>
                   <td class="font-semibold">8 hrs</td>
-                  <td><span class="badge badge-approved">Approved</span></td>
-                  <td class="text-gray">-</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 14, 2026</td>
@@ -217,8 +209,6 @@
                   <td>9:00 AM</td>
                   <td>5:00 PM</td>
                   <td class="font-semibold">8 hrs</td>
-                  <td><span class="badge badge-pending">Pending</span></td>
-                  <td class="text-gray">-</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 13, 2026</td>
@@ -226,8 +216,6 @@
                   <td>9:00 AM</td>
                   <td>4:00 PM</td>
                   <td class="font-semibold">7 hrs</td>
-                  <td><span class="badge badge-approved">Approved</span></td>
-                  <td>Left early</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 12, 2026</td>
@@ -235,8 +223,6 @@
                   <td>10:00 AM</td>
                   <td>5:00 PM</td>
                   <td class="font-semibold">7 hrs</td>
-                  <td><span class="badge badge-approved">Approved</span></td>
-                  <td>Late arrival</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 11, 2026</td>
@@ -244,8 +230,6 @@
                   <td>9:00 AM</td>
                   <td>5:00 PM</td>
                   <td class="font-semibold">8 hrs</td>
-                  <td><span class="badge badge-approved">Approved</span></td>
-                  <td class="text-gray">-</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 10, 2026</td>
@@ -253,8 +237,6 @@
                   <td>9:00 AM</td>
                   <td>5:00 PM</td>
                   <td class="font-semibold">8 hrs</td>
-                  <td><span class="badge badge-approved">Approved</span></td>
-                  <td class="text-gray">-</td>
                 </tr>
                 <tr>
                   <td class="font-semibold">Apr 09, 2026</td>
@@ -262,8 +244,6 @@
                   <td>9:00 AM</td>
                   <td>3:00 PM</td>
                   <td class="font-semibold">6 hrs</td>
-                  <td><span class="badge badge-rejected">Rejected</span></td>
-                  <td>Undertime - No valid reason</td>
                 </tr>
               </tbody>
             </table>

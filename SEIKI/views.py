@@ -255,7 +255,7 @@ def student_submit_dtr(request):
 @login_required
 def student_schedule(request):
     """Student Assistant Availability Schedule"""
-    return render(request, 'student/studentschedule.html')
+    return render(request, 'student/studentscanner.html')
 
 @login_required
 def student_profile_page(request):

@@ -47,12 +47,10 @@
           </a>
           <a href="{% url 'student_schedule' %}" class="nav-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <path d="M7 7h10v10H7z"></path>
             </svg>
-            <span>Schedule</span>
+            <span>QR Scanner</span>
           </a>
           <a href="{% url 'student_profile' %}" class="nav-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -124,46 +122,29 @@
           </div>
 
           <div class="time-tracking-card">
-            <h3 class="card-title">QR Time Tracking</h3>
+            <h3 class="card-title">Attendance QR Code</h3>
 
-            <div class="time-status" id="scannerStatus">
-              <div class="status-badge status-pending" id="scannerStatusBadge">Inactive</div>
-            </div>
-
-            <div class="qr-video-container" style="position: relative; border-radius: 1rem; overflow: hidden; background: #000; min-height: 260px;">
-              <video id="qrPreview" muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
-              <div class="scan-guide" id="scanGuide" style="position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.2s;">
-                <div style="position: absolute; top: 1rem; left: 1rem; width: 2rem; height: 2rem; border-top: 2px solid rgba(255,255,255,0.85); border-left: 2px solid rgba(255,255,255,0.85);"></div>
-                <div style="position: absolute; top: 1rem; right: 1rem; width: 2rem; height: 2rem; border-top: 2px solid rgba(255,255,255,0.85); border-right: 2px solid rgba(255,255,255,0.85);"></div>
-                <div style="position: absolute; bottom: 1rem; left: 1rem; width: 2rem; height: 2rem; border-bottom: 2px solid rgba(255,255,255,0.85); border-left: 2px solid rgba(255,255,255,0.85);"></div>
-                <div style="position: absolute; bottom: 1rem; right: 1rem; width: 2rem; height: 2rem; border-bottom: 2px solid rgba(255,255,255,0.85); border-right: 2px solid rgba(255,255,255,0.85);"></div>
+            <div class="qr-code-card" style="background-color: #f7fafc; border-radius: 1rem; padding: 1.5rem; text-align: center;">
+              <div style="margin-bottom: 1rem;">
+                <p style="font-weight: 700; color: var(--primary-blue);">Show this code to mark attendance</p>
               </div>
-            </div>
-
-            <div class="time-info" style="margin-top: 1.5rem; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div class="time-info-item">
-                <label>Last Scan</label>
-                <p id="lastScanTime">--:--:--</p>
+              <div style="display: inline-flex; padding: 1rem; background: white; border-radius: 1rem; border: 1px solid var(--gray-200);">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{ user.id }}:{{ user.username }}" alt="QR Code" style="width: 240px; height: 240px; border-radius: 0.75rem;" />
               </div>
-              <div class="time-info-item">
-                <label>Status</label>
-                <p id="scannerStatusText">Ready to scan</p>
+              <div style="margin-top: 1.5rem; display: grid; gap: 0.75rem; text-align: left;">
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                  <span style="color: var(--gray-600);">User ID</span>
+                  <strong style="color: var(--gray-900);">{{ user.id }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                  <span style="color: var(--gray-600);">Username</span>
+                  <strong style="color: var(--gray-900);">{{ user.username }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                  <span style="color: var(--gray-600);">Name</span>
+                  <strong style="color: var(--gray-900);">{{ user.first_name }} {{ user.last_name }}</strong>
+                </div>
               </div>
-            </div>
-
-            <div class="time-info" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-              <button class="btn-check-in" id="startScanner" type="button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                Start Scanner
-              </button>
-              <button class="btn-check-out" id="stopScanner" type="button" disabled>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9 6h6M9 12h6M9 18h6"></path>
-                </svg>
-                Stop Scanner
-              </button>
             </div>
           </div>
         </div>
