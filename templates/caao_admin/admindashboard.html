@@ -1,237 +1,175 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Seiki - {{ office_name }} Dashboard</title>
+    <style>
+        :root {
+            --primary-blue: #003a6c;
+            --accent-pink: #feacb5;
+            --accent-mint: #94e2aa;
+            --bg-light: #f4f7f9;
+            --text-white: #ffffff;
+            --gray-light: #d9d9d9;
+        }
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg-light); display: flex; min-height: 100vh; }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-blue);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; }
+        .brand-ki { color: var(--accent-pink); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 1rem; color: white;
+            text-decoration: none; padding: 0.8rem 1rem; border-radius: 0.5rem;
+            font-weight: 500; opacity: 0.8; transition: 0.2s;
+        }
+        .nav-item.active { background-color: rgba(255, 255, 255, 0.1); opacity: 1; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; }
+        .header {
+            background: white; padding: 1.1rem 2rem; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-light);
+        }
+        .ph-clock-display { font-weight: bold; color: var(--primary-blue); font-family: monospace; }
+        .user-avatar {
+            width: 40px; height: 40px; background-color: var(--primary-blue);
+            color: white; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; border: 2px solid var(--accent-mint);
+        }
+
+        .content { padding: 2rem; }
+        .page-title { color: var(--primary-blue); font-size: 1.8rem; font-weight: 800; }
+        .page-description { color: #666; margin-bottom: 2rem; }
+
+        /* Stats Section */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary-blue); }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--primary-blue); margin-top: 0.5rem; }
+
+        /* Tables Section */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #888; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--gray-light); }
+        td { padding: 1rem 0.5rem; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-in { background: var(--accent-mint); color: #003a00; }
+        .badge-out { background: var(--accent-pink); color: #4a0000; }
+        
+        .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: auto; }
+    </style>
 </head>
-
-
-<body class="bg-gray-50">
-
-<div class="w-full h-2 bg-[#003A6C]"></div>
-
-<div class="p-6 space-y-6">
-
-    <!-- HEADER -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
-
-        <div>
-            <h1 class="text-2xl font-bold text-[#003A6C]">Dashboard</h1>
-            <p class="text-gray-600 mt-1 text-sm">Welcome back, CAOO Admin. Here's your system overview.</p>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>Sei<span class="brand-ki">ki</span></h1>
+            <p style="font-size: 0.7rem; opacity: 0.7;">OFFICE HEAD PORTAL</p>
         </div>
-
-        <!-- MONTH FILTER (CONNECTED) -->
-        <form method="GET" class="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 w-fit shadow-sm">
-
-            <select name="month" onchange="this.form.submit()"
-                class="text-sm font-medium text-gray-700 focus:outline-none bg-transparent">
-
-                <option value="">All Months</option>
-                <option value="1" {% if selected_month == "1" %}selected{% endif %}>January</option>
-                <option value="2" {% if selected_month == "2" %}selected{% endif %}>February</option>
-                <option value="3" {% if selected_month == "3" %}selected{% endif %}>March</option>
-                <option value="4" {% if selected_month == "4" %}selected{% endif %}>April</option>
-                <option value="5" {% if selected_month == "5" %}selected{% endif %}>May</option>
-                <option value="6" {% if selected_month == "6" %}selected{% endif %}>June</option>
-                <option value="7" {% if selected_month == "7" %}selected{% endif %}>July</option>
-                <option value="8" {% if selected_month == "8" %}selected{% endif %}>August</option>
-                <option value="9" {% if selected_month == "9" %}selected{% endif %}>September</option>
-                <option value="10" {% if selected_month == "10" %}selected{% endif %}>October</option>
-                <option value="11" {% if selected_month == "11" %}selected{% endif %}>November</option>
-                <option value="12" {% if selected_month == "12" %}selected{% endif %}>December</option>
-
-            </select>
-
-        </form>
-
-    </div>
-    <div class="bg-white rounded-lg shadow-sm p-2 flex flex-wrap gap-2 text-sm font-medium border border-gray-100">
-
-    <a href="{% url 'admin_dashboard' %}"
-       class="px-4 py-2 rounded bg-[#003A6C] text-white">
-        Dashboard
-    </a>
-
-    <a href="{% url 'user_progress' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        Progress
-    </a>
-
-    <a href="{% url 'user_management' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        Management
-    </a>
-
-    <a href="{% url 'dtr_records' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        DTR Records
-    </a>
-
-    <a href="{% url 'time_correction_list' %}"
-   class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-    Time Correction
-    </a>
-    
-    <a href="{% url 'student_assistants' %}"
-       class="px-4 py-2 rounded hover:bg-gray-100 text-gray-700 transition">
-        Student Assistants
-    </a>
-
-</div>
-
-    <!-- STATS CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-[#003A6C] text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Students</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ total_students }}</p>
+        <nav class="sidebar-nav">
+            <a href="{% url 'office_dashboard' %}" class="nav-item active">Dashboard</a>
+            <a href="#" class="nav-item">Student Assistants</a>
+            <a href="{% url 'scanner' %}" class="nav-item">Scanner</a>
+        </nav>
+        <div class="sidebar-footer">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" style="background:none; border:none; color:var(--accent-pink); cursor:pointer; font-weight: bold;">Logout</button>
+            </form>
+            <p style="margin-top: 1rem; font-size: 0.65rem; opacity: 0.5; text-align: center;">Powered by ADNU IS</p>
         </div>
+    </aside>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-yellow-500 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pending DTRs</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ pending_dtrs }}</p>
-        </div>
+    <div class="main-content">
+        <header class="header">
+            <div id="ph-clock" class="ph-clock-display">PH Time: --:--:--</div>
+            <div class="user-avatar">{{ request.user.username|slice:":2"|upper }}</div>
+        </header>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-green-500 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Approved DTRs</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ approved_dtrs }}</p>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-blue-400 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Active Offices</p>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ active_offices }}</p>
-        </div>
-
-    </div>
-
-    <!-- TABLE -->
-    <div class="space-y-4 pt-4">
-
-        <div>
-            <h2 class="text-xl font-bold text-[#003A6C]">Student Assistants</h2>
-            <p class="text-sm text-gray-500">Manage and monitor student assistant records</p>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-
-            <table class="w-full">
-
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Name</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">ID</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Office</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Status</th>
-                        <th class="px-6 py-4 text-left text-[10px] uppercase text-gray-400 font-black">Hours</th>
-                        <th class="px-6 py-4 text-right text-[10px] uppercase text-gray-400 font-black">Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody class="divide-y divide-gray-50">
-
-                    {% for student in students %}
-                    <tr class="hover:bg-blue-50/30 transition">
-
-                        <td class="px-6 py-4 font-bold text-gray-900">
-                            {{ student.get_full_name }}
-                        </td>
-
-                        <td class="px-6 py-4 text-sm text-gray-500">
-                            {{ student.userprofile.id_number|default:"N/A" }}
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 bg-blue-50 text-[#003A6C] text-[10px] font-bold uppercase rounded">
-                                {{ student.userprofile.office|default:"No Office" }}
-                            </span>
-                        </td>
-
-                        <td class="px-6 py-4">
-                            {% if student.is_active %}
-                                <span class="px-2 py-1 bg-green-50 text-green-700 text-[10px] font-bold uppercase rounded">
-                                    Active
-                                </span>
-                            {% else %}
-                                <span class="px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase rounded">
-                                    Inactive
-                                </span>
-                            {% endif %}
-                        </td>
-
-                        <td class="px-6 py-4 font-bold text-gray-700">
-                            {{ student.total_hours }} hrs
-                        </td>
-
-                        <!-- ACTIONS (VIEW + DELETE ONLY) -->
-                        <td class="px-6 py-4">
-
-                            <div class="flex justify-end gap-2">
-
-                                <button onclick="openProgress({{ student.id }})"
-                                    class="w-8 h-8 flex items-center justify-center bg-blue-50 text-[#003A6C] rounded hover:bg-[#003A6C] hover:text-white transition">
-                                    <i class="fas fa-eye text-xs"></i>
-                                </button>
-
-                                <form method="POST" action="{% url 'delete_user' student.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                        onclick="return confirm('Delete this user?')"
-                                        class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition">
-                                        <i class="fas fa-trash text-xs"></i>
-                                    </button>
-                                </form>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-
-                </tbody>
-                
-
-            </table>
-
-        </div>
-    </div>
-</div>
-
-<!-- MODAL (UNCHANGED) -->
-<div id="progressModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6">
-
-        <h3 id="pName" class="text-xl font-bold">Student</h3>
-
-        <div class="mt-4">
-            <div class="w-full bg-gray-200 h-3 rounded">
-                <div id="pBar" class="bg-[#003A6C] h-3 rounded" style="width:0%"></div>
+        <main class="content">
+            <div class="page-header">
+                <h1 class="page-title">{{ office_name }} Dashboard</h1>
+                <p class="page-description">Today's Attendance: <strong>{{ today_attendance }}%</strong></p>
             </div>
-        </div>
 
-        <button onclick="document.getElementById('progressModal').classList.add('hidden')"
-            class="mt-6 w-full bg-gray-100 py-2 rounded">
-            Close
-        </button>
+            <div class="stats-grid">
+                <div class="card">
+                    <p style="color: #666; font-size: 0.85rem;">Total Students</p>
+                    <div class="stat-value">{{ total_students }}</div>
+                </div>
+                <div class="card" style="border-top-color: var(--accent-mint);">
+                    <p style="color: #666; font-size: 0.85rem;">Hours Rendered</p>
+                    <div class="stat-value">{{ total_hours }}h</div>
+                </div>
+                <div class="card" style="border-top-color: var(--accent-pink);">
+                    <p style="color: #666; font-size: 0.85rem;">Pending DTRs</p>
+                    <div class="stat-value">{{ pending_dtrs }}</div>
+                </div>
+            </div>
 
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color: var(--primary-blue);">Recent Students</h3>
+                    <table>
+                        <thead><tr><th>Name</th><th>Last Login</th></tr></thead>
+                        <tbody>
+                            {% for student in recent_students %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ student.get_full_name }}</td>
+                                <td>{{ student.last_login|date:"M d, g:i A"|default:"--" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" style="text-align: center;">No students found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--primary-blue);">Live Attendance Logs</h3>
+                    <table>
+                        <thead><tr><th>Student</th><th>Time</th><th>Action</th></tr></thead>
+                        <tbody>
+                            {% for log in recent_logs %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ log.user.get_full_name }}</td>
+                                <td style="font-size: 0.8rem;">{{ log.timestamp|date:"g:i A" }}</td>
+                                <td>
+                                    <span class="badge {% if log.record_type == 'in' %}badge-in{% else %}badge-out{% endif %}">
+                                        {{ log.record_type|upper }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" style="text-align: center;">No logs recorded today.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
-</div>
 
-<script>
-function openProgress(userId) {
-    fetch(`/user-progress/${userId}/json/`)
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("pName").innerText = data.name;
-        document.getElementById("pBar").style.width = data.percent + "%";
-        document.getElementById("progressModal").classList.remove("hidden");
-    });
-}
-</script>
-
+    <script>
+        function updateClock() {
+            const options = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            document.getElementById('ph-clock').innerText = "PH Time: " + new Intl.DateTimeFormat('en-US', options).format(new Date());
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
 </html>
