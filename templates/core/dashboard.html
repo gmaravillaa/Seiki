@@ -1,171 +1,175 @@
-<!DOCTYPE html>
-{% load custom_filters static %}
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seiki - Dashboard</title>
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-<body>
-  <div class="dashboard-page">
-    <!-- Header -->
-    <div class="dashboard-header">
-      <div class="header-content">
-        <div class="header-left">
-          <div class="header-logo">🏠</div>
-          <h1 class="header-title">Dashboard</h1>
-        </div>
-        <div class="header-right">
-          <a href="{% url 'profile' %}" class="header-button">👤 Profile</a>
-          <a href="{% url 'logs' %}" class="header-button">📋 Logs</a>
-          <a href="{% url 'chat' %}" class="header-button">💬 Chat</a>
-          {% if user.is_staff %}
-          <a href="{% url 'scanner' %}" class="header-button">📷 Scanner</a>
-          {% endif %}
-          {% if user.is_staff or user.is_superuser %}
-          <a href="{% url 'dtr_approvals' %}" class="header-button">✅ DTR Approvals</a>
-          {% endif %}
-          {% if user.is_superuser %}
-          <a href="{% url 'user_management' %}" class="header-button">👥 Users</a>
-          {% endif %}
-          <a href="{% url 'logout' %}" class="header-button">🚪 Logout</a>
-        </div>
+{% extends 'office_head/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Dashboard - Office Head Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-description">Welcome back, {{ request.user.get_full_name|default:request.user.username }}. Here's your office overview for today.</p>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <a href="#" class="btn btn-ghost">
+      <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Export
+    </a>
+    <a href="{% url 'office_add_student' %}" class="btn btn-primary">
+      <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Add Student
+    </a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value">{{ total_students|default:"0" }}</div>
+        <div class="stat-sub">{{ active_students|default:"0" }} Active</div>
       </div>
-    </div>
-
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <h2 class="welcome-greeting">Welcome back, {{ user.first_name }}! 👋</h2>
-      <p class="current-datetime">
-        Today is {{ current_date|date:"l, F j, Y" }} • Current time: <span id="current-time">{{ current_time|date:"H:i:s" }}</span>
-      </p>
-    </div>
-
-    <!-- Dashboard Content -->
-    <div class="dashboard-content">
-      <div class="dashboard-grid">
-
-        <!-- QR Code Card - Most Important -->
-        <div class="dashboard-card qr-card">
-          <div class="card-header">
-            <div class="card-icon">📱</div>
-            <h3 class="card-title">Your Attendance QR Code</h3>
-          </div>
-          <div class="card-body">
-            <div class="qr-code-container">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" class="qr-code" />
-              <p style="margin-top: 1rem; opacity: 0.9;">Scan this code to mark your attendance</p>
-            </div>
-            <div class="qr-info">
-              <p><strong>ID:</strong> {{ user.id }}</p>
-              <p><strong>Username:</strong> {{ user.username }}</p>
-              <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Today's Time Logs -->
-        <div class="dashboard-card">
-          <div class="card-header">
-            <div class="card-icon">🕒</div>
-            <h3 class="card-title">Today's Time Logs</h3>
-          </div>
-          <div class="card-body">
-            {% if today_logs %}
-              <div class="logs-list">
-                {% for log in today_logs %}
-                <div class="log-item">
-                  <div>
-                    <div class="log-time">{{ log.timestamp|date:"H:i" }}</div>
-                    <div style="font-size: 0.75rem; color: #666;">{{ log.timestamp|date:"M j, Y" }}</div>
-                  </div>
-                  <div class="log-type {{ log.record_type }}">
-                    {{ log.get_record_type_display }}
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-            {% else %}
-              <div class="no-logs">
-                <p>No time logs recorded today yet.</p>
-                <p style="margin-top: 0.5rem;">Use your QR code to check in/out!</p>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- DTR Status -->
-        <div class="dashboard-card">
-          <div class="card-header">
-            <div class="card-icon">📄</div>
-            <h3 class="card-title">DTR Status</h3>
-          </div>
-          <div class="card-body">
-            <div class="dtr-status">
-              {% if dtr_submission %}
-                <div class="status-indicator status-{{ dtr_submission.status }}">
-                  <div class="status-dot"></div>
-                  <span>{{ dtr_submission.get_status_display }}</span>
-                </div>
-                <div class="dtr-details">
-                  <p><strong>Month:</strong> {{ month_names|get_item:dtr_submission.month }} {{ dtr_submission.year }}</p>
-                  <p><strong>Submitted:</strong> {{ dtr_submission.submitted_date|date:"M j, Y" }}</p>
-                  {% if dtr_submission.status == 'approved' and dtr_submission.approved_date %}
-                  <p><strong>Approved:</strong> {{ dtr_submission.approved_date|date:"M j, Y" }}</p>
-                  {% endif %}
-                  {% if dtr_submission.remarks %}
-                  <p><strong>Remarks:</strong> {{ dtr_submission.remarks }}</p>
-                  {% endif %}
-                </div>
-              {% else %}
-                <div class="status-indicator status-none">
-                  <div class="status-dot"></div>
-                  <span>No DTR Submitted</span>
-                </div>
-                <div class="dtr-details">
-                  <p>No DTR submission found for {{ current_date|date:"F Y" }}.</p>
-                  <p style="margin-top: 0.5rem;">Submit your DTR when ready!</p>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-
-        <!-- Today's Hours -->
-        <div class="dashboard-card">
-          <div class="card-header">
-            <div class="card-icon">⏱️</div>
-            <h3 class="card-title">Today's Hours</h3>
-          </div>
-          <div class="card-body">
-            <div class="hours-summary">
-              <div class="hours-number">{{ today_hours }}</div>
-              <div class="hours-label">hours worked today</div>
-            </div>
-          </div>
-        </div>
-
+      <div class="stat-icon-wrap blue">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
       </div>
     </div>
   </div>
 
-  <script>
-    // Update current time every second
-    function updateTime() {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('en-US', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      document.getElementById('current-time').textContent = timeString;
-    }
+  <div class="stat-card stat-green">
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-label">Hours Rendered</div>
+        <div class="stat-value">{{ total_hours|default:"0" }}</div>
+        <div class="stat-sub">This month</div>
+      </div>
+      <div class="stat-icon-wrap green">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+    </div>
+  </div>
 
-    // Update time immediately and then every second
-    updateTime();
-    setInterval(updateTime, 1000);
-  </script>
-</body>
-</html>
+  <div class="stat-card stat-amber">
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-label">Pending DTRs</div>
+        <div class="stat-value">{{ pending_dtrs|default:"0" }}</div>
+        <div class="stat-sub">Requires action</div>
+      </div>
+      <div class="stat-icon-wrap amber">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card stat-violet">
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-label">Today's Attendance</div>
+        <div class="stat-value">{{ today_attendance|default:"0" }}%</div>
+        <div class="stat-sub">Checked in today</div>
+      </div>
+      <div class="stat-icon-wrap violet">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Active Student Assistants</h2>
+        <p class="card-description">Currently enrolled & active</p>
+      </div>
+      <span class="badge badge-success">{{ active_students|default:"0" }} Active</span>
+    </div>
+    <div class="card-body">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Student ID</th>
+              <th>Status</th>
+              <th class="text-right">Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in recent_students %}
+            <tr>
+              <td class="name-cell">{{ student.get_full_name|default:student.username }}</td>
+              <td class="id-cell">{{ student.userprofile.id_number|default:"N/A" }}</td>
+              <td><span class="badge badge-success">Active</span></td>
+              <td class="text-right hours-cell">{{ student.userprofile.hours_rendered|default:"0" }}h</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="empty-row">No students found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer">
+      <a href="{% url 'office_student_assistants' %}" class="view-link">
+        View all students
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Recent Attendance Logs</h2>
+        <p class="card-description">Latest time-in/out records today</p>
+      </div>
+      <div class="live-indicator">
+        <span class="live-dot"></span> Live
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in recent_logs %}
+            <tr>
+              <td class="name-cell">{{ log.user.get_full_name|default:log.user.username }}</td>
+              <td class="time-cell">{{ log.time_in|time:"h:i A" }}</td>
+              <td class="time-cell">{{ log.time_out|time:"h:i A"|default:"—" }}</td>
+              <td>
+                {% if log.time_out %}
+                <span class="badge badge-success">Complete</span>
+                {% else %}
+                <span class="badge badge-warning">In Progress</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="empty-row">No recent logs</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer">
+      <a href="{% url 'office_logs' %}" class="view-link">
+        View all logs
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

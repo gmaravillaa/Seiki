@@ -5,6 +5,9 @@
 
 /* CSS Variables */
 :root {
+  --navy: #0F172A;
+  --navy-accent: #3B82F6;
+  --surface: #F1F5F9;
   --ateneo-blue: #003A6C;
   --ateneo-blue-dark: #002A4E;
   --ateneo-blue-light: rgba(0, 58, 108, 0.1);
@@ -38,6 +41,7 @@
   --red-800: #991b1b;
 }
 
+
 /* Reset & Base */
 * {
   margin: 0;
@@ -51,7 +55,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--gray-50);
   color: var(--gray-900);
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 }
 
 /* Dashboard Layout */
@@ -63,9 +68,9 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 256px;
-  background-color: var(--ateneo-blue);
-  border-right: 1px solid var(--ateneo-blue-dark);
+  width: 250px; /* Slightly wider for better breathing room */
+  background-color: var(--ateneo-blue-dark);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -73,10 +78,10 @@ body {
 
 .sidebar-header {
   height: 64px;
+  background-color: var(--ateneo-blue);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid var(--ateneo-blue-dark);
   padding: 0 24px;
 }
 
@@ -96,22 +101,26 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  margin: 4px 12px; /* Add margin so it looks like floating "pills" */
+  padding: 10px 14px;
   border-radius: 8px;
+  font-size: 13px;
+  transition: all 0.2s ease; /* Smoother transition */
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  transition: all 0.2s;
   margin-bottom: 4px;
-  font-size: 14px;
+  
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
   color: var(--white);
 }
 
 .nav-item.active {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--navy-accent);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
   color: var(--white);
 }
 
@@ -226,8 +235,13 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  animation: fadeIn 0.4s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 /* Page Header */
 .page-header {
   display: flex;
@@ -352,9 +366,17 @@ body {
 
 /* Stat Card */
 .stat-card {
-  display: flex;
+  background: #ffffff;
+  border: 1px solid #edf2f7; /* Lighter border than before */
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s, box-shadow 0.2s;  display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
 }
 
 .stat-info h3 {
@@ -365,9 +387,10 @@ body {
 }
 
 .stat-value {
-  font-size: 30px;
-  font-weight: 600;
-  color: var(--gray-900);
+  font-size: 24px; /* Slightly smaller, more elegant */
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
 }
 
 .stat-description {
@@ -383,6 +406,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.stat-label {
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: none; /* Removed uppercase for a friendlier look */
+  letter-spacing: 0;
 }
 
 .stat-icon svg {
@@ -421,9 +450,7 @@ body {
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+border-spacing: 0;
 }
 
 thead {
@@ -432,13 +459,14 @@ thead {
 
 th {
   text-align: left;
-  padding: 12px 16px;
   font-weight: 600;
-  color: var(--gray-700);
-  border-bottom: 1px solid var(--gray-200);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background-color: #fcfcfd;
+  padding: 12px 20px;
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 th.text-right {
@@ -446,9 +474,9 @@ th.text-right {
 }
 
 td {
-  padding: 16px;
-  border-bottom: 1px solid var(--gray-200);
-  color: var(--gray-900);
+padding: 16px 20px; /* Increased padding */
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: middle;
 }
 
 td.text-right {
@@ -456,7 +484,7 @@ td.text-right {
 }
 
 tbody tr:hover {
-  background-color: var(--gray-50);
+  background-color: #f8fafc;
 }
 
 /* Badge */
