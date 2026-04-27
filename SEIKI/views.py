@@ -25,14 +25,15 @@ def dashboard_redirect(request):
     if user.is_superuser:
         return redirect('admin_dashboard')
 
-    try:
-        profile = user.userprofile
-        if profile.office:
-            return redirect('office_dashboard')
-        else:
-            return redirect('student_dashboard')
-    except UserProfile.DoesNotExist:
-        return redirect('student_dashboard')
+    if user.is_staff:
+        try:
+            if user.userprofile.office:
+                return redirect('office_dashboard')
+        except UserProfile.DoesNotExist:
+            pass
+        # If staff without an office profile, fall back to student dashboard.
+
+    return redirect('student_dashboard')
 
 @login_required
 def admin_dashboard(request):
@@ -106,7 +107,7 @@ def student_progress_json(request, user_id):
     })
 
 @login_required(login_url='login')
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_dashboard(request):
     """Refined Dashboard for Office Heads aligned with System Logic"""
     try:
@@ -179,7 +180,7 @@ def office_dashboard(request):
     
     return render(request, 'office_head/office-dashboard.html', context)
 @login_required
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_student_assistants(request):
     """View list of all SAs in the department"""
     try:
@@ -208,7 +209,7 @@ def office_student_assistants(request):
     })
 
 @login_required
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_logs(request):
     """Detailed logs for the office head to monitor attendance"""
     try:
@@ -227,7 +228,7 @@ def office_logs(request):
     })
 
 @login_required
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_dtr_submissions(request):
     """View all DTR submissions for the department"""
     try:
@@ -246,14 +247,14 @@ def office_dtr_submissions(request):
     })
 
 @login_required
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_reports(request):
     """Departmental analytics and hour breakdowns"""
     # Logic for rendering officeheadreport.html
     return render(request, 'office_head/officeheadreport.html')
 
 @login_required
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def dtr_approvals_view(request):
     """Detail view for dtr_approvals.html"""
     return render(request, 'office_head/dtr_approvals.html')
