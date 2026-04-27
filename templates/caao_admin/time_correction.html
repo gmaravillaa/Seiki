@@ -471,6 +471,7 @@
     {% endif %}
 
     <!-- User Info -->
+    {% if dtr_submission %}
     <div class="user-info">
       <div class="user-name">{{ dtr_submission.user.first_name }} {{ dtr_submission.user.last_name }}</div>
       <div class="user-details">
@@ -506,8 +507,10 @@
         {% endif %}
       </div>
     </div>
+    {% endif %}
 
     <!-- Approval Remarks Section -->
+    {% if dtr_submission %}
     {% if dtr_submission.status != 'pending' and dtr_submission.remarks %}
     <div class="approval-remarks-section">
       <div class="remarks-box {% if dtr_submission.status == 'approved' %}approved{% else %}rejected{% endif %}">
@@ -532,8 +535,10 @@
       </div>
     </div>
     {% endif %}
+    {% endif %}
 
     <!-- Add Record Form -->
+    {% if dtr_submission %}
     {% if not user.is_superuser %}
     <div class="add-record-section">
       <div class="section-title">Add New Time Record</div>
@@ -561,8 +566,10 @@
       </form>
     </div>
     {% endif %}
+    {% endif %}
 
     <!-- Time Records -->
+    {% if dtr_submission %}
     <div class="records-section">
       <div class="section-title">Time Records for {{ dtr_submission.month }}/{{ dtr_submission.year }}</div>
       {% if daily_records %}
@@ -618,9 +625,45 @@
         </div>
       {% endif %}
     </div>
-  </main>
+    {% endif %}
+
+    <!-- Student List (when no specific DTR submission is selected) -->
+    {% if not dtr_submission %}
+    <div class="records-section">
+      <div class="section-title">Select Student for Time Correction</div>
+      {% if students %}
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Office</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+              <tr>
+                <td>{{ student.username }}</td>
+                <td>{{ student.first_name }} {{ student.last_name }}</td>
+                <td>{{ student.userprofile.office|default:"-" }}</td>
+                <td>
+                  <a href="{% url 'time_correction' student.id %}" class="btn-edit" style="text-decoration: none;">View DTR Submissions</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="text-align: center; padding: 2rem; color: #999;">
+          No students found.
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
 
   <!-- Edit Modal -->
+  {% if dtr_submission %}
   <div id="editModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -643,6 +686,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <script>
     function openEditModal(recordId, currentTimestamp) {
