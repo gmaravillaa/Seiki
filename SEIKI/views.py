@@ -18,22 +18,15 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.contrib.auth import logout
 
 
-@login_required
 def dashboard_redirect(request):
-    user = request.user
+    if request.user.is_superuser:
+        return redirect('/admin_dashboard/')  # Django admin panel
 
-    if user.is_superuser:
-        return redirect('admin_dashboard')
+    elif request.user.is_staff:
+        return redirect('officehead_dashboard')
 
-    if user.is_staff:
-        try:
-            if user.userprofile.office:
-                return redirect('office_dashboard')
-        except UserProfile.DoesNotExist:
-            pass
-        # If staff without an office profile, fall back to student dashboard.
-
-    return redirect('student_dashboard')
+    else:
+        return redirect('user_dashboard')
     
 def logout_view(request):
     logout(request)
