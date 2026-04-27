@@ -94,14 +94,18 @@ def student_progress_json(request, user_id):
         'percent': round(percent, 1)
     })
 
-@login_required
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_dashboard(request):
     """Refined Dashboard for Office Heads"""
     try:
         office = request.user.userprofile.office
-    except UserProfile.DoesNotExist:
+    except (UserProfile.DoesNotExist, AttributeError):
         messages.error(request, "Your profile information is incomplete.")
+        return redirect('profile')
+    
+    if not office:
+        messages.error(request, "Your office information is not set.")
         return redirect('profile')
     
     # 1. Dashboard Stats
@@ -128,7 +132,12 @@ def office_dashboard(request):
 @login_required
 def office_student_assistants(request):
     """View list of all SAs in the department"""
-    office = request.user.userprofile.office
+    try:
+        office = request.user.userprofile.office
+    except (UserProfile.DoesNotExist, AttributeError):
+        messages.error(request, "Your profile information is incomplete.")
+        return redirect('profile')
+    
     search_query = request.GET.get('search', '')
     
     students = User.objects.filter(
@@ -148,7 +157,12 @@ def office_student_assistants(request):
 @login_required
 def office_logs(request):
     """Detailed logs for the office head to monitor attendance"""
-    office = request.user.userprofile.office
+    try:
+        office = request.user.userprofile.office
+    except (UserProfile.DoesNotExist, AttributeError):
+        messages.error(request, "Your profile information is incomplete.")
+        return redirect('profile')
+    
     logs = TimeRecord.objects.filter(
         user__userprofile__office=office
     ).order_by('-timestamp')
@@ -158,7 +172,12 @@ def office_logs(request):
 @login_required
 def office_dtr_submissions(request):
     """View all DTR submissions for the department"""
-    office = request.user.userprofile.office
+    try:
+        office = request.user.userprofile.office
+    except (UserProfile.DoesNotExist, AttributeError):
+        messages.error(request, "Your profile information is incomplete.")
+        return redirect('profile')
+    
     submissions = DTRSubmission.objects.filter(
         user__userprofile__office=office
     ).order_by('-submitted_date')
@@ -854,7 +873,7 @@ def user_dtr_details(request, user_id):
 
 #office head
 @login_required(login_url='login')
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_users(request):
     """Office users page for office heads to view users in their office"""
     from django.core.paginator import Paginator
@@ -865,7 +884,7 @@ def office_users(request):
         if not user_office:
             messages.error(request, "Your office information is not set. Please contact an administrator.")
             return redirect('profile')
-    except UserProfile.DoesNotExist:
+    except (UserProfile.DoesNotExist, AttributeError):
         messages.error(request, "Your profile information is not complete. Please contact an administrator.")
         return redirect('profile')
     
@@ -1075,7 +1094,7 @@ def submit_dtr(request):
     
     return redirect('monthly_dtr')
 
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 def dtr_approvals(request):
     """View to approve/reject DTR submissions"""
     from django.core.paginator import Paginator
@@ -1095,7 +1114,7 @@ def dtr_approvals(request):
         try:
             user_office = request.user.userprofile.office
             dtr_submissions = dtr_submissions.filter(user__userprofile__office=user_office)
-        except UserProfile.DoesNotExist:
+        except (UserProfile.DoesNotExist, AttributeError):
             dtr_submissions = dtr_submissions.none()
     
     # Apply status filter
@@ -1128,7 +1147,7 @@ def dtr_approvals(request):
     
     return render(request, 'office_head/dtr_approvals.html', context)
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def approve_dtr(request, dtr_id):
     """Approve a DTR submission"""
@@ -1159,7 +1178,7 @@ def approve_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def reject_dtr(request, dtr_id):
     """Reject a DTR submission"""
@@ -1181,7 +1200,7 @@ def reject_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser)
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser or u.is_superuser, login_url='login')
 def time_correction(request, dtr_id):
     """Superuser view to edit time logs for a DTR submission"""
     try:
@@ -1215,7 +1234,7 @@ def time_correction(request, dtr_id):
     
     return render(request, 'caao_admin/time_correction.html', context)
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
     """Update a specific time record"""
@@ -1256,7 +1275,7 @@ def update_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=request.POST.get('dtr_id'))
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def delete_time_record(request, record_id):
     """Delete a specific time record"""
@@ -1272,7 +1291,7 @@ def delete_time_record(request, record_id):
     
     return redirect('time_correction', dtr_id=dtr_id)
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def add_time_record(request):
     """Admin manual time correction (simple system)"""
