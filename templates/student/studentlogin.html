@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seiki - Login</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{% static 'student/styles.css' %}">
 </head>
 <body>
   <div class="login-container">
@@ -69,8 +70,8 @@
       if (!username || !password) {
         document.getElementById('errorMessage').style.display = 'flex';
       } else {
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        // Redirect to student dashboard
+        window.location.href = '{% url 'student_dashboard' %}';
       }
     });
   </script>

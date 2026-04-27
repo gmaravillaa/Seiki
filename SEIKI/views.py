@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
@@ -9,10 +10,18 @@ from django.utils import timezone
 import json
 import csv
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.db import models
 from datetime import date, datetime
 
+
+def format_hours_minutes(hours):
+    """Convert a decimal hours value into a human-readable hours/minutes string."""
+    total_minutes = int(round(hours * 60))
+    hours_part, minutes_part = divmod(total_minutes, 60)
+    if hours_part:
+        return f"{hours_part}h {minutes_part}m"
+    return f"{minutes_part}m"
 
 
 @login_required
@@ -200,7 +209,28 @@ def reject_dtr(request, dtr_id):
 
 @login_required
 def student_dashboard(request):
-    return render(request, 'student/dashboard.html')
+    """Student Assistant Dashboard"""
+    return render(request, 'student/studentdashboard.html')
+
+@login_required
+def student_logs(request):
+    """Student Assistant Time Logs"""
+    return render(request, 'student/studentlogs.html')
+
+@login_required
+def student_submit_dtr(request):
+    """Student Assistant Submit DTR"""
+    return render(request, 'student/studentsubmitdtr.html')
+
+@login_required
+def student_schedule(request):
+    """Student Assistant Availability Schedule"""
+    return render(request, 'student/studentschedule.html')
+
+@login_required
+def student_profile_page(request):
+    """Student Assistant Profile Page"""
+    return render(request, 'student/studentprofile.html')
 
 @login_required
 def user_progress(request):

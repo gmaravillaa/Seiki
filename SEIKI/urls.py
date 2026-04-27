@@ -50,9 +50,12 @@ urlpatterns = [
     # =======================
     # MODULE PAGES
     # =======================
-    path('student-assistants/', views.student_assistant_progress, name='student_assistants_progress '),
     path('student-assistants/', views.student_assistant_progress, name='student_assistants'),
     path('office-users/', views.office_users, name='office_users'),
+    path('student-logs/', views.student_logs, name='student_logs'),
+    path('student-submit-dtr/', views.student_submit_dtr, name='student_submit_dtr'),
+    path('student-schedule/', views.student_schedule, name='student_schedule'),
+    path('student-profile/', views.student_profile_page, name='student_profile'),
 
     # =======================
     # CORE FEATURES
@@ -107,21 +110,16 @@ urlpatterns = [
     # =======================
     path('export-students/', views.export_students, name='export_students'),
     path('api/record-time/', views.record_time, name='record_time'),
-    path('user-progress/', views.user_progress, name='user_progress'),
     path('user-progress/<int:user_id>/json/', views.student_progress_json, name='student_progress_json'),
     path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),
     path("dtr/accept/<int:dtr_id>/", views.accept_dtr, name="accept_dtr"),
-] + static(settings.STATIC_URL, document_root=str(settings.STATICFILES_DIRS[0]))
-
-
     # =======================
     # officehead
-    # =======================
-
-path('office/dashboard/', views.office_dashboard, name='office_dashboard'),
-path('office/students/', views.office_student_assistants, name='office_students'),
-path('office/logs/', views.office_logs, name='office_logs'),
-path('office/submissions/', views.office_dtr_submissions, name='office_submissions'),
-path('office/reports/', views.office_reports, name='office_reports'),
-path('office/approvals/', views.dtr_approvals_view, name='dtr_approvals'),
+    path('office/dashboard/', views.office_dashboard, name='office_dashboard'),
+    path('office/students/', views.office_student_assistants, name='office_students'),
+    path('office/logs/', views.office_logs, name='office_logs'),
+    path('office/submissions/', views.office_dtr_submissions, name='office_submissions'),
+    path('office/reports/', views.office_reports, name='office_reports'),
+    path('office/approvals/', views.dtr_approvals_view, name='dtr_approvals'),
+] + static(settings.STATIC_URL, document_root=str(settings.STATICFILES_DIRS[0]))
 
