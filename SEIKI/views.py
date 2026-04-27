@@ -1342,61 +1342,51 @@ def time_correction(request, dtr_id):
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
+@login_required
+@user_passes_test(lambda u: u.is_staff, login_url='login')
+@require_http_methods(["POST"])
 def update_time_record(request, record_id):
-    """Update a specific time record"""
+    """Update an existing time record via the template's modal"""
+    record = get_object_or_404(TimeRecord, id=record_id)
+    dtr_id = request.POST.get('dtr_id')
+    
     try:
-        time_record = TimeRecord.objects.get(id=record_id)
-        
-        # Get the updated timestamp
-        new_timestamp_str = request.POST.get('timestamp')
-        if new_timestamp_str:
-            # Parse the timestamp (format: YYYY-MM-DDTHH:MM)
-            new_timestamp = datetime.strptime(new_timestamp_str, '%Y-%m-%dT%H:%M')
-            # Make it timezone aware
-            new_timestamp = timezone.make_aware(new_timestamp)
-            time_record.timestamp = new_timestamp
+        timestamp_str = request.POST.get('timestamp')
+        if timestamp_str:
+            # Parse and make timezone aware
+            new_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
+            record.timestamp = timezone.make_aware(new_timestamp)
+            record.save()
             
-            # If this is a time out record, recalculate duration
-            if time_record.record_type == 'out':
-                # Find the last time in record for the same day
-                same_day = time_record.timestamp.date()
-                time_in_record = TimeRecord.objects.filter(
-                    user=time_record.user,
-                    timestamp__date=same_day,
+            # If we updated a 'Time Out', we must recalculate the duration
+            if record.record_type == 'out':
+                time_in = TimeRecord.objects.filter(
+                    user=record.user,
                     record_type='in',
-                    timestamp__lt=time_record.timestamp
+                    timestamp__lt=record.timestamp
                 ).order_by('-timestamp').first()
                 
-                if time_in_record:
-                    duration = time_record.timestamp - time_in_record.timestamp
-                    time_record.duration = duration
-            
-            # Track who edited this record
-            time_record.edited_by = request.user
-            time_record.edited_date = timezone.now()
-            time_record.save()
-        
-        messages.success(request, f"Time record updated successfully!")
-    except TimeRecord.DoesNotExist:
-        messages.error(request, "Time record not found.")
-    except Exception as e:
-        messages.error(request, f"Error updating time record: {str(e)}")
-    
-    return redirect('time_correction', dtr_id=request.POST.get('dtr_id'))
+                if time_in:
+                    record.duration = record.timestamp - time_in.timestamp
+                    record.save()
 
+            messages.success(request, "Record updated successfully.")
+            
+    except Exception as e:
+        messages.error(request, f"Update failed: {str(e)}")
+        
+    return redirect('time_correction', dtr_id=dtr_id)
+
+@login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def delete_time_record(request, record_id):
-    """Delete a specific time record"""
-    try:
-        time_record = TimeRecord.objects.get(id=record_id)
-        dtr_id = request.POST.get('dtr_id')
-        time_record.delete()
-        messages.success(request, f"Time record deleted successfully!")
-    except TimeRecord.DoesNotExist:
-        messages.error(request, "Time record not found.")
-    except Exception as e:
-        messages.error(request, f"Error deleting time record: {str(e)}")
+    """Permanently delete a record and redirect back to the correction page"""
+    record = get_object_or_404(TimeRecord, id=record_id)
+    dtr_id = request.POST.get('dtr_id') # Hidden field in your template form
+    
+    record.delete()
+    messages.success(request, "Record deleted successfully.")
     
     return redirect('time_correction', dtr_id=dtr_id)
 
