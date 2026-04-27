@@ -23,8 +23,6 @@ def dashboard_redirect(request):
         return redirect('admin_dashboard')  # Django admin panel
 
     elif request.user.is_staff:
-        # Safety check: does the profile exist?
-        if hasattr(user, 'userprofile'):
         return redirect('officehead_dashboard')
 
     else:
