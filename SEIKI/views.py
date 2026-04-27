@@ -100,7 +100,7 @@ def student_progress_json(request, user_id):
 
 @login_required
 def office_dashboard(request):
-    return render(request, 'office_head/dashboard.html')
+    return render(request, 'office_head/officehead-dashboard.html')
 
 @login_required
 def student_dashboard(request):
