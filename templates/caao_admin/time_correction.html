@@ -470,8 +470,64 @@
       </div>
     {% endif %}
 
-    <!-- User Info -->
+    <!-- Show DTR submissions for selected user (when viewing specific user's DTRs) -->
+    {% if selected_user %}
     <div class="user-info">
+      <div class="user-name">{{ selected_user.first_name }} {{ selected_user.last_name }}</div>
+      <div class="user-details">
+        <div class="detail-item">
+          <h3>Username</h3>
+          <div class="detail-value">{{ selected_user.username }}</div>
+        </div>
+        <div class="detail-item">
+          <h3>Office</h3>
+          <div class="detail-value">{{ selected_user.userprofile.office|default:"-" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="records-section">
+      <div class="section-title">DTR Submissions for {{ selected_user.get_full_name }}</div>
+      {% if dtr_submissions %}
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Month/Year</th>
+              <th>Status</th>
+              <th>Submitted Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for submission in dtr_submissions %}
+              <tr>
+                <td>{{ submission.month }}/{{ submission.year }}</td>
+                <td>
+                  <span class="record-type-{% if submission.status == 'approved' %}in{% elif submission.status == 'rejected' %}out{% else %}in{% endif %}">
+                    {% if submission.status == 'pending' %}Pending{% elif submission.status == 'approved' %}✓ Approved{% else %}✗ Rejected{% endif %}
+                  </span>
+                </td>
+                <td>{{ submission.created_at|date:"M d, Y" }}</td>
+                <td>
+                  <a href="{% url 'time_correction' submission.id %}" class="btn-edit" style="text-decoration: none;">Edit Time Records</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="text-align: center; padding: 2rem; color: #999;">
+          No DTR submissions found for this user.
+        </div>
+      {% endif %}
+    </div>
+
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="{% url 'student_assistant_progress' %}" class="back-button" style="display: inline-block;">Back to Student List</a>
+    </div>
+
+    <!-- Show time correction editor for specific DTR submission -->
+    {% elif dtr_submission %}
       <div class="user-name">{{ dtr_submission.user.first_name }} {{ dtr_submission.user.last_name }}</div>
       <div class="user-details">
         <div class="detail-item">
@@ -618,6 +674,7 @@
         </div>
       {% endif %}
     </div>
+    {% endif %}
   </main>
 
   <!-- Edit Modal -->
