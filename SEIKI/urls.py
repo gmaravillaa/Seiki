@@ -50,7 +50,7 @@ urlpatterns = [
     path('office-logs/', views.office_logs, name='office_logs'),
     path('office-dtr-submissions/', views.office_dtr_submissions, name='office_dtr_submissions'),
     path('office-reports/', views.office_reports, name='office_reports'),
-    path('office-dtr-approvals/', views.dtr_approvals_view, name='office_dtr_approvals'),
+    path('dtr-approvals/', views.dtr_approvals, name='dtr_approvals'),
 
     # =======================
     # MODULE PAGES
