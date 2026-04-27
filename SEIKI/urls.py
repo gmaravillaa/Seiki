@@ -53,6 +53,10 @@ urlpatterns = [
     path('student-assistants/', views.student_assistant_progress, name='student_assistants_progress '),
     path('student-assistants/', views.student_assistant_progress, name='student_assistants'),
     path('office-users/', views.office_users, name='office_users'),
+    path('student-logs/', views.student_logs, name='student_logs'),
+    path('student-submit-dtr/', views.student_submit_dtr, name='student_submit_dtr'),
+    path('student-schedule/', views.student_schedule, name='student_schedule'),
+    path('student-profile/', views.student_profile_page, name='student_profile'),
 
     # =======================
     # CORE FEATURES
