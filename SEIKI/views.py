@@ -1410,58 +1410,53 @@ def delete_time_record(request, record_id):
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def add_time_record(request):
-    """Admin manual time correction (simple system)"""
-
-    if request.method == "POST":
-
-        try:
-            user_id = request.POST.get('user_id')
-            date = request.POST.get('date')
-            time_in = request.POST.get('time_in')
-            time_out = request.POST.get('time_out')
-            remarks = request.POST.get('remarks', '')
-
-            user = User.objects.get(id=user_id)
-
-            # combine datetime
-            time_in_dt = timezone.make_aware(
-                datetime.strptime(f"{date} {time_in}", "%Y-%m-%d %H:%M")
-            )
-
-            time_out_dt = timezone.make_aware(
-                datetime.strptime(f"{date} {time_out}", "%Y-%m-%d %H:%M")
-            )
-
-            # compute hours
-            duration = time_out_dt - time_in_dt
-
-            # SAVE TIME IN
-            TimeRecord.objects.create(
+    """Add a new time record for time correction"""
+    try:
+        dtr_id = request.POST.get('dtr_id')
+        timestamp_str = request.POST.get('timestamp')
+        record_type = request.POST.get('record_type')
+        qr_code = request.POST.get('qr_code', 'admin_correction')
+        
+        # Get the DTR submission to know which user this is for
+        dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+        user = dtr_submission.user
+        
+        # Parse the timestamp
+        timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
+        timestamp = timezone.make_aware(timestamp)
+        
+        # Create the time record
+        time_record = TimeRecord.objects.create(
+            user=user,
+            timestamp=timestamp,
+            record_type=record_type,
+            qr_code=qr_code
+        )
+        
+        # If this is a time out record, calculate duration
+        if record_type == 'out':
+            # Find the last time in record for the same day
+            same_day = timestamp.date()
+            time_in_record = TimeRecord.objects.filter(
                 user=user,
-                qr_code="ADMIN_CORRECTION",
-                timestamp=time_in_dt,
-                record_type="in"
-            )
-
-            # SAVE TIME OUT
-            TimeRecord.objects.create(
-                user=user,
-                qr_code="ADMIN_CORRECTION",
-                timestamp=time_out_dt,
-                record_type="out",
-                duration=duration
-            )
-
-            messages.success(
-                request,
-                f"Time saved for {user.username}. Total hours: {round(duration.total_seconds()/3600, 2)}"
-            )
-
-        except Exception as e:
-            messages.error(request, f"Error: {str(e)}")
-
-    # ALWAYS go back here (NO dtr_id)
-    return redirect('admin_dashboard')
+                timestamp__date=same_day,
+                record_type='in',
+                timestamp__lt=timestamp
+            ).order_by('-timestamp').first()
+            
+            if time_in_record:
+                duration = timestamp - time_in_record.timestamp
+                time_record.duration = duration
+                time_record.save()
+        
+        messages.success(request, f"Time record added successfully!")
+        
+    except DTRSubmission.DoesNotExist:
+        messages.error(request, "DTR submission not found.")
+    except Exception as e:
+        messages.error(request, f"Error adding time record: {str(e)}")
+    
+    return redirect('time_correction', dtr_id=dtr_id)
 
 def time_correction_list(request):
     students = User.objects.filter(is_staff=False, is_superuser=False)

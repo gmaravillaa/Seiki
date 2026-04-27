@@ -627,7 +627,7 @@
         <h2 class="modal-title">Edit Time Record</h2>
         <span class="close" onclick="closeEditModal()">&times;</span>
       </div>
-      <form id="editForm" method="post" action="">
+      <form id="editForm" method="post" action="" data-update-url="{% url 'update_time_record' 0 %}">
         {% csrf_token %}
         <input type="hidden" name="dtr_id" value="{{ dtr_submission.id }}">
         <div class="modal-body">
@@ -647,7 +647,8 @@
   <script>
     function openEditModal(recordId, currentTimestamp) {
       document.getElementById('edit_timestamp').value = currentTimestamp.replace(' ', 'T');
-      document.getElementById('editForm').action = `/time-correction/update/${recordId}/`;
+      const baseUrl = document.getElementById('editForm').getAttribute('data-update-url');
+      document.getElementById('editForm').action = baseUrl.replace('0', recordId);
       document.getElementById('editModal').style.display = 'block';
     }
 

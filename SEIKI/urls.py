@@ -102,7 +102,6 @@ urlpatterns = [
     path('time-correction/add/', views.add_time_record, name='add_time_record'),
     path('time-correction/update/<int:record_id>/', views.update_time_record, name='update_time_record'),
     path('time-correction/delete/<int:record_id>/', views.delete_time_record, name='delete_time_record'),
-    path('time-correction/add/', views.add_time_record, name='add_time_record'),
 
     # =======================
     # CHAT SYSTEM
