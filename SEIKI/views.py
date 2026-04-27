@@ -1311,19 +1311,24 @@ def reject_dtr(request, dtr_id):
     
     return redirect('dtr_approvals')
 
+@login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction(request, dtr_id):
-  """View to edit time logs for a specific DTR submission"""
+    """
+    Handles path('time-correction/<int:dtr_id>/', name='time_correction')
+    Matches the file: templates/office_head/time-correction.html
+    """
+    template_name = 'office_head/time-correction.html' 
     dtr_submission = get_object_or_404(DTRSubmission, id=dtr_id)
     
-    # Get all time records for the student during that specific month/year
+    # Fetch records for the specific month/year of the DTR
     time_records = TimeRecord.objects.filter(
         user=dtr_submission.user,
         timestamp__month=dtr_submission.month,
         timestamp__year=dtr_submission.year
     ).order_by('timestamp')
     
-    # Group records by date for the template's table
+    # Grouping logic for the daily UI rows
     grouped_data = {}
     for record in time_records:
         date_key = timezone.localtime(record.timestamp).date()
@@ -1331,58 +1336,51 @@ def time_correction(request, dtr_id):
             grouped_data[date_key] = []
         grouped_data[date_key].append(record)
 
-    # Sort dates and prepare list of tuples: [(date, [records]), ...]
     daily_records = sorted(grouped_data.items(), key=lambda x: x[0], reverse=True)
 
     context = {
         'dtr_submission': dtr_submission,
         'daily_records': daily_records,
+        'student_name': dtr_submission.user.get_full_name()
     }
-    return render(request, 'office_head/time-correction.html', context)
+    return render(request, template_name, context)
 
 @login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
-    """Update an existing time record and recalculate related durations"""
+    """
+    Handles path('time-correction/update/<int:record_id>/', name='update_time_record')
+    Called by the modal in time-correction.html
+    """
     record = get_object_or_404(TimeRecord, id=record_id)
-    dtr_id = request.POST.get('dtr_id')
+    dtr_id = request.POST.get('dtr_id') # Passed via hidden input in your modal
     
     try:
         timestamp_str = request.POST.get('timestamp')
         if timestamp_str:
-            # 1. Parse and update the timestamp
-            new_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
-            record.timestamp = timezone.make_aware(new_timestamp)
+            # HTML5 datetime-local uses 'T' separator (e.g., 2026-04-28T14:30)
+            new_dt = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
+            record.timestamp = timezone.make_aware(new_dt)
             record.save()
             
-            # 2. Recalculate Durations
-            # Case A: We edited a 'Time Out'. Update THIS record's duration.
+            # Auto-recalculate duration for the shift
             if record.record_type == 'out':
-                time_in = TimeRecord.objects.filter(
-                    user=record.user,
-                    record_type='in',
-                    timestamp__lt=record.timestamp
+                prev_in = TimeRecord.objects.filter(
+                    user=record.user, record_type='in', timestamp__lt=record.timestamp
                 ).order_by('-timestamp').first()
-                
-                if time_in:
-                    record.duration = record.timestamp - time_in.timestamp
+                if prev_in:
+                    record.duration = record.timestamp - prev_in.timestamp
                     record.save()
-
-            # Case B: We edited a 'Time In'. Update the NEXT 'Time Out' duration.
             else:
-                time_out = TimeRecord.objects.filter(
-                    user=record.user,
-                    record_type='out',
-                    timestamp__gt=record.timestamp
+                next_out = TimeRecord.objects.filter(
+                    user=record.user, record_type='out', timestamp__gt=record.timestamp
                 ).order_by('timestamp').first()
-                
-                if time_out:
-                    time_out.duration = time_out.timestamp - record.timestamp
-                    time_out.save()
+                if next_out:
+                    next_out.duration = next_out.timestamp - record.timestamp
+                    next_out.save()
 
-            messages.success(request, "Record updated and durations recalculated.")
-            
+            messages.success(request, "Record updated and shift duration recalculated.")
     except Exception as e:
         messages.error(request, f"Update failed: {str(e)}")
         
@@ -1391,100 +1389,47 @@ def update_time_record(request, record_id):
 @login_required
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
-def delete_time_record(request, record_id):
-    # 1. Fetch the record
-    record = get_object_or_404(TimeRecord, id=record_id)
-    
-    # 2. Get dtr_id from POST, but fallback to calculating it 
-    # to prevent redirect crashes
-    dtr_id = request.POST.get('dtr_id')
-    
-    if not dtr_id:
-        # Fallback logic: Find the submission matching this record's month/year/user
-        # This prevents the 500 error if your HTML hidden input fails
-        dtr = DTRSubmission.objects.filter(
-            user=record.user, 
-            month=record.timestamp.month, 
-            year=record.timestamp.year
-        ).first()
-        dtr_id = dtr.id if dtr else None
-
-    # 3. Security Check: Ensure the staff is from the same office (Optional but Recommended)
-    if record.user.userprofile.office != request.user.userprofile.office:
-        messages.error(request, "Unauthorized: This student is not in your department.")
-        return redirect('office_dashboard')
-
-    # 4. Perform the deletion
-    record.delete()
-    messages.success(request, "Record deleted successfully.")
-    
-    # 5. Safe Redirect
-    if dtr_id:
-        return redirect('time_correction', dtr_id=dtr_id)
-    return redirect('dtr_approvals')
-    
-@login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
-@require_http_methods(["POST"])
 def add_time_record(request):
-    """Add a new time record for time correction with safety redirects"""
-    dtr_id = request.POST.get('dtr_id') # Get this first for redirect safety
+    """Handles path('time-correction/add/', name='add_time_record')"""
+    dtr_id = request.POST.get('dtr_id')
+    dtr = get_object_or_404(DTRSubmission, id=dtr_id)
     
-    if not dtr_id:
-        messages.error(request, "Invalid request: Missing DTR ID.")
-        return redirect('office_dashboard')
-
     try:
-        timestamp_str = request.POST.get('timestamp')
-        record_type = request.POST.get('record_type')
-        qr_code = request.POST.get('qr_code', 'admin_correction')
+        ts_str = request.POST.get('timestamp')
+        r_type = request.POST.get('record_type')
         
-        # Get the DTR submission to know which user this is for
-        dtr_submission = get_object_or_404(DTRSubmission, id=dtr_id)
-        user = dtr_submission.user
-        
-        # Parse the timestamp from the datetime-local input
-        timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M')
-        timestamp = timezone.make_aware(timestamp)
-        
-        # Create the time record
-        time_record = TimeRecord.objects.create(
-            user=user,
-            timestamp=timestamp,
-            record_type=record_type,
-            qr_code=qr_code
-            # Note: Ensure 'edited_by' and 'edited_date' exist in your TimeRecord model 
-            # if you want to keep the tracking lines from your current code.
+        new_dt = datetime.strptime(ts_str, '%Y-%m-%dT%H:%M')
+        new_record = TimeRecord.objects.create(
+            user=dtr.user,
+            timestamp=timezone.make_aware(new_dt),
+            record_type=r_type,
+            qr_code="MANUAL_CORRECTION"
         )
         
-        # If this is a 'out' record, calculate duration immediately
-        if record_type == 'out':
-            time_in_record = TimeRecord.objects.filter(
-                user=user,
-                timestamp__date=timestamp.date(),
-                record_type='in',
-                timestamp__lt=timestamp
+        # Calculate duration if it's an OUT record
+        if r_type == 'out':
+            prev_in = TimeRecord.objects.filter(
+                user=dtr.user, record_type='in', timestamp__lt=new_record.timestamp
             ).order_by('-timestamp').first()
-            
-            if time_in_record:
-                time_record.duration = timestamp - time_in_record.timestamp
-                time_record.save()
-        
-        messages.success(request, "Time record added successfully!")
-        
+            if prev_in:
+                new_record.duration = new_record.timestamp - prev_in.timestamp
+                new_record.save()
+                
+        messages.success(request, "Manual record added.")
     except Exception as e:
-        messages.error(request, f"Error adding record: {str(e)}")
-    
+        messages.error(request, f"Add failed: {str(e)}")
+        
     return redirect('time_correction', dtr_id=dtr_id)
-    
-@user_passes_test(lambda u: u.is_staff, login_url='login')
-def time_correction_list(request):
-    """Show list of students for time correction"""
-    students = User.objects.filter(is_staff=False, is_superuser=False)
 
-    return render(request, 'caao_admin/time_correction.html', {
-        'students': students
-    })
+@login_required
+@user_passes_test(lambda u: u.is_staff, login_url='login')
+def delete_time_record(request, record_id):
+    """Handles path('time-correction/delete/<int:record_id>/', name='delete_time_record')"""
+    record = get_object_or_404(TimeRecord, id=record_id)
+    dtr_id = request.POST.get('dtr_id')
+    record.delete()
+    messages.success(request, "Log entry removed.")
+    return redirect('time_correction', dtr_id=dtr_id)
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction_user(request, user_id):
