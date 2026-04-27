@@ -1313,37 +1313,32 @@ def reject_dtr(request, dtr_id):
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction(request, dtr_id):
-    """Superuser view to edit time logs for a DTR submission"""
-    try:
-        dtr_submission = DTRSubmission.objects.get(id=dtr_id)
-    except DTRSubmission.DoesNotExist:
-        messages.error(request, "DTR submission not found.")
-        return redirect('dtr_approvals')
+  """View to edit time logs for a specific DTR submission"""
+    dtr_submission = get_object_or_404(DTRSubmission, id=dtr_id)
     
-    # Get all time records for the month
+    # Get all time records for the student during that specific month/year
     time_records = TimeRecord.objects.filter(
         user=dtr_submission.user,
         timestamp__month=dtr_submission.month,
         timestamp__year=dtr_submission.year
     ).order_by('timestamp')
     
-    # Group records by date for display
-    daily_records = {}
+    # Group records by date for the template's table
+    grouped_data = {}
     for record in time_records:
         date_key = timezone.localtime(record.timestamp).date()
-        if date_key not in daily_records:
-            daily_records[date_key] = []
-        daily_records[date_key].append(record)
-    
-    # Sort by date
-    sorted_records = sorted(daily_records.items())
-    
+        if date_key not in grouped_data:
+            grouped_data[date_key] = []
+        grouped_data[date_key].append(record)
+
+    # Sort dates and prepare list of tuples: [(date, [records]), ...]
+    daily_records = sorted(grouped_data.items(), key=lambda x: x[0], reverse=True)
+
     context = {
         'dtr_submission': dtr_submission,
-        'daily_records': sorted_records,
+        'daily_records': daily_records,
     }
-    
-    return render(request, 'caao_admin/time_correction.html', context)
+    return render(request, 'office_head/time_correction.html', context)
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
