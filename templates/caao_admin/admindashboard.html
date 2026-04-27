@@ -14,26 +14,29 @@
     --accent-pink: #feacb5;
     --accent-mint: #94e2aa;
     --bg-light: #f4f7f9;
-    --text-white: #ffffff;
-    --gray-light: #d9d9d9;
+
+    /* DIRTY WHITE THEME */
+    --card-white: #fdfdfc;
+    --soft-white: #f7f7f5;
+
+    --text-muted: #6b7280;
 }
 
 /* GLOBAL */
 body {
     background: var(--bg-light);
-    font-family: 'Inter', sans-serif;
+    font-family: Inter, sans-serif;
 }
 
 /* SIDEBAR */
 .sidebar {
     background: var(--sidebar-dark);
-    color: var(--text-white);
-    transition: 0.3s ease;
+    color: white;
 }
 
-/* NAV LINKS */
+/* LINKS */
 .sidebar a {
-    transition: 0.25s ease;
+    transition: all 0.2s ease;
 }
 
 .sidebar a:hover {
@@ -41,24 +44,23 @@ body {
     transform: translateX(6px);
 }
 
+/* ACTIVE */
 .active-link {
     background: rgba(255,255,255,0.18);
 }
 
-/* LOGOUT */
-.sidebar button:hover {
-    transform: scale(1.03);
-}
-
-/* CARD */
-.card-hover {
+/* MAIN CARD STYLE */
+.card {
+    background: var(--card-white);
+    border-radius: 14px;
     transition: all 0.25s ease;
-    cursor: pointer;
+    border: 1px solid #eee;
 }
 
+/* HOVER EFFECT (MODERN FLOAT) */
 .card-hover:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
 }
 
 /* TABLE */
@@ -67,8 +69,7 @@ table tbody tr {
 }
 
 table tbody tr:hover {
-    background: #f0f7ff;
-    transform: scale(1.002);
+    background: #f3f6ff;
 }
 
 /* BUTTONS */
@@ -77,13 +78,14 @@ button {
 }
 
 button:hover {
-    transform: translateY(-1px);
-    opacity: 0.9;
+    transform: scale(1.03);
 }
 
-/* INPUT */
-select:hover {
-    border-color: var(--primary-blue);
+/* HEADER GLASS EFFECT */
+.header {
+    background: rgba(253,253,252,0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #eee;
 }
 </style>
 </head>
@@ -92,199 +94,195 @@ select:hover {
 
 <div class="flex">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar w-64 h-screen flex flex-col justify-between">
+<!-- SIDEBAR -->
+<div class="sidebar w-64 h-screen flex flex-col justify-between">
 
-        <div>
-            <div class="p-6 border-b border-white/20">
-                <h1 class="text-lg font-bold">College of Admission and Aid Office</h1>
-                <h2 class="text-sm opacity-80">Admin Dashboard</h2>
-            </div>
-
-            <nav class="p-4 space-y-2 text-sm">
-
-                <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 rounded active-link">
-                    Dashboard
-                </a>
-
-                <a href="{% url 'user_progress' %}" class="block px-4 py-2 rounded">
-                    Progress
-                </a>
-
-                <a href="{% url 'user_management' %}" class="block px-4 py-2 rounded">
-                    Management
-                </a>
-
-                <a href="{% url 'dtr_records' %}" class="block px-4 py-2 rounded">
-                    DTR Records
-                </a>
-
-                <a href="{% url 'chat' %}" class="block px-4 py-2 rounded">
-                    Chat
-                </a>
-
-                <a href="{% url 'student_assistants' %}" class="block px-4 py-2 rounded">
-                    Student Assistants
-                </a>
-
-            </nav>
+    <div>
+        <div class="p-6 border-b border-white/20">
+            <h1 class="text-lg font-bold">CAOO Admin</h1>
+            <p class="text-xs opacity-70">Management Portal</p>
         </div>
 
-        <!-- LOGOUT -->
-        <div class="p-4 border-t border-white/20">
-            <form method="POST" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit"
-                    class="w-full py-2 rounded bg-red-500 hover:bg-red-600 shadow">
-                    Logout
-                </button>
-            </form>
-        </div>
+        <nav class="p-4 space-y-2 text-sm">
 
-    </div>
+            <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 rounded active-link">
+                Dashboard
+            </a>
 
-    <!-- MAIN -->
-    <div class="flex-1 p-6 space-y-6">
+            <a href="{% url 'user_progress' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+                Progress
+            </a>
 
-        <!-- HEADER -->
-        <div class="flex justify-between items-center border-b pb-4 bg-white/60 backdrop-blur rounded-lg px-4 py-3">
+            <a href="{% url 'user_management' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+                Management
+            </a>
 
-            <div>
-                <h1 class="text-2xl font-bold text-[var(--primary-blue)]">Good day!</h1>
-                <p class="text-gray-600 text-sm">
-                    Welcome back, {{ request.user.username }}.
-                </p>
-            </div>
+            <a href="{% url 'dtr_records' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+                DTR Records
+            </a>
 
-            <!-- MONTH FILTER -->
-            <form method="GET">
-                <select name="month" onchange="this.form.submit()"
-                    class="border px-3 py-2 rounded text-sm bg-white">
+            <a href="{% url 'chat' %}" class="block px-4 py-2 rounded hover:bg-white/10">
+                Chat
+            </a>
 
-                    <option value="">All Months</option>
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-
-                </select>
-            </form>
-
-        </div>
-
-        <!-- STATS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-            <div class="bg-white p-6 rounded-xl border-t-4 card-hover" style="border-color: var(--primary-blue)">
-                <p class="text-xs text-gray-400">Total Students</p>
-                <p class="text-3xl font-bold">{{ total_students }}</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl border-t-4 card-hover" style="border-color: var(--accent-pink)">
-                <p class="text-xs text-gray-400">Pending DTRs</p>
-                <p class="text-3xl font-bold">{{ pending_dtrs }}</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl border-t-4 card-hover" style="border-color: var(--accent-mint)">
-                <p class="text-xs text-gray-400">Approved DTRs</p>
-                <p class="text-3xl font-bold">{{ approved_dtrs }}</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl border-t-4 card-hover" style="border-color: #60a5fa">
-                <p class="text-xs text-gray-400">Active Offices</p>
-                <p class="text-3xl font-bold">{{ active_offices }}</p>
-            </div>
-
-        </div>
-
-        <!-- TABLE -->
-        <div>
-
-            <h2 class="text-xl font-bold text-[var(--primary-blue)] mb-4">
+            <a href="{% url 'student_assistants' %}" class="block px-4 py-2 rounded hover:bg-white/10">
                 Student Assistants
-            </h2>
+            </a>
 
-            <div class="bg-white rounded-xl shadow overflow-hidden">
+        </nav>
+    </div>
 
-                <table class="w-full">
+    <!-- LOGOUT -->
+    <div class="p-4 border-t border-white/20">
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit"
+                class="w-full py-2 rounded bg-red-500 hover:bg-red-600">
+                Logout
+            </button>
+        </form>
+    </div>
 
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-3 text-left text-xs">Name</th>
-                            <th class="p-3 text-left text-xs">ID</th>
-                            <th class="p-3 text-left text-xs">Office</th>
-                            <th class="p-3 text-left text-xs">Status</th>
-                            <th class="p-3 text-left text-xs">Hours</th>
-                            <th class="p-3 text-right text-xs">Actions</th>
-                        </tr>
-                    </thead>
+</div>
 
-                    <tbody>
+<!-- MAIN -->
+<div class="flex-1 p-6 space-y-6">
 
-                        {% for student in students %}
-                        <tr>
+    <!-- HEADER -->
+    <div class="header flex justify-between items-center px-4 py-3 rounded-xl">
 
-                            <td class="p-3 font-bold">
-                                {{ student.get_full_name }}
-                            </td>
+        <div>
+            <h1 class="text-2xl font-bold text-[var(--primary-blue)]">Good day!</h1>
+            <p class="text-sm text-gray-500">
+                Welcome back, {{ request.user.username }}.
+            </p>
+        </div>
 
-                            <td class="p-3">
-                                {{ student.userprofile.id_number|default:"N/A" }}
-                            </td>
+        <!-- FILTER -->
+        <form method="GET">
+            <select name="month"
+                onchange="this.form.submit()"
+                class="bg-white border rounded px-3 py-2 text-sm">
 
-                            <td class="p-3">
-                                {{ student.userprofile.office|default:"No Office" }}
-                            </td>
+                <option value="">All Months</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
 
-                            <td class="p-3">
-                                {% if student.is_active %}
-                                    <span class="text-green-600 font-semibold">Active</span>
-                                {% else %}
-                                    <span class="text-red-600 font-semibold">Inactive</span>
-                                {% endif %}
-                            </td>
+            </select>
+        </form>
 
-                            <td class="p-3">
-                                {{ student.total_hours }} hrs
-                            </td>
+    </div>
 
-                            <td class="p-3 text-right space-x-2">
+    <!-- STATS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                                <button onclick="openProgress({{ student.id }})"
-                                    class="px-3 py-1 bg-blue-500 text-white rounded shadow hover:shadow-md">
-                                    View
-                                </button>
+        <div class="card card-hover p-6 border-t-4 border-blue-700">
+            <p class="text-xs text-gray-400">Total Students</p>
+            <p class="text-3xl font-bold">{{ total_students }}</p>
+        </div>
 
-                                <form method="POST" action="{% url 'delete_user' student.id %}" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                        onclick="return confirm('Delete user?')"
-                                        class="px-3 py-1 bg-red-500 text-white rounded shadow hover:shadow-md">
-                                        Delete
-                                    </button>
-                                </form>
+        <div class="card card-hover p-6 border-t-4 border-pink-300">
+            <p class="text-xs text-gray-400">Pending DTRs</p>
+            <p class="text-3xl font-bold">{{ pending_dtrs }}</p>
+        </div>
 
-                            </td>
+        <div class="card card-hover p-6 border-t-4 border-green-300">
+            <p class="text-xs text-gray-400">Approved DTRs</p>
+            <p class="text-3xl font-bold">{{ approved_dtrs }}</p>
+        </div>
 
-                        </tr>
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
+        <div class="card card-hover p-6 border-t-4 border-blue-300">
+            <p class="text-xs text-gray-400">Active Offices</p>
+            <p class="text-3xl font-bold">{{ active_offices }}</p>
         </div>
 
     </div>
+
+    <!-- TABLE -->
+    <div class="card p-4">
+
+        <h2 class="text-xl font-bold text-[var(--primary-blue)] mb-4">
+            Student Assistants
+        </h2>
+
+        <table class="w-full">
+
+            <thead class="text-xs text-gray-400 uppercase">
+                <tr>
+                    <th class="text-left p-3">Name</th>
+                    <th class="text-left p-3">ID</th>
+                    <th class="text-left p-3">Office</th>
+                    <th class="text-left p-3">Status</th>
+                    <th class="text-left p-3">Hours</th>
+                    <th class="text-right p-3">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for student in students %}
+                <tr class="border-t">
+
+                    <td class="p-3 font-semibold">
+                        {{ student.get_full_name }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ student.userprofile.id_number|default:"N/A" }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ student.userprofile.office|default:"No Office" }}
+                    </td>
+
+                    <td class="p-3">
+                        {% if student.is_active %}
+                            <span class="text-green-600 font-semibold">Active</span>
+                        {% else %}
+                            <span class="text-red-500 font-semibold">Inactive</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-3">
+                        {{ student.total_hours }} hrs
+                    </td>
+
+                    <td class="p-3 text-right space-x-2">
+
+                        <button onclick="openProgress({{ student.id }})"
+                            class="px-3 py-1 bg-blue-500 text-white rounded">
+                            View
+                        </button>
+
+                        <form method="POST" action="{% url 'delete_user' student.id %}" class="inline">
+                            {% csrf_token %}
+                            <button class="px-3 py-1 bg-red-500 text-white rounded">
+                                Delete
+                            </button>
+                        </form>
+
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 </div>
 
 <script>
