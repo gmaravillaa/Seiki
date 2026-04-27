@@ -34,7 +34,6 @@ urlpatterns = [
     # =======================
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('', views.index, name='index')
     # =======================
     # ROOT
     # =======================
