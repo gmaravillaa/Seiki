@@ -36,7 +36,7 @@ def dashboard_redirect(request):
     return redirect('student_dashboard')
 
 @login_required
-def dtr_approvals(request):
+def dtr-approvals(request):
     office = request.user.userprofile.office
     
     # Get filters from the HTML form
