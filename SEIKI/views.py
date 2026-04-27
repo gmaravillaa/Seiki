@@ -15,7 +15,7 @@ from django.db import models
 from django.db.models import Count, Sum, Q  # Combined all models.db imports
 
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
-
+from django.contrib.auth import logout
 
 
 @login_required
@@ -35,6 +35,11 @@ def dashboard_redirect(request):
 
     return redirect('student_dashboard')
     
+def logout_view(request):
+    logout(request)
+    # Redirecting to 'login' here bypasses the "next" logic 
+    # because the login page itself isn't protected by @login_required
+    return redirect('login')  
     
 @login_required
 def dtr_approvals(request):
