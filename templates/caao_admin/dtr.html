@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTR Acceptance Portal</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: Inter, sans-serif; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+<div class="w-full h-2 bg-[#003A6C]"></div>
+
+<div class="p-6 space-y-6 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
+
+        <div>
+            <h1 class="text-2xl font-bold text-[#003A6C]">DTR Acceptance Portal</h1>
+            <p class="text-gray-600 mt-1">
+                Review Pending and Accepted submissions only.
+            </p>
+        </div>
+
+        <a href="{% url 'admin_dashboard' %}"
+           class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+
+    </div>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Pending</p>
+                <p class="text-xl font-black text-gray-900">{{ pending_count }} Pending</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Accepted</p>
+                <p class="text-xl font-black text-gray-900">{{ accepted_count }} Accepted</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FILTER -->
+    <form method="GET" class="bg-white p-4 rounded-xl shadow-sm border flex flex-wrap gap-3">
+
+        <input type="text"
+               name="search"
+               value="{{ search_query }}"
+               placeholder="Search name or ID..."
+               class="flex-1 px-4 py-2 border rounded-lg text-sm">
+
+        <select name="status"
+                class="px-4 py-2 border rounded-lg text-sm">
+            <option value="">All</option>
+            <option value="pending">Only Pending</option>
+            <option value="accepted">Only Accepted</option>
+        </select>
+
+        <button class="px-6 py-2 bg-[#003A6C] text-white rounded-lg text-sm font-bold hover:bg-[#002a5c]">
+            Apply Filters
+        </button>
+
+    </form>
+
+    <!-- TABLE -->
+    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+
+        <table class="w-full text-left">
+
+            <thead class="bg-gray-50 border-b">
+                <tr>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Student</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Office</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Hours</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Status</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase">Action</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y">
+
+                {% for dtr in dtr_records %}
+
+                <tr class="hover:bg-gray-50">
+
+                    <!-- STUDENT -->
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center font-bold text-[#003A6C]">
+                                {{ dtr.user.first_name|first }}{{ dtr.user.last_name|first }}
+                            </div>
+
+                            <div>
+                                <div class="font-bold text-gray-900">
+                                    {{ dtr.user.get_full_name }}
+                                </div>
+                                <div class="text-xs text-gray-400">
+                                    ID: {{ dtr.user.userprofile.id_number }}
+                                </div>
+                            </div>
+
+                        </div>
+                    </td>
+
+                    <!-- OFFICE -->
+                    <td class="px-6 py-4 text-sm">
+                        <div class="font-medium text-gray-700">
+                            {{ dtr.user.userprofile.office }}
+                        </div>
+                        <div class="text-xs text-gray-400 italic">
+                            {{ dtr.period }}
+                        </div>
+                    </td>
+
+                    <!-- HOURS -->
+                    <td class="px-6 py-4 font-bold text-[#003A6C]">
+                        {{ dtr.total_hours }} hrs
+                    </td>
+
+                    <!-- STATUS -->
+                    <td class="px-6 py-4">
+
+                        {% if dtr.status == "pending" %}
+                            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">
+                                Pending
+                            </span>
+                        {% else %}
+                            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">
+                                Accepted
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <!-- ACTION -->
+                    <td class="px-6 py-4 text-right">
+
+                        {% if dtr.status == "pending" %}
+
+                        <form method="POST" action="{% url 'accept_dtr' dtr.id %}">
+                            {% csrf_token %}
+                            <button class="px-3 py-1 bg-green-600 text-white text-xs rounded font-bold hover:bg-green-700">
+                                Accept
+                            </button>
+                        </form>
+
+                        {% else %}
+                            <span class="text-xs text-gray-400 font-bold">Processed</span>
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="5" class="text-center py-10 text-gray-400">
+                        No DTR records found
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>
