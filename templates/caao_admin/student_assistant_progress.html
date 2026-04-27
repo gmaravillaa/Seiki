@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Student Assistant Progress - ADNU Admin</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body { font-family: 'Inter', sans-serif; }
+</style>
+
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+<div class="w-full h-2 bg-[#003A6C]"></div>
+
+<div class="p-6 space-y-6 max-w-7xl mx-auto">
+
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b pb-5">
+
+    <div>
+        <h1 class="text-2xl font-bold text-[#003A6C]">
+            Student Assistant Progress
+        </h1>
+        <p class="text-gray-600 text-sm">
+            Scholarship renewal tracking & work hours monitoring
+        </p>
+    </div>
+
+    <div class="flex gap-2">
+
+        <!-- BACK BUTTON -->
+        <a href="{% url 'admin_dashboard' %}"
+           class="px-4 py-2 bg-white border rounded text-sm hover:bg-gray-100">
+            ← Dashboard
+        </a>
+
+        <!-- EXPORT -->
+        <a href="{% url 'export_students' %}"
+           class="px-4 py-2 bg-green-600 text-white rounded text-sm font-bold hover:bg-green-700">
+            ⬇ Export CSV
+        </a>
+
+    </div>
+
+</div>
+
+<!-- SEARCH + FILTER -->
+<form method="GET" class="flex flex-col md:flex-row gap-3">
+
+    <input type="text" name="search"
+           placeholder="Search name, ID, office..."
+           value="{{ request.GET.search }}"
+           class="flex-1 px-4 py-2 border rounded focus:ring-2 focus:ring-[#003A6C] text-sm">
+
+    <select name="status"
+            class="px-4 py-2 border rounded text-sm">
+
+        <option value="all">All</option>
+        <option value="eligible" {% if request.GET.status == "eligible" %}selected{% endif %}>Eligible</option>
+        <option value="ineligible" {% if request.GET.status == "ineligible" %}selected{% endif %}>Ineligible</option>
+
+    </select>
+
+    <button class="px-6 py-2 bg-[#003A6C] text-white rounded text-sm font-bold">
+        Apply
+    </button>
+
+</form>
+
+<!-- INFO -->
+<p class="text-xs text-gray-500">
+    Only students with <b>100% completed hours</b> are eligible for scholarship renewal.
+</p>
+
+<!-- TABLE -->
+<div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+
+<table class="w-full">
+
+<thead class="bg-gray-50 border-b">
+<tr>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase">Student</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase">Office</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase">Progress</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase">Status</th>
+    <th class="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase">Action</th>
+</tr>
+</thead>
+
+<tbody class="divide-y">
+
+{% for item in data %}
+
+<tr class="hover:bg-gray-50">
+
+    <!-- STUDENT -->
+    <td class="px-6 py-4">
+        <div class="flex items-center gap-3">
+
+            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center font-bold text-[#003A6C] border">
+                {{ item.student.first_name|first }}{{ item.student.last_name|first }}
+            </div>
+
+            <div>
+                <div class="font-bold text-sm">
+                    {{ item.student.get_full_name }}
+                </div>
+                <div class="text-xs text-gray-500">
+                    ID: {{ item.profile.id_number|default:"N/A" }}
+                </div>
+            </div>
+
+        </div>
+    </td>
+
+    <!-- OFFICE -->
+    <td class="px-6 py-4 text-sm">
+        {{ item.profile.office|default:"No Office Assigned" }}
+    </td>
+
+    <!-- PROGRESS -->
+    <td class="px-6 py-4">
+
+        <div class="w-[200px]">
+
+            <div class="flex justify-between text-[10px] font-bold mb-1">
+                <span class="text-[#003A6C]">{{ item.percent }}%</span>
+                <span class="text-gray-400">
+                    {{ item.total_hours }} / {{ item.required }} hrs
+                </span>
+            </div>
+
+            <div class="w-full bg-gray-200 h-2 rounded-full">
+    <div class="h-2 rounded-full 
+        {% if item.percent >= 100 %}bg-green-500{% else %}bg-red-500{% endif %}"
+        style="width: {% if item.percent > 100 %}100{% else %}{{ item.percent }}{% endif %}%">
+    </div>
+</div>
+
+        </div>
+
+    </td>
+
+    <!-- STATUS -->
+    <td class="px-6 py-4">
+
+        {% if item.percent >= 100 %}
+            <span class="text-xs px-2 py-1 bg-green-100 text-green-700 font-bold rounded">
+                ✅ Eligible
+            </span>
+        {% else %}
+            <span class="text-xs px-2 py-1 bg-red-100 text-red-700 font-bold rounded">
+                ❌ Ineligible
+            </span>
+        {% endif %}
+
+    </td>
+
+    <!-- ACTION -->
+    <td class="px-6 py-4 text-right">
+
+        <a href="{% url 'time_correction_list' %}"
+           class="text-sm font-bold text-[#003A6C] hover:underline">
+            Manage Logs
+        </a>
+
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="5" class="text-center py-10 text-gray-400">
+        No student assistants found
+    </td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<!-- FOOTER -->
+<div class="flex justify-between text-xs text-gray-500 pt-4 border-t">
+    <p>Showing {{ data|length }} student assistants</p>
+    <p class="font-bold text-[#003A6C]">Ateneo de Naga University</p>
+</div>
+
+</div>
+
+</body>
+</html>

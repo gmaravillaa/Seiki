@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Time Correction Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+<div class="w-full h-2 bg-[#003A6C]"></div>
+
+<div class="p-6 max-w-6xl mx-auto space-y-6">
+
+<!-- HEADER -->
+<div class="border-b pb-4">
+    <h1 class="text-2xl font-bold text-[#003A6C]">Time Correction System</h1>
+    <p class="text-gray-500 text-sm">Admin can manually add missing time-in / time-out records</p>
+</div>
+
+<!-- FORM CARD -->
+<div class="bg-white p-6 rounded-xl shadow-sm border">
+
+<form method="POST" action="{% url 'add_time_record' %}" class="space-y-4">
+
+    {% csrf_token %}
+
+    <!-- STUDENT SELECT -->
+    <div>
+        <label class="text-xs font-bold text-gray-500">Select Student</label>
+
+        <select name="user_id" class="w-full border rounded px-3 py-2 text-sm" required>
+            <option value="">-- Choose Student --</option>
+            {% for student in students %}
+                <option value="{{ student.id }}">
+                    {{ student.get_full_name }} ({{ student.userprofile.id_number|default:"No ID" }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- DATE -->
+    <div>
+        <label class="text-xs font-bold text-gray-500">Date</label>
+        <input type="date" name="date"
+               class="w-full border rounded px-3 py-2 text-sm" required>
+    </div>
+
+    <!-- TIME -->
+    <div class="grid grid-cols-2 gap-4">
+
+        <div>
+            <label class="text-xs font-bold text-gray-500">Time In</label>
+            <input type="time" name="time_in"
+                   class="w-full border rounded px-3 py-2 text-sm" required>
+        </div>
+
+        <div>
+            <label class="text-xs font-bold text-gray-500">Time Out</label>
+            <input type="time" name="time_out"
+                   class="w-full border rounded px-3 py-2 text-sm" required>
+        </div>
+
+    </div>
+
+    <!-- REMARKS -->
+    <div>
+        <label class="text-xs font-bold text-gray-500">Remarks</label>
+        <textarea name="remarks" rows="3"
+                  class="w-full border rounded px-3 py-2 text-sm"
+                  placeholder="Optional note (e.g. forgot to time-in)"></textarea>
+    </div>
+
+    <!-- SUBMIT -->
+    <button type="submit"
+        class="w-full bg-[#003A6C] text-white py-2 rounded font-bold hover:bg-[#002a5c]">
+        Save Correction
+    </button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>

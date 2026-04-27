@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+{% load custom_filters %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seiki - Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    /* Dashboard Page */
+    .dashboard-page {
+      min-height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    /* Header */
+    .dashboard-header {
+      background: linear-gradient(135deg, #003a6c 0%, #0059ff 100%);
+      padding: 2rem 1.5rem 3rem;
+      border-bottom-left-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      position: relative;
+      color: white;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-logo {
+      width: 3rem;
+      height: 3rem;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .header-button {
+      color: white;
+      text-decoration: none;
+      font-size: 0.875rem;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .header-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      text-align: center;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .welcome-greeting {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #003a6c;
+      margin-bottom: 0.5rem;
+    }
+
+    .current-datetime {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    /* Cards */
+    .dashboard-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #003a6c 0%, #0059ff 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-icon {
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* QR Code Card - Most Important */
+    .qr-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .qr-card .card-header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .qr-code-container {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 1rem;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+
+    .qr-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .qr-info p {
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    /* Time Logs Card */
+    .logs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 0.5rem;
+      border-left: 4px solid #003a6c;
+    }
+
+    .log-time {
+      font-weight: 600;
+      color: #003a6c;
+    }
+
+    .log-type {
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .log-type.in {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .log-type.out {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .no-logs {
+      text-align: center;
+      color: #666;
+      padding: 2rem;
+      font-style: italic;
+    }
+
+    /* DTR Status Card */
+    .dtr-status {
+      text-align: center;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .status-dot {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-pending .status-dot {
+      background: #ffc107;
+    }
+
+    .status-approved {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-approved .status-dot {
+      background: #28a745;
+    }
+
+    .status-rejected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-rejected .status-dot {
+      background: #dc3545;
+    }
+
+    .status-none {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+
+    .status-none .status-dot {
+      background: #6c757d;
+    }
+
+    .dtr-details {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .dtr-details p {
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    /* Today's Hours Card */
+    .hours-summary {
+      text-align: center;
+    }
+
+    .hours-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #003a6c;
+      margin: 1rem 0;
+    }
+
+    .hours-label {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .qr-card {
+        grid-column: span 2;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .qr-card {
+        grid-column: span 3;
+      }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 767px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .header-right {
+        justify-content: center;
+      }
+
+      .qr-code {
+        width: 150px;
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-page">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="header-logo">🏠</div>
+          <h1 class="header-title">Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <a href="{% url 'profile' %}" class="header-button">👤 Profile</a>
+          <a href="{% url 'logs' %}" class="header-button">📋 Logs</a>
+          <a href="{% url 'chat' %}" class="header-button">💬 Chat</a>
+          {% if user.is_staff %}
+          <a href="{% url 'scanner' %}" class="header-button">📷 Scanner</a>
+          {% endif %}
+          {% if user.is_staff or user.is_superuser %}
+          <a href="{% url 'dtr_approvals' %}" class="header-button">✅ DTR Approvals</a>
+          {% endif %}
+          {% if user.is_superuser %}
+          <a href="{% url 'user_management' %}" class="header-button">👥 Users</a>
+          {% endif %}
+          <a href="{% url 'logout' %}" class="header-button">🚪 Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h2 class="welcome-greeting">Welcome back, {{ user.first_name }}! 👋</h2>
+      <p class="current-datetime">
+        Today is {{ current_date|date:"l, F j, Y" }} • Current time: <span id="current-time">{{ current_time|date:"H:i:s" }}</span>
+      </p>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <div class="dashboard-grid">
+
+        <!-- QR Code Card - Most Important -->
+        <div class="dashboard-card qr-card">
+          <div class="card-header">
+            <div class="card-icon">📱</div>
+            <h3 class="card-title">Your Attendance QR Code</h3>
+          </div>
+          <div class="card-body">
+            <div class="qr-code-container">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ user.id }}:{{ user.username }}" alt="QR Code" class="qr-code" />
+              <p style="margin-top: 1rem; opacity: 0.9;">Scan this code to mark your attendance</p>
+            </div>
+            <div class="qr-info">
+              <p><strong>ID:</strong> {{ user.id }}</p>
+              <p><strong>Username:</strong> {{ user.username }}</p>
+              <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Time Logs -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-icon">🕒</div>
+            <h3 class="card-title">Today's Time Logs</h3>
+          </div>
+          <div class="card-body">
+            {% if today_logs %}
+              <div class="logs-list">
+                {% for log in today_logs %}
+                <div class="log-item">
+                  <div>
+                    <div class="log-time">{{ log.timestamp|date:"H:i" }}</div>
+                    <div style="font-size: 0.75rem; color: #666;">{{ log.timestamp|date:"M j, Y" }}</div>
+                  </div>
+                  <div class="log-type {{ log.record_type }}">
+                    {{ log.get_record_type_display }}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="no-logs">
+                <p>No time logs recorded today yet.</p>
+                <p style="margin-top: 0.5rem;">Use your QR code to check in/out!</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- DTR Status -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-icon">📄</div>
+            <h3 class="card-title">DTR Status</h3>
+          </div>
+          <div class="card-body">
+            <div class="dtr-status">
+              {% if dtr_submission %}
+                <div class="status-indicator status-{{ dtr_submission.status }}">
+                  <div class="status-dot"></div>
+                  <span>{{ dtr_submission.get_status_display }}</span>
+                </div>
+                <div class="dtr-details">
+                  <p><strong>Month:</strong> {{ month_names|get_item:dtr_submission.month }} {{ dtr_submission.year }}</p>
+                  <p><strong>Submitted:</strong> {{ dtr_submission.submitted_date|date:"M j, Y" }}</p>
+                  {% if dtr_submission.status == 'approved' and dtr_submission.approved_date %}
+                  <p><strong>Approved:</strong> {{ dtr_submission.approved_date|date:"M j, Y" }}</p>
+                  {% endif %}
+                  {% if dtr_submission.remarks %}
+                  <p><strong>Remarks:</strong> {{ dtr_submission.remarks }}</p>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="status-indicator status-none">
+                  <div class="status-dot"></div>
+                  <span>No DTR Submitted</span>
+                </div>
+                <div class="dtr-details">
+                  <p>No DTR submission found for {{ current_date|date:"F Y" }}.</p>
+                  <p style="margin-top: 0.5rem;">Submit your DTR when ready!</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Hours -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-icon">⏱️</div>
+            <h3 class="card-title">Today's Hours</h3>
+          </div>
+          <div class="card-body">
+            <div class="hours-summary">
+              <div class="hours-number">{{ today_hours }}</div>
+              <div class="hours-label">hours worked today</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Update current time every second
+    function updateTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      document.getElementById('current-time').textContent = timeString;
+    }
+
+    // Update time immediately and then every second
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
