@@ -36,6 +36,28 @@ def dashboard_redirect(request):
     return redirect('student_dashboard')
 
 @login_required
+def dtr_approvals(request):
+    office = request.user.userprofile.office
+    
+    # Get filters from the HTML form
+    status_filter = request.GET.get('status', 'pending')
+    search_query = request.GET.get('search', '')
+
+    # Filter submissions for THIS office only
+    submissions = DTRSubmission.objects.filter(user__userprofile__office=office)
+    
+    if status_filter:
+        submissions = submissions.filter(status=status_filter)
+    
+    context = {
+        'office_name': office,
+        'dtr_submissions': submissions,
+        'status_filter': status_filter,
+        'search_query': search_query,
+    }
+    return render(request, 'office_head/dtr-approvals.html', context)
+
+@login_required
 def admin_dashboard(request):
     total_students = User.objects.filter(is_staff=False, is_superuser=False).count()
     active_offices = UserProfile.objects.values('office').distinct().count()
