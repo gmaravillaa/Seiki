@@ -507,7 +507,7 @@
                     {% if submission.status == 'pending' %}Pending{% elif submission.status == 'approved' %}✓ Approved{% else %}✗ Rejected{% endif %}
                   </span>
                 </td>
-                <td>{{ submission.created_at|date:"M d, Y" }}</td>
+                <td>{{ submission.submitted_date|date:"M d, Y" }}</td>
                 <td>
                   <a href="{% url 'time_correction' submission.id %}" class="btn-edit" style="text-decoration: none;">Edit Time Records</a>
                 </td>
