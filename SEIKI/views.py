@@ -275,11 +275,6 @@ def office_reports(request):
     # Logic for rendering officeheadreport.html
     return render(request, 'office_head/officeheadreport.html')
 
-@login_required
-@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
-def dtr_approvals_view(request):
-    """Detail view for dtr_approvals.html"""
-    return render(request, 'office_head/dtr_approvals.html')
 
 @login_required
 def student_dashboard(request):
@@ -1261,7 +1256,7 @@ def dtr_approvals(request):
         'is_paginated': page_obj.has_other_pages(),
     }
     
-    return render(request, 'office_head/dtr_approvals.html', context)
+    return render(request, 'office_head/dtr-approvals.html', context)
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 @require_http_methods(["POST"])
