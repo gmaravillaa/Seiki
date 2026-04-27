@@ -200,6 +200,26 @@ def student_dashboard(request):
     return render(request, 'student/dashboard.html')
 
 @login_required
+def student_logs(request):
+    """Student Assistant Time Logs"""
+    return render(request, 'student/studentlogs.html')
+
+@login_required
+def student_submit_dtr(request):
+    """Student Assistant Submit DTR"""
+    return render(request, 'student/studentsubmitdtr.html')
+
+@login_required
+def student_schedule(request):
+    """Student Assistant Availability Schedule"""
+    return render(request, 'student/studentschedule.html')
+
+@login_required
+def student_profile_page(request):
+    """Student Assistant Profile Page"""
+    return render(request, 'student/studentprofile.html')
+    
+@login_required
 def user_progress(request):
     return render(request, 'caao_admin/user_progress.html')
 
