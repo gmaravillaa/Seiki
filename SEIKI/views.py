@@ -101,8 +101,9 @@ def student_progress_json(request, user_id):
 def office_dashboard(request):
     """Refined Dashboard for Office Heads aligned with System Logic"""
     try:
-        # Identify the Office Head's office
-        office = request.user.userprofile.office
+        # Get the profile and office in one query to prevent errors
+        profile = request.user.userprofile
+        office = profile.office
     except (UserProfile.DoesNotExist, AttributeError):
         messages.error(request, "Your profile information is incomplete.")
         return redirect('profile')
@@ -111,58 +112,60 @@ def office_dashboard(request):
         messages.error(request, "Your office information is not set.")
         return redirect('profile')
 
-    # 1. Dashboard Stats (Scope limited to the specific office)
-    # Total students assigned to this office
+    # 1. Dashboard Stats
+    # Total students in this office
     total_students = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count()
     
-    # Count pending DTRs only for students in this office
+    # Count pending DTRs
     pending_dtrs = DTRSubmission.objects.filter(
         user__userprofile__office=office, 
         status='pending'
     ).count()
     
-    # Calculate total hours rendered across all students in this office
+    # SAFE CALCULATION: Total hours across all students
     total_hours_duration = TimeRecord.objects.filter(
         user__userprofile__office=office,
         record_type='out',
         duration__isnull=False
     ).aggregate(total=Sum('duration'))['total']
     
+    # CRITICAL FIX: Sum() returns None if no records exist. 
+    # Check for None before calling .total_seconds() to prevent a 500 error.
     total_hours = round(total_hours_duration.total_seconds() / 3600, 2) if total_hours_duration else 0
 
     # 2. Daily Attendance Percentage
-    # Count how many unique students from this office checked in today
     today_count = TimeRecord.objects.filter(
         user__userprofile__office=office,
         timestamp__date=date.today()
     ).values('user').distinct().count()
     
-    today_attendance = round((today_count / total_students) * 100, 0) if total_students else 0
+    # Avoid DivisionByZero error
+    today_attendance = round((today_count / total_students) * 100, 0) if total_students > 0 else 0
     
-    # 3. Tables/Lists
-    # Recent activity: Students in this office ordered by their last login
+    # 3. Tables/Lists for the UI
+    # Recent activity: Students ordered by last login
+    # Added select_related('userprofile') for faster performance in the template
     recent_students = User.objects.filter(
         userprofile__office=office,
         is_staff=False
     ).select_related('userprofile').order_by('-last_login')[:5]
     
-    # Live Logs: The 5 most recent time records for this office
+
     recent_logs = TimeRecord.objects.filter(
         user__userprofile__office=office
-    ).order_by('-timestamp')[:5]
+    ).select_related('user').order_by('-timestamp')[:5]
 
     context = {
         'office_name': office,
         'total_students': total_students,
         'total_hours': total_hours,
         'pending_dtrs': pending_dtrs,
-        'today_attendance': today_attendance,
+        'today_attendance': int(today_attendance), # Cast to int for cleaner display
         'recent_students': recent_students,
         'recent_logs': recent_logs,
     }
     
     return render(request, 'office_head/office-dashboard.html', context)
-
 @login_required
 def office_student_assistants(request):
     """View list of all SAs in the department"""
