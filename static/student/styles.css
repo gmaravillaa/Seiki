@@ -1055,3 +1055,133 @@ a {
   width: 100%;
   margin-top: auto;
 }
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .login-container {
+    padding: 0.5rem;
+  }
+
+  .login-wrapper {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .brand-sei,
+  .brand-ki {
+    font-size: 2.5rem;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .top-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .page-content {
+    padding: 0.75rem;
+  }
+
+  .combined-card {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .clock-display {
+    font-size: 2.5rem;
+  }
+
+  .progress-stats {
+    gap: 1rem;
+  }
+
+  .progress-stat {
+    font-size: 0.75rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .summary-card {
+    padding: 1.25rem;
+  }
+
+  .recent-logs .table-container {
+    overflow-x: auto;
+  }
+
+  .logs-table {
+    min-width: 600px;
+  }
+
+  .logs-table th,
+  .logs-table td {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .date-cell {
+    min-width: 80px;
+  }
+
+  .entry-time {
+    font-size: 0.75rem;
+  }
+
+  .hours-value {
+    font-size: 0.75rem;
+  }
+
+  .btn-primary,
+  .btn-gbox {
+    height: 3.5rem;
+    font-size: 1rem;
+  }
+
+  .form-input {
+    height: 3.5rem;
+    font-size: 1rem;
+  }
+
+  .user-avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .date-range {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .time-tracking-card {
+    padding: 1.5rem;
+  }
+
+  .qr-code-card {
+    padding: 1rem;
+  }
+
+  .qr-code-card img {
+    width: 200px;
+    height: 200px;
+  }
+}
