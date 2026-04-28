@@ -11,9 +11,15 @@
 <body>
   <div class="dashboard-container">
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <h1>Office Head Portal</h1>
+        <button class="close-sidebar" onclick="toggleSidebar()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
       <nav class="sidebar-nav">
         <a href="{% url 'office_dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
@@ -59,6 +65,13 @@
     <div class="main-content">
       <!-- Header -->
       <header class="office-header">
+        <button class="menu-btn" onclick="toggleSidebar()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <form method="get" action="{% url 'office_student_assistants' %}" class="header-search">
           <svg class="header-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -80,6 +93,16 @@
       </main>
     </div>
   </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+      }
+    }
+  </script>
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>
