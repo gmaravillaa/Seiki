@@ -2065,6 +2065,9 @@ def debug_dtr_submissions(request):
     }
     
     return render(request, 'caao_admin/debug_dtr.html', context)
+
+@user_passes_test(lambda u: u.is_staff, login_url='login')
+def time_correction_list(request):
     """List all students for time correction"""
     students = User.objects.filter(is_staff=False, is_superuser=False)
     if request.user.is_staff and not request.user.is_superuser:
