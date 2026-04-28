@@ -317,18 +317,33 @@ def student_dashboard(request):
     
     # Calculate remaining hours
     required_hours = profile.required_hours
-    remaining_hours = required_hours - total_hours
+    remaining_hours = max(required_hours - total_hours, 0)  # Don't show negative
     
-    # Get recent DTR submissions (for recent logs)
-    dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month')[:10]
+    # Get recent time records for logs (not DTR submissions)
+    recent_records = time_records[:10]  # Last 10 records
+    
+    # Group recent records by date for display
+    from datetime import date as date_type
+    recent_logs = {}
+    for record in recent_records:
+        record_date = record.timestamp.date()
+        if record_date not in recent_logs:
+            recent_logs[record_date] = []
+        recent_logs[record_date].append(record)
+    
+    # Calculate progress percentage
+    progress_percentage = 0
+    if required_hours > 0:
+        progress_percentage = min((total_hours / required_hours) * 100, 100)
     
     context = {
         'profile': profile,
         'total_hours': total_hours,
         'week_hours': week_hours,
-        'remaining_hours': max(remaining_hours, 0),  # Don't show negative
+        'remaining_hours': remaining_hours,
         'required_hours': required_hours,
-        'dtr_submissions': dtr_submissions,
+        'progress_percentage': progress_percentage,
+        'recent_logs': recent_logs,
         'time_records_count': time_records.count(),
     }
     return render(request, 'student/studentdashboard.html', context)

@@ -250,7 +250,7 @@
                   </div>
                   <div class="progress-detail-item">
                     <span class="progress-detail-label">Remaining</span>
-                    <span class="progress-detail-value">{{ profile.required_hours|add:total_hours|stringformat:".2f" }} hrs</span>
+                    <span class="progress-detail-value">{{ profile.required_hours|sub:total_hours|floatformat:".2f" }} hrs</span>
                   </div>
                 </div>
               </div>

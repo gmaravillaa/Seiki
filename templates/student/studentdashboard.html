@@ -121,6 +121,33 @@
             <p class="clock-date" id="dateDisplay">Thursday, April 16, 2026</p>
           </div>
 
+          <!-- Work Progress Card -->
+          <div class="progress-card">
+            <h3 class="card-title">Work Progress</h3>
+            <div class="progress-content">
+              <div class="progress-stats">
+                <div class="progress-stat">
+                  <span class="progress-label">Completed</span>
+                  <span class="progress-value">{{ total_hours }} hrs</span>
+                </div>
+                <div class="progress-stat">
+                  <span class="progress-label">Required</span>
+                  <span class="progress-value">{{ required_hours }} hrs</span>
+                </div>
+                <div class="progress-stat">
+                  <span class="progress-label">Remaining</span>
+                  <span class="progress-value">{{ remaining_hours }} hrs</span>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" style="width: {{ progress_percentage }}%"></div>
+              </div>
+              <div class="progress-percentage">
+                {{ progress_percentage|floatformat:1 }}% Complete
+              </div>
+            </div>
+          </div>
+
           <div class="time-tracking-card">
             <h3 class="card-title">Attendance QR Code</h3>
 
@@ -212,38 +239,48 @@
             <table class="logs-table">
               <thead>
                 <tr>
-                  <th>Period</th>
-                  <th>Submitted</th>
+                  <th>Date</th>
+                  <th>Time In</th>
+                  <th>Time Out</th>
                   <th>Total Hours</th>
-                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {% if dtr_submissions %}
-                  {% for submission in dtr_submissions %}
+                {% if recent_logs %}
+                  {% for date, records in recent_logs.items %}
                     <tr>
                       <td>
                         <div class="date-cell">
-                          <p class="date-main">{{ submission.month }}/{{ submission.year }}</p>
-                          <p class="date-sub">Monthly Report</p>
+                          <p class="date-main">{{ date|date:"M d, Y" }}</p>
+                          <p class="date-sub">{{ date|date:"l" }}</p>
                         </div>
                       </td>
-                      <td>{{ submission.submitted_date|date:"M d, Y" }}</td>
-                      <td><span class="hours-value">{{ submission.total_hours }} hrs</span></td>
                       <td>
-                        {% if submission.status == 'approved' %}
-                          <span class="status-badge status-approved">Approved</span>
-                        {% elif submission.status == 'rejected' %}
-                          <span class="status-badge status-rejected">Rejected</span>
-                        {% else %}
-                          <span class="status-badge status-pending">Pending</span>
-                        {% endif %}
+                        {% for record in records %}
+                          {% if record.record_type == "in" %}
+                            <p class="entry-time">{{ record.timestamp|date:"g:i A" }}</p>
+                          {% endif %}
+                        {% endfor %}
+                      </td>
+                      <td>
+                        {% for record in records %}
+                          {% if record.record_type == "out" %}
+                            <p class="entry-time">{{ record.timestamp|date:"g:i A" }}</p>
+                          {% endif %}
+                        {% endfor %}
+                      </td>
+                      <td>
+                        {% for record in records %}
+                          {% if record.record_type == "out" and record.duration %}
+                            <span class="hours-value">{{ record.duration.total_seconds|div:3600|floatformat:1 }} hrs</span>
+                          {% endif %}
+                        {% endfor %}
                       </td>
                     </tr>
                   {% endfor %}
                 {% else %}
                   <tr>
-                    <td colspan="4" style="text-align: center; padding: 2rem; color: #999;">No DTR submissions yet</td>
+                    <td colspan="4" style="text-align: center; padding: 2rem; color: #999;">No recent time logs</td>
                   </tr>
                 {% endif %}
               </tbody>
