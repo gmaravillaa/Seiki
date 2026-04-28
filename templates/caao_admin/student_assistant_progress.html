@@ -107,7 +107,7 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
 
     <div class="flex items-center gap-3">
 
-        <!-- ☰ MENU BUTTON (NEW) -->
+        <!-- ☰ MENU BUTTON (ADDED) -->
         <button onclick="toggleSidebar()" class="text-gray-700 text-2xl">
             ☰
         </button>
@@ -166,8 +166,8 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
 <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
 
 <table class="w-full">
-<!-- KEEP EVERYTHING EXACT SAME -->
 <tbody>
+
 {% for item in data %}
 <tr class="hover:bg-gray-50">
 
@@ -194,6 +194,7 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
 
     <td class="px-6 py-4">
         <div class="w-[200px]">
+
             <div class="flex justify-between text-[10px] font-bold mb-1">
                 <span class="text-[#003A6C]">{{ item.percent }}%</span>
                 <span class="text-gray-400">
@@ -206,10 +207,12 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
                      style="width: {% if item.percent > 100 %}100{% else %}{{ item.percent }}{% endif %}%">
                 </div>
             </div>
+
         </div>
     </td>
 
     <td class="px-6 py-4">
+
         {% if item.percent >= 100 %}
         <span class="text-xs px-2 py-1 bg-green-100 text-green-700 font-bold rounded">
             Eligible
@@ -219,6 +222,7 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
             Ineligible
         </span>
         {% endif %}
+
     </td>
 
     <td class="px-6 py-4 text-right">
@@ -230,6 +234,7 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
 
 </tr>
 {% endfor %}
+
 </tbody>
 </table>
 
@@ -238,7 +243,7 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; }
 </div>
 </div>
 
-<!-- TOGGLE SCRIPT (NEW ONLY) -->
+<!-- TOGGLE SCRIPT -->
 <script>
 function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("hidden");

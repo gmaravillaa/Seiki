@@ -1965,7 +1965,7 @@ def reject_dtr(request, dtr_id):
     return redirect('dtr_approvals')
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 def time_correction(request, dtr_id):
     """
     Handles path('time-correction/<int:dtr_id>/', name='time_correction')
@@ -1986,15 +1986,59 @@ def time_correction(request, dtr_id):
         timestamp__year=dtr_submission.year
     ).order_by('timestamp')
     
-    # Grouping logic for the daily UI rows
-    grouped_data = {}
+    # Create sessions by pairing time in/out records
+    sessions = []
+    unpaired_in = None
+    
     for record in time_records:
-        date_key = timezone.localtime(record.timestamp).date()
-        if date_key not in grouped_data:
-            grouped_data[date_key] = []
-        grouped_data[date_key].append(record)
-
-    daily_records = sorted(grouped_data.items(), key=lambda x: x[0], reverse=True)
+        if record.record_type == 'in':
+            # If we have an unpaired 'in', complete the previous session first
+            if unpaired_in:
+                sessions.append({
+                    'date': timezone.localtime(unpaired_in.timestamp).date(),
+                    'time_in': unpaired_in,
+                    'time_out': None,
+                    'duration': None,
+                })
+            unpaired_in = record
+        else:  # record_type == 'out'
+            if unpaired_in:
+                # Pair with the previous 'in'
+                duration = record.timestamp - unpaired_in.timestamp
+                sessions.append({
+                    'date': timezone.localtime(unpaired_in.timestamp).date(),
+                    'time_in': unpaired_in,
+                    'time_out': record,
+                    'duration': duration,
+                })
+                unpaired_in = None
+            else:
+                # Lone 'out' record
+                sessions.append({
+                    'date': timezone.localtime(record.timestamp).date(),
+                    'time_in': None,
+                    'time_out': record,
+                    'duration': None,
+                })
+    
+    # Handle any remaining unpaired 'in'
+    if unpaired_in:
+        sessions.append({
+            'date': timezone.localtime(unpaired_in.timestamp).date(),
+            'time_in': unpaired_in,
+            'time_out': None,
+            'duration': None,
+        })
+    
+    # Group sessions by date for display
+    grouped_sessions = {}
+    for session in sessions:
+        date_key = session['date']
+        if date_key not in grouped_sessions:
+            grouped_sessions[date_key] = []
+        grouped_sessions[date_key].append(session)
+    
+    daily_records = sorted(grouped_sessions.items(), key=lambda x: x[0], reverse=True)
 
     context = {
         'dtr_submission': dtr_submission,
@@ -2004,7 +2048,7 @@ def time_correction(request, dtr_id):
     return render(request, template_name, context)
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
     """
@@ -2050,7 +2094,7 @@ def update_time_record(request, record_id):
     return redirect('time_correction', dtr_id=dtr_id)
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def add_time_record(request):
     """Handles path('time-correction/add/', name='add_time_record')"""
@@ -2090,7 +2134,7 @@ def add_time_record(request):
     return redirect('time_correction', dtr_id=dtr_id)
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 def delete_time_record(request, record_id):
     """Handles path('time-correction/delete/<int:record_id>/', name='delete_time_record')"""
     record = get_object_or_404(TimeRecord, id=record_id)
