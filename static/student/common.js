@@ -25,6 +25,13 @@ function logout() {
   window.location.href = '/logout/';
 }
 
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('open');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   updateCurrentDate();
 

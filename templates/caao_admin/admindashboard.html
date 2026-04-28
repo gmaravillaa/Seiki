@@ -11,21 +11,11 @@
 <style>
 :root {
     --primary-blue: #003a6c;
-    --accent-light: #e6eef6;
     --bg-light: #f4f7f9;
 }
 
-/* Smooth transition */
-#main {
-    transition: all 0.3s ease;
-}
 body {
     background-color: var(--bg-light);
-}
-
-/* Sidebar toggle */
-.sidebar-hidden {
-    transform: translateX(-100%);
 }
 </style>
 </head>
@@ -33,42 +23,44 @@ body {
 <body class="flex">
 
 <!-- SIDEBAR -->
-<aside id="sidebar" class="w-64 min-h-screen text-white flex flex-col justify-between transition-all duration-300"
+<aside id="sidebar"
+       class="w-64 min-h-screen text-white flex flex-col justify-between transition-all duration-300"
        style="background-color: var(--primary-blue);">
 
     <div class="p-6">
+
         <h1 class="text-xl font-bold">DTR System</h1>
         <p class="text-xs opacity-70 mb-6">Admin Panel</p>
 
         <div class="space-y-2 text-sm">
 
-            <a href="{% url 'admin_dashboard' %}" 
+            <a href="{% url 'admin_dashboard' %}"
                class="block px-4 py-2 rounded-lg bg-white/10 border-l-4 font-semibold"
                style="border-color: white;">
                 Dashboard
             </a>
 
-            <a href="{% url 'user_management' %}" 
+            <a href="{% url 'user_management' %}"
                class="block px-4 py-2 rounded-lg hover:bg-white/10">
                 Management
             </a>
 
-            <a href="{% url 'user_progress' %}" 
+            <a href="{% url 'user_progress' %}"
                class="block px-4 py-2 rounded-lg hover:bg-white/10">
                 Progress
             </a>
 
-            <a href="{% url 'dtr_records' %}" 
+            <a href="{% url 'dtr_records' %}"
                class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                DTR Records
+               DTR Logs
             </a>
 
-            <a href="{% url 'student_assistants' %}" 
+            <a href="{% url 'student_assistants' %}"
                class="block px-4 py-2 rounded-lg hover:bg-white/10">
                 Student Assistants
             </a>
 
-            <a href="{% url 'chat' %}" 
+            <a href="{% url 'chat' %}"
                class="block px-4 py-2 rounded-lg hover:bg-white/10">
                 Chat
             </a>
@@ -76,16 +68,18 @@ body {
         </div>
     </div>
 
-    <!-- LOGOUT (ADNU STYLE - CLEAN) -->
+    <!-- LOGOUT -->
     <div class="p-4">
+
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
+
             <button class="w-full border border-white/40 py-2 rounded-lg text-white hover:bg-white/10 transition text-sm">
                 Logout
             </button>
         </form>
-    </div>
 
+    </div>
 </aside>
 
 <!-- MAIN -->
@@ -96,18 +90,23 @@ body {
 
         <!-- LEFT -->
         <div class="flex items-center gap-4">
-            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
+
+            <button onclick="toggleSidebar()"
+                    class="text-gray-600 text-xl">
                 ☰
             </button>
 
-            <div
-                <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800">
+                    Dashboard
+                </h2>
+
                 <p class="text-xs text-gray-500">
                     Welcome, {{ request.user.username }}
                 </p>
             </div>
-        </div>
 
+        </div>
 
         <!-- RIGHT -->
         <div class="text-right">
@@ -117,44 +116,63 @@ body {
 
     </header>
 
-    
     <!-- CONTENT -->
     <main class="p-8">
 
         <!-- STATS -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
-            <!-- CARD -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Total Students</p>
-                <h3 class="text-3xl font-bold mt-2" style="color: var(--primary-blue);">
+            <!-- TOTAL -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition flex flex-col items-center justify-center text-center">
+
+                <p class="text-gray-500 text-sm">
+                    Total Students
+                </p>
+
+                <h3 class="text-3xl font-bold mt-2"
+                    style="color: var(--primary-blue);">
                     {{ total_students }}
                 </h3>
+
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Pending DTRs</p>
+            <!-- PENDING -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition flex flex-col items-center justify-center text-center">
+
+                <p class="text-gray-500 text-sm">
+                    Pending DTRs
+                </p>
+
                 <h3 class="text-3xl font-bold mt-2 text-yellow-500">
                     {{ pending_dtrs }}
                 </h3>
+
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Approved DTRs</p>
+            <!-- APPROVED -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition flex flex-col items-center justify-center text-center">
+
+                <p class="text-gray-500 text-sm">
+                    Approved DTRs
+                </p>
+
                 <h3 class="text-3xl font-bold mt-2 text-green-500">
                     {{ approved_dtrs }}
                 </h3>
+
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Active Offices</p>
+            <!-- OFFICES -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition flex flex-col items-center justify-center text-center">
+
+                <p class="text-gray-500 text-sm">
+                    Active Offices
+                </p>
+
                 <h3 class="text-3xl font-bold mt-2 text-indigo-500">
                     {{ active_offices }}
                 </h3>
+
             </div>
 
         </div>
@@ -167,16 +185,31 @@ body {
             </h3>
 
             <table class="w-full text-sm">
+
                 <thead>
                     <tr class="text-gray-500 border-b">
-                        <th class="p-3 text-left">Name</th>
-                        <th class="p-3 text-left">Office</th>
-                        <th class="p-3 text-left">Hours</th>
-                        <th class="p-3 text-right">Actions</th>
+
+                        <th class="p-3 text-left">
+                            Name
+                        </th>
+
+                        <th class="p-3 text-left">
+                            Office
+                        </th>
+
+                        <th class="p-3 text-left">
+                            Hours
+                        </th>
+
+                        <th class="p-3 text-right">
+                            Actions
+                        </th>
+
                     </tr>
                 </thead>
 
                 <tbody>
+
                     {% for student in students %}
                     <tr class="border-b hover:bg-gray-50">
 
@@ -194,33 +227,44 @@ body {
 
                         <td class="p-3 text-right space-x-2">
 
+                            <!-- VIEW -->
                             <button onclick="openProgress({{ student.id }})"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs">
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs transition">
                                 View
                             </button>
 
+                            <!-- DELETE -->
                             <form method="POST"
                                   action="{% url 'delete_user' student.id %}"
                                   class="inline">
+
                                 {% csrf_token %}
+
                                 <button type="submit"
-                                    onclick="return confirm('Delete user?')"
-                                    class="border border-gray-300 text-gray-600 hover:bg-gray-100 px-3 py-1 rounded-lg text-xs">
+                                        onclick="return confirm('Delete user?')"
+                                        class="border border-gray-300 text-gray-600 hover:bg-gray-100 px-3 py-1 rounded-lg text-xs transition">
                                     Delete
                                 </button>
+
                             </form>
 
                         </td>
 
                     </tr>
+
                     {% empty %}
+
                     <tr>
-                        <td colspan="4" class="p-4 text-center text-gray-500">
+                        <td colspan="4"
+                            class="p-4 text-center text-gray-500">
                             No students found.
                         </td>
                     </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
 
         </div>
@@ -228,24 +272,115 @@ body {
     </main>
 </div>
 
+<!-- MODAL -->
+<div id="studentModal"
+     class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative">
+
+        <!-- CLOSE -->
+        <button onclick="closeModal()"
+                class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-xl">
+            ×
+        </button>
+
+        <h2 class="text-xl font-bold mb-5"
+            style="color: var(--primary-blue);">
+            Student Information
+        </h2>
+
+        <div class="space-y-4">
+
+            <!-- NAME -->
+            <div>
+                <p class="text-xs text-gray-500">
+                    Full Name
+                </p>
+
+                <p id="modalName"
+                   class="font-semibold text-gray-800">
+                </p>
+            </div>
+
+            <!-- ID -->
+            <div>
+                <p class="text-xs text-gray-500">
+                    Student ID
+                </p>
+
+                <p id="modalID"
+                   class="font-semibold text-gray-800">
+                </p>
+            </div>
+
+            <!-- OFFICE -->
+            <div>
+                <p class="text-xs text-gray-500">
+                    Assigned Office
+                </p>
+
+                <p id="modalOffice"
+                   class="font-semibold text-gray-800">
+                </p>
+            </div>
+
+            <!-- STATUS -->
+            <div>
+
+                <p class="text-xs text-gray-500 mb-1">
+                    Status
+                </p>
+
+                <span id="modalStatus"
+                      class="inline-block px-3 py-1 rounded-full text-xs font-semibold">
+                </span>
+
+            </div>
+
+            <!-- PROGRESS -->
+            <div>
+
+                <div class="flex justify-between text-xs mb-1">
+
+                    <span class="text-gray-500">
+                        Progress
+                    </span>
+
+                    <span id="modalPercent"
+                          class="font-semibold">
+                    </span>
+
+                </div>
+
+                <div class="w-full bg-gray-200 rounded-full h-3">
+
+                    <div id="progressBar"
+                         class="bg-blue-700 h-3 rounded-full transition-all duration-500"
+                         style="width:0%">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 <!-- SCRIPTS -->
 <script>
-// Toggle sidebar + expand content
+
+// TOGGLE SIDEBAR
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('main');
-
     sidebar.classList.toggle('hidden');
-
-    if (sidebar.classList.contains('hidden')) {
-        main.classList.remove('ml-64');
-    } else {
-        main.classList.add('ml-64');
-    }
 }
 
-// Date + Time
+// DATE + TIME
 function updateDateTime() {
+
     const now = new Date();
 
     document.getElementById('date').innerText =
@@ -263,14 +398,58 @@ function updateDateTime() {
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-// Progress
+// OPEN MODAL
 function openProgress(id) {
+
     fetch(`/user-progress/${id}/json/`)
     .then(res => res.json())
+
     .then(data => {
-        alert(data.name + " - " + data.percent + "%");
+
+        // SHOW MODAL
+        document.getElementById('studentModal').classList.remove('hidden');
+        document.getElementById('studentModal').classList.add('flex');
+
+        // DATA
+        document.getElementById('modalName').innerText =
+            data.name;
+
+        document.getElementById('modalID').innerText =
+            data.student_id;
+
+        document.getElementById('modalOffice').innerText =
+            data.office;
+
+        document.getElementById('modalPercent').innerText =
+            data.percent + "%";
+
+        // STATUS
+        const status = document.getElementById('modalStatus');
+
+        status.innerText = data.status;
+
+        if (data.status === "Active") {
+
+            status.className =
+                "inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700";
+
+        } else {
+
+            status.className =
+                "inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700";
+        }
+
+        // PROGRESS BAR
+        document.getElementById('progressBar').style.width =
+            data.percent + "%";
     });
 }
+
+// CLOSE MODAL
+function closeModal() {
+    document.getElementById('studentModal').classList.add('hidden');
+}
+
 </script>
 
 </body>

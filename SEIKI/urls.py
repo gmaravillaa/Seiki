@@ -235,12 +235,9 @@ urlpatterns = [
     # =======================
 
     path('export-students/', views.export_students, name='export_students'),
+    path('user-progress/<int:user_id>/json/', views.user_progress_json, name='user_progress_json'),
 
     path('api/record-time/', views.record_time, name='record_time'),
-
-    path('user-progress/', views.user_progress, name='user_progress'),
-
-    path('user-progress/<int:user_id>/json/', views.student_progress_json, name='student_progress_json'),
 
     path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),
 

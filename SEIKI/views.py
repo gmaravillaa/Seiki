@@ -19,11 +19,30 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.contrib.auth import logout
 
 
+def get_user_office(user):
+    try:
+        return user.userprofile.office
+    except (UserProfile.DoesNotExist, AttributeError):
+        return None
+
+
+def user_in_same_office(request_user, target_user):
+    if request_user.is_superuser:
+        return True
+    if request_user.is_staff and not request_user.is_superuser:
+        return get_user_office(request_user) and get_user_office(request_user) == get_user_office(target_user)
+    return False
+
+
 def format_hours_display(hours_value):
-    """Format hours to show minutes for values under one hour."""
+    """Format hours to show minutes and seconds for values under one hour."""
     if hours_value < 1:
-        minutes = round(hours_value * 60)
-        return f"{minutes} min" if minutes > 0 else "0 min"
+        total_seconds = int(hours_value * 3600)
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        if minutes > 0:
+            return f"{minutes} min {seconds} sec" if seconds > 0 else f"{minutes} min"
+        return f"{seconds} sec" if seconds > 0 else "0 sec"
     return f"{round(hours_value, 1)} hrs"
 
 
@@ -516,24 +535,19 @@ def student_dashboard(request):
     required_hours = float(profile.required_hours) if profile.required_hours else 80.0
     remaining_hours = max(required_hours - total_hours, 0)  # Don't show negative
     
-    # Format hours display function
-    def format_hours_display(hours_value):
-        """Format hours to show minutes for values < 1 hour"""
-        if hours_value < 1:
-            minutes = round(hours_value * 60)
-            return f"{minutes} min" if minutes > 0 else "0 min"
-        else:
-            return f"{round(hours_value, 1)} hrs"
-    
     # Get recent time records for logs (not DTR submissions)
     recent_records = time_records[:10]  # Last 10 records
     
-    # Group recent records by date for display
+    # Group recent records by date for display and aggregate daily totals
     recent_logs = {}
     for record in recent_records:
         record_date = record.timestamp.date()
         if record_date not in recent_logs:
-            recent_logs[record_date] = []
+            recent_logs[record_date] = {
+                'records': [],
+                'total_duration_seconds': 0,
+                'daily_total_display': '0 sec',
+            }
         
         # Calculate hours for this record if it's an 'out' record with duration
         hours_display = ""
@@ -541,15 +555,19 @@ def student_dashboard(request):
             try:
                 hours = record.duration.total_seconds() / 3600
                 hours_display = format_hours_display(hours)
+                recent_logs[record_date]['total_duration_seconds'] += record.duration.total_seconds()
             except (AttributeError, TypeError):
-                hours_display = "0 min"
+                hours_display = "0 sec"
         
         # Add hours_display to the record for template use
         record.hours_display = hours_display
-        recent_logs[record_date].append(record)
-    
-    # Calculate progress percentage
-    progress_percentage = 0
+        recent_logs[record_date]['records'].append(record)
+
+    for record_date, info in recent_logs.items():
+        if info['total_duration_seconds']:
+            info['daily_total_display'] = format_hours_display(info['total_duration_seconds'] / 3600)
+        else:
+            info['daily_total_display'] = '0 sec'
     if required_hours > 0:
         progress_percentage = min((total_hours / required_hours) * 100, 100)
     
@@ -726,10 +744,61 @@ def student_profile_page(request):
         'approved_dtr_count': approved_dtr_count,
     }
     return render(request, 'student/studentprofile.html', context)
-    
-@login_required
-def user_progress(request):
-    return render(request, 'caao_admin/user_progress.html')
+
+def user_progress_json(request, user_id):
+
+    user = User.objects.select_related('userprofile').get(id=user_id)
+
+    # Total rendered hours
+    total_duration = TimeRecord.objects.filter(
+        user=user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(
+        total=models.Sum('duration')
+    )['total']
+
+    total_hours_rendered = 0
+
+    if total_duration:
+        total_seconds = total_duration.total_seconds()
+        total_hours_rendered = total_seconds / 3600
+
+    # Required hours
+    required_hours = (
+        user.userprofile.required_hours
+        if hasattr(user, 'userprofile')
+        else 80.0
+    )
+
+    # Percentage
+    percentage = (
+        min(100, (total_hours_rendered / float(required_hours)) * 100)
+        if required_hours > 0
+        else 0
+    )
+
+    return JsonResponse({
+
+        "name": user.get_full_name(),
+
+        "student_id": user.username,
+
+        "office": (
+            user.userprofile.office
+            if hasattr(user, 'userprofile')
+            else "N/A"
+        ),
+
+        "status": (
+            "Active"
+            if user.is_active
+            else "Inactive"
+        ),
+
+        "percent": round(percentage, 1)
+
+    })
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser, login_url='login')
@@ -769,6 +838,7 @@ def profile(request):
     }
     
     return render(request, 'core/profile.html', context)
+    
 
 @login_required
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
@@ -1782,6 +1852,11 @@ def approve_dtr(request, dtr_id):
     """Approve a DTR submission"""
     try:
         dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+
+        if not user_in_same_office(request.user, dtr_submission.user):
+            messages.error(request, "You are not authorized to approve that DTR.")
+            return redirect('dtr_approvals')
+
         remarks = request.POST.get('remarks', '')
         
         dtr_submission.status = 'approved'
@@ -1813,6 +1888,11 @@ def reject_dtr(request, dtr_id):
     """Reject a DTR submission"""
     try:
         dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+
+        if not user_in_same_office(request.user, dtr_submission.user):
+            messages.error(request, "You are not authorized to reject that DTR.")
+            return redirect('dtr_approvals')
+
         remarks = request.POST.get('remarks', 'No reason provided')
         
         dtr_submission.status = 'rejected'
@@ -1838,6 +1918,11 @@ def time_correction(request, dtr_id):
     """
     template_name = 'office_head/time-correction.html' 
     dtr_submission = get_object_or_404(DTRSubmission, id=dtr_id)
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, dtr_submission.user):
+            messages.error(request, "You are not authorized to access that student's DTR records.")
+            return redirect('office_dashboard')
     
     # Fetch records for the specific month/year of the DTR
     time_records = TimeRecord.objects.filter(
@@ -1873,6 +1958,11 @@ def update_time_record(request, record_id):
     """
     record = get_object_or_404(TimeRecord, id=record_id)
     dtr_id = request.POST.get('dtr_id') # Passed via hidden input in your modal
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, record.user):
+            messages.error(request, "You are not authorized to edit this time record.")
+            return redirect('office_dashboard')
     
     try:
         timestamp_str = request.POST.get('timestamp')
@@ -1911,6 +2001,11 @@ def add_time_record(request):
     """Handles path('time-correction/add/', name='add_time_record')"""
     dtr_id = request.POST.get('dtr_id')
     dtr = get_object_or_404(DTRSubmission, id=dtr_id)
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, dtr.user):
+            messages.error(request, "You are not authorized to add a time record for this student.")
+            return redirect('office_dashboard')
     
     try:
         ts_str = request.POST.get('timestamp')
@@ -1945,6 +2040,12 @@ def delete_time_record(request, record_id):
     """Handles path('time-correction/delete/<int:record_id>/', name='delete_time_record')"""
     record = get_object_or_404(TimeRecord, id=record_id)
     dtr_id = request.POST.get('dtr_id')
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, record.user):
+            messages.error(request, "You are not authorized to delete this time record.")
+            return redirect('office_dashboard')
+
     record.delete()
     messages.success(request, "Log entry removed.")
     return redirect('time_correction', dtr_id=dtr_id)
@@ -1952,7 +2053,11 @@ def delete_time_record(request, record_id):
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction_list(request):
     """List all students for time correction"""
-    students = User.objects.filter(is_staff=False, is_superuser=False).order_by('first_name', 'last_name')
+    students = User.objects.filter(is_staff=False, is_superuser=False)
+    if request.user.is_staff and not request.user.is_superuser:
+        office = get_user_office(request.user)
+        students = students.filter(userprofile__office=office)
+    students = students.order_by('first_name', 'last_name')
     
     context = {
         'students': students,
@@ -1968,6 +2073,11 @@ def time_correction_user(request, user_id):
     except User.DoesNotExist:
         messages.error(request, "User not found.")
         return redirect('time_correction_list')
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, user):
+            messages.error(request, "You are not authorized to view that student's DTR submissions.")
+            return redirect('time_correction_list')
     
     # Get all DTR submissions for this user
     dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month')
