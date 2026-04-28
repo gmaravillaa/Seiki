@@ -11,21 +11,11 @@
 <style>
 :root {
     --primary-blue: #003a6c;
-    --accent-light: #e6eef6;
     --bg-light: #f4f7f9;
 }
 
-/* Smooth transition */
-#main {
-    transition: all 0.3s ease;
-}
 body {
     background-color: var(--bg-light);
-}
-
-/* Sidebar toggle */
-.sidebar-hidden {
-    transform: translateX(-100%);
 }
 </style>
 </head>
@@ -76,7 +66,7 @@ body {
         </div>
     </div>
 
-    <!-- LOGOUT (ADNU STYLE - CLEAN) -->
+    <!-- LOGOUT -->
     <div class="p-4">
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
@@ -100,14 +90,13 @@ body {
                 ☰
             </button>
 
-            <div
+            <div>
                 <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
                 <p class="text-xs text-gray-500">
                     Welcome, {{ request.user.username }}
                 </p>
             </div>
         </div>
-
 
         <!-- RIGHT -->
         <div class="text-right">
@@ -117,14 +106,12 @@ body {
 
     </header>
 
-    
     <!-- CONTENT -->
     <main class="p-8">
 
         <!-- STATS -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
-            <!-- CARD -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
                         flex flex-col items-center justify-center text-center">
                 <p class="text-gray-500 text-sm">Total Students</p>
@@ -230,18 +217,10 @@ body {
 
 <!-- SCRIPTS -->
 <script>
-// Toggle sidebar + expand content
+// Toggle sidebar (NO margin issues)
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('main');
-
     sidebar.classList.toggle('hidden');
-
-    if (sidebar.classList.contains('hidden')) {
-        main.classList.remove('ml-64');
-    } else {
-        main.classList.add('ml-64');
-    }
 }
 
 // Date + Time
