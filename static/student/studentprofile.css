@@ -247,6 +247,7 @@
 
 .progress-label {
   opacity: 0.9;
+  color: white;
 }
 
 .progress-value {
