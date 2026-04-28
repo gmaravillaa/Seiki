@@ -533,6 +533,8 @@
                 <div style="text-align: right;">
                   <p class="total-label">Total Entries</p>
                   <p class="total-value" id="totalEntries">{{ monthly_pairs|length }}</p>
+                </div>
+              {% if existing_dtr %}
                 <button class="btn-submit" disabled>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
