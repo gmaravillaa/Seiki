@@ -596,18 +596,17 @@ def profile(request):
 
 @login_required
 def dtr_records(request):
+    # Only allow staff and superusers to access this page
+    if not (request.user.is_staff or request.user.is_superuser):
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden("Access denied. This page is only for staff members.")
+
     # Get filters from the HTML form
     status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
 
-    # For superusers, show all DTR submissions from all students
-    if request.user.is_superuser:
-        dtr_records = DTRSubmission.objects.select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')
-    else:
-        # For regular staff, show only their office's submissions (if needed)
-        dtr_records = DTRSubmission.objects.filter(
-            user__userprofile__office=request.user.userprofile.office
-        ).select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')
+    # For superusers and staff, show all DTR submissions from all students
+    dtr_records = DTRSubmission.objects.select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')
 
     # Apply search filter
     if search_query:
@@ -627,7 +626,7 @@ def dtr_records(request):
             dtr_records = dtr_records.filter(status='rejected')
 
     # Calculate counts
-    all_submissions = DTRSubmission.objects.all() if request.user.is_superuser else DTRSubmission.objects.filter(user__userprofile__office=request.user.userprofile.office)
+    all_submissions = DTRSubmission.objects.all()
     pending_count = all_submissions.filter(status='pending').count()
     accepted_count = all_submissions.filter(status='approved').count()
 
