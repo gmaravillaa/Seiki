@@ -12,11 +12,22 @@ function hideLogoutModal() {
   }
 }
 
+function updateCurrentDate() {
+  const now = new Date();
+  const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+  const dateEl = document.getElementById('currentDate');
+  if (dateEl) {
+    dateEl.textContent = now.toLocaleDateString(undefined, options);
+  }
+}
+
 function logout() {
   window.location.href = '/logout/';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  updateCurrentDate();
+
   const modal = document.getElementById('logoutModal');
   if (!modal) {
     return;

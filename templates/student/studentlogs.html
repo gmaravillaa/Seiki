@@ -117,7 +117,7 @@
             <h1 class="page-title">Time Logs</h1>
             <p class="page-subtitle">View and manage your DTR history</p>
           </div>
-          <button class="btn-export">
+          <button id="exportBtn" class="btn-export">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
@@ -136,18 +136,18 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
               </svg>
-              <input type="text" placeholder="Search by date..." class="search-input" />
+              <input id="searchInput" type="text" placeholder="Search by date, day, or time..." class="search-input" />
             </div>
 
             <!-- Filter Type -->
             <div class="filter-buttons">
-              <button class="filter-btn active">All</button>
-              <button class="filter-btn">Daily</button>
-              <button class="filter-btn">Weekly</button>
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="daily">Daily</button>
+              <button class="filter-btn" data-filter="weekly">Weekly</button>
             </div>
 
             <!-- Date Range -->
-            <button class="date-range-btn">
+            <button id="dateRangeBtn" class="date-range-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -163,7 +163,7 @@
         <div class="stats-grid">
           <div class="stat-card">
             <p class="stat-label">Total Days Logged</p>
-            <p class="stat-value">24</p>
+            <p class="stat-value">{{ daily_records|length }}</p>
           </div>
           <div class="stat-card">
             <p class="stat-label">Approved Entries</p>
@@ -191,7 +191,7 @@
               <tbody>
                 {% if daily_records %}
                   {% for date, data in daily_records.items %}
-                    <tr>
+                    <tr data-date="{{ date }}" data-day="{{ date|date:"l" }}">
                       <td class="font-semibold">{{ date|date:"M d, Y" }}</td>
                       <td>{{ date|date:"l" }}</td>
                       <td>
@@ -212,7 +212,7 @@
                     </tr>
                   {% endfor %}
                 {% else %}
-                  <tr>
+                  <tr class="no-records-row">
                     <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No time records found</td>
                   </tr>
                 {% endif %}
@@ -266,5 +266,6 @@
   </div>
 
   <script src="{% static 'student/common.js' %}"></script>
+  <script type="module" src="{% static 'student/studentlogs.js' %}"></script>
 </body>
 </html>
