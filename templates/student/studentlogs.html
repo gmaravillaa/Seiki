@@ -168,8 +168,8 @@
         <!-- Summary Stats -->
         <div class="stats-grid">
           <div class="stat-card">
-            <p class="stat-label">Total Logs</p>
-            <p class="stat-value">{{ total_records }}</p>
+            <p class="stat-label">Total Records</p>
+            <p class="stat-value">{{ total_pairs }}</p>
           </div>
           <div class="stat-card">
             <p class="stat-label">Approved Entries</p>
@@ -189,31 +189,25 @@
                 <tr>
                   <th>Date</th>
                   <th>Day</th>
-                  <th>Scan Type</th>
-                  <th>Time</th>
+                  <th>Time In</th>
+                  <th>Time Out</th>
                   <th>Total Hours</th>
                 </tr>
               </thead>
               <tbody>
-                {% if records %}
-                  {% for record in records %}
-                    <tr data-date="{{ record.timestamp|date:'Y-m-d' }}" data-day="{{ record.timestamp|date:'l' }}">
-                      <td class="font-semibold">{{ record.timestamp|date:"M d, Y" }}</td>
-                      <td>{{ record.timestamp|date:"l" }}</td>
-                      <td>{{ record.get_record_type_display }}</td>
-                      <td>{{ record.timestamp|date:"g:i A" }}</td>
-                      <td class="font-semibold">
-                        {% if record.record_type == 'out' and record.duration %}
-                          {{ record.hours_display }}
-                        {% else %}
-                          --
-                        {% endif %}
-                      </td>
+                {% if paired_records %}
+                  {% for pair in paired_records %}
+                    <tr data-date="{{ pair.date|date:'Y-m-d' }}" data-day="{{ pair.day }}">
+                      <td class="font-semibold">{{ pair.date|date:"M d, Y" }}</td>
+                      <td>{{ pair.day }}</td>
+                      <td>{{ pair.time_in|date:"g:i A" }}</td>
+                      <td>{{ pair.time_out|date:"g:i A" }}</td>
+                      <td class="font-semibold">{{ pair.hours_display }}</td>
                     </tr>
                   {% endfor %}
                 {% else %}
                   <tr class="no-records-row">
-                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No time records found</td>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No completed time pairs found</td>
                   </tr>
                 {% endif %}
               </tbody>

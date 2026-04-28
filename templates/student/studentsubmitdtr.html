@@ -482,75 +482,57 @@
               </div>
             </div>
             <div class="submit-badge">
-              <p class="submit-badge-label">Total Days</p>
-              <p class="submit-badge-value" id="totalEntriesCount">{{ daily_logs|length }}</p>
+                <p class="submit-badge-label">Total Entries</p>
+                <p class="submit-badge-value" id="totalEntriesCount">{{ monthly_pairs|length }}</p>
+              </div>
             </div>
-          </div>
 
-          <div style="padding: 1.5rem;">
-            <!-- Entry List -->
-            <div id="entriesList">
-              {% if monthly_records %}
-                <div class="table-wrapper">
-                  <table class="data-table summary-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Day</th>
-                        <th>Type</th>
-                        <th>Time</th>
-                        <th>Hours</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for record in monthly_records %}
+            <div style="padding: 1.5rem;">
+              <!-- Entry List -->
+              <div id="entriesList">
+                {% if monthly_pairs %}
+                  <div class="table-wrapper">
+                    <table class="data-table summary-table">
+                      <thead>
                         <tr>
-                          <td>{{ record.timestamp|date:"M d, Y" }}</td>
-                          <td>{{ record.timestamp|date:"l" }}</td>
-                          <td>{{ record.get_record_type_display }}</td>
-                          <td>{{ record.timestamp|date:"g:i A" }}</td>
-                          <td>
-                            {% if record.record_type == 'out' and record.duration %}
-                              {{ record.hours_display }}
-                            {% else %}
-                              --
-                            {% endif %}
-                          </td>
+                          <th>Date</th>
+                          <th>Day</th>
+                          <th>Time In</th>
+                          <th>Time Out</th>
+                          <th>Hours</th>
                         </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              {% else %}
-                <div class="no-entries-alert">
-                  <div class="no-entries-icon">📭</div>
-                  <p class="no-entries-title">No Time Records</p>
-                  <p class="no-entries-text">No time records found for this month</p>
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Total Summary -->
-            <div class="total-summary">
-              <div>
-                <p class="total-label">Total Hours Worked</p>
-                <p class="total-value" id="totalHours">{{ total_hours }} hrs</p>
+                      </thead>
+                      <tbody>
+                        {% for pair in monthly_pairs %}
+                          <tr>
+                            <td>{{ pair.date|date:"M d, Y" }}</td>
+                            <td>{{ pair.day }}</td>
+                            <td>{{ pair.time_in|date:"g:i A" }}</td>
+                            <td>{{ pair.time_out|date:"g:i A" }}</td>
+                            <td>{{ pair.hours_display }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <div class="no-entries-alert">
+                    <div class="no-entries-icon">📭</div>
+                    <p class="no-entries-title">No Time Records</p>
+                    <p class="no-entries-text">No time records found for this month</p>
+                  </div>
+                {% endif %}
               </div>
-              <div style="text-align: right;">
-                <p class="total-label">Total Days</p>
-                <p class="total-value" id="totalEntries">{{ daily_logs|length }}</p>
-              </div>
-            </div>
 
-            <!-- Remarks Section -->
-            <div class="remarks-section">
-              <label class="remarks-label">Remarks (Optional)</label>
-              <textarea class="remarks-textarea" id="remarks" placeholder="Add any notes or comments about this month..."></textarea>
-            </div>
-
-            <!-- Submit Actions -->
-            <div class="submit-actions">
-              {% if existing_dtr %}
+              <!-- Total Summary -->
+              <div class="total-summary">
+                <div>
+                  <p class="total-label">Total Hours Worked</p>
+                  <p class="total-value" id="totalHours">{{ total_hours }} hrs</p>
+                </div>
+                <div style="text-align: right;">
+                  <p class="total-label">Total Entries</p>
+                  <p class="total-value" id="totalEntries">{{ monthly_pairs|length }}</p>
                 <button class="btn-submit" disabled>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -609,32 +591,26 @@
       </div>
 
       <div class="modal-entries">
-        {% if monthly_records %}
+        {% if monthly_pairs %}
           <div class="table-wrapper">
             <table class="data-table summary-table">
               <thead>
                 <tr>
                   <th>Date</th>
                   <th>Day</th>
-                  <th>Type</th>
-                  <th>Time</th>
+                  <th>Time In</th>
+                  <th>Time Out</th>
                   <th>Hours</th>
                 </tr>
               </thead>
               <tbody>
-                {% for record in monthly_records %}
+                {% for pair in monthly_pairs %}
                   <tr>
-                    <td>{{ record.timestamp|date:"M d, Y" }}</td>
-                    <td>{{ record.timestamp|date:"l" }}</td>
-                    <td>{{ record.get_record_type_display }}</td>
-                    <td>{{ record.timestamp|date:"g:i A" }}</td>
-                    <td>
-                      {% if record.record_type == 'out' and record.duration %}
-                        {{ record.hours_display }}
-                      {% else %}
-                        --
-                      {% endif %}
-                    </td>
+                    <td>{{ pair.date|date:"M d, Y" }}</td>
+                    <td>{{ pair.day }}</td>
+                    <td>{{ pair.time_in|date:"g:i A" }}</td>
+                    <td>{{ pair.time_out|date:"g:i A" }}</td>
+                    <td>{{ pair.hours_display }}</td>
                   </tr>
                 {% endfor %}
               </tbody>

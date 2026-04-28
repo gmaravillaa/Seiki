@@ -27,6 +27,40 @@ def format_hours_display(hours_value):
     return f"{round(hours_value, 1)} hrs"
 
 
+def get_paired_records(time_records):
+    """Pair time in and time out records into one completed shift row."""
+    pairs = []
+    current_in = None
+
+    for record in time_records:
+        if record.record_type == 'in':
+            current_in = record
+            continue
+
+        if record.record_type == 'out' and current_in is not None:
+            hours_display = ""
+            if record.duration:
+                try:
+                    hours = record.duration.total_seconds() / 3600
+                    hours_display = format_hours_display(hours)
+                except (AttributeError, TypeError):
+                    hours_display = "0 min"
+
+            pairs.append({
+                'date': current_in.timestamp.date(),
+                'day': current_in.timestamp.strftime('%A'),
+                'time_in': current_in.timestamp,
+                'time_out': record.timestamp,
+                'hours_display': hours_display,
+                'time_in_record': current_in,
+                'time_out_record': record,
+            })
+            current_in = None
+
+    pairs.sort(key=lambda pair: pair['time_out'], reverse=True)
+    return pairs
+
+
 def dashboard_redirect(request):
     if request.user.is_superuser:
         return redirect('admin_dashboard')  # Django admin panel
@@ -395,26 +429,16 @@ def student_logs(request):
     """Student Assistant Time Logs"""
     user = request.user
     
-    # Get all time records ordered newest first
-    time_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')
-    records = []
-    for record in time_records:
-        hours_display = ""
-        if record.record_type == 'out' and record.duration:
-            try:
-                hours = record.duration.total_seconds() / 3600
-                hours_display = format_hours_display(hours)
-            except (AttributeError, TypeError):
-                hours_display = "0 min"
-        record.hours_display = hours_display
-        records.append(record)
+    # Get all time records in chronological order so we can pair in/out scans
+    time_records = TimeRecord.objects.filter(user=user).order_by('timestamp')
+    paired_records = get_paired_records(time_records)
     
     approved_dtrs = DTRSubmission.objects.filter(user=user, status='approved').count()
     pending_dtrs = DTRSubmission.objects.filter(user=user, status='pending').count()
 
     context = {
-        'records': records,
-        'total_records': time_records.count(),
+        'paired_records': paired_records,
+        'total_pairs': len(paired_records),
         'approved_dtrs': approved_dtrs,
         'pending_dtrs': pending_dtrs,
     }
@@ -465,28 +489,13 @@ def student_submit_dtr(request):
     if total_duration:
         total_hours = round(total_duration.total_seconds() / 3600, 2)
     
-    # Group records by date and prepare flat monthly record list
+    # Group records by date for daily count and build paired shift records
     daily_logs = {}
-    monthly_records = []
     for record in time_records:
         record_date = record.timestamp.date()
-        if record_date not in daily_logs:
-            daily_logs[record_date] = []
-        
-        # Calculate hours display for this record
-        hours_display = ""
-        if record.record_type == "out" and record.duration:
-            try:
-                hours = round(record.duration.total_seconds() / 3600, 1)
-                hours_display = f"{hours} hrs"
-            except (AttributeError, TypeError):
-                hours_display = "0.0 hrs"
-        
-        # Add hours_display to the record for template use
-        record.hours_display = hours_display
-        daily_logs[record_date].append(record)
-        monthly_records.append(record)
-    
+        daily_logs.setdefault(record_date, []).append(record)
+
+    monthly_pairs = get_paired_records(time_records)
     has_time_records = time_records.exists()
 
     context = {
@@ -494,7 +503,7 @@ def student_submit_dtr(request):
         'current_year': current_year,
         'month_name': month_name,
         'daily_logs': daily_logs,
-        'monthly_records': monthly_records,
+        'monthly_pairs': monthly_pairs,
         'total_hours': total_hours,
         'existing_dtr': existing_dtr,
         'time_records': time_records,

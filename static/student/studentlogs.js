@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      const rows = [ ['Date', 'Day', 'Scan Type', 'Time', 'Total Hours'] ];
+      const rows = [ ['Date', 'Day', 'Time In', 'Time Out', 'Total Hours'] ];
       filteredRows.forEach((row) => {
         const cells = Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent.trim());
         rows.push(cells);
