@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db import models
 from django.db.models import Count, Sum, Q  # Combined all models.db imports
+from django.core.paginator import Paginator
 from .models import DTRSubmission, TimeRecord
 
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
@@ -352,13 +353,52 @@ def office_dtr_submissions(request):
         messages.error(request, "Your office information is not set. Please contact an administrator.")
         return redirect('office_dashboard')
     
-    submissions = DTRSubmission.objects.filter(
+    base_submissions = DTRSubmission.objects.filter(
         user__userprofile__office=office
-    ).order_by('-submitted_date')
-    
+    ).select_related('user', 'user__userprofile').order_by('-submitted_date')
+
+    # Filter values for the template
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+    month_filter = request.GET.get('month', '')
+
+    submissions = base_submissions
+    if status_filter:
+        submissions = submissions.filter(status=status_filter)
+
+    if search_query:
+        submissions = submissions.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__userprofile__id_number__icontains=search_query)
+        )
+
+    if month_filter:
+        try:
+            year, month = month_filter.split('-')
+            submissions = submissions.filter(year=int(year), month=int(month))
+        except ValueError:
+            pass
+
+    pending_count = base_submissions.filter(status='pending').count()
+    approved_count = base_submissions.filter(status='approved').count()
+    rejected_count = base_submissions.filter(status='rejected').count()
+
+    paginator = Paginator(submissions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'office_head/dtr_submissions.html', {
-        'submissions': submissions,
+        'submissions': page_obj,
         'office_name': office,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'month_filter': month_filter,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+        'is_paginated': page_obj.has_other_pages(),
+        'page_obj': page_obj,
     })
 
 @login_required
