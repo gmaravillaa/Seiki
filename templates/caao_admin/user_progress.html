@@ -4,7 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Progress - Seiki Admin</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+    --primary-blue: #003a6c;
+    --sidebar-dark: #003a6c;
+    --accent-pink: #feacb5;
+    --accent-mint: #94e2aa;
+    --bg-light: #f4f7f9;
+    --text-white: #ffffff;
+    --gray-light: #d9d9d9;
+}
+
+/* GLOBAL */
+body {
+    background: var(--bg-light);
+    font-family: 'Inter', sans-serif;
+}
+
+/* SIDEBAR */
+.sidebar {
+    background: var(--sidebar-dark);
+    color: var(--text-white);
+    transition: 0.3s ease;
+}
+
+/* NAV LINKS */
+.sidebar a {
+    transition: 0.25s ease;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateX(6px);
+}
+
+.active-link {
+    background: rgba(255,255,255,0.18);
+}
+
+/* LOGOUT */
+.sidebar button:hover {
+    transform: scale(1.03);
+}
+
+/* CARD */
+.card-hover {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+/* TABLE */
+table tbody tr {
+    transition: 0.2s ease;
+}
+
+table tbody tr:hover {
+    background: #f0f7ff;
+    transform: scale(1.002);
+}
+
+/* BUTTONS */
+button {
+    transition: 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* INPUT */
+select:hover {
+    border-color: var(--primary-blue);
+}
+</style>
+</head>
+
+<body>
+
+<div class="flex">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar w-64 h-screen flex flex-col justify-between">
+
+        <div>
+            <div class="p-6 border-b border-white/20">
+                <h1 class="text-lg font-bold">College of Admission and Aid Office</h1>
+                <h2 class="text-sm opacity-80">Admin Dashboard</h2>
+            </div>
+
+            <nav class="p-4 space-y-2 text-sm">
+
+                <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 rounded active-link">
+                    Dashboard
+                </a>
+
+                <a href="{% url 'user_progress' %}" class="block px-4 py-2 rounded">
+                    Progress
+                </a>
+
+                <a href="{% url 'user_management' %}" class="block px-4 py-2 rounded">
+                    Management
+                </a>
+
+                <a href="{% url 'dtr_records' %}" class="block px-4 py-2 rounded">
+                    DTR Records
+                </a>
+
+                <a href="{% url 'chat' %}" class="block px-4 py-2 rounded">
+                    Chat
+                </a>
+
+                <a href="{% url 'student_assistants' %}" class="block px-4 py-2 rounded">
+                    Student Assistants
+                </a>
+
+            </nav>
+        </div>
+
+        <!-- LOGOUT -->
+        <div class="p-4 border-t border-white/20">
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full py-2 rounded bg-red-500 hover:bg-red-600 shadow">
+                    Logout
+                </button>
+            </form>
+        </div>
+
+    </div>
+
 </head>
 
 <body class="bg-gray-50 text-gray-900">
