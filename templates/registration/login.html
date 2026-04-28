@@ -10,34 +10,65 @@
 <body>
   <div class="login-container">
     <div class="login-wrapper">
+      <!-- Logo -->
       <div class="logo-container">
         <div class="logo-circle">
-          <img src="{% static 'student/logo.png' %}" alt="Seiki Logo" style="width: 180px; height: 180px;" />
+             <img src="{% static 'student/logo.png' %}" alt="Seiki Logo" />
         </div>
       </div>
+
+      <!-- Brand Name -->
       <h1 class="brand-name">
         <span class="brand-sei">Sei</span><span class="brand-ki">ki</span>
       </h1>
+
+      <!-- Error Message -->
+      {% if error %}
+      <div class="error-message">
+        <svg class="error-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p class="error-text">{{ error }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Login Form -->
       <form method="post" class="login-form" action="{% url 'login' %}">
         {% csrf_token %}
         {% if form.non_field_errors %}
-          <div class="error-message" style="display: flex; margin-bottom: 1rem; color: #b91c1c;">
+          <div class="error-message">
             {% for error in form.non_field_errors %}
-              <p>{{ error }}</p>
+             <p class="error-text">{{ error }}</p>
             {% endfor %}
           </div>
         {% endif %}
+
         <div class="form-group">
           <label class="form-label" for="id_username">Username</label>
           {{ form.username }}
         </div>
+
         <div class="form-group">
           <label class="form-label" for="id_password">Password</label>
           {{ form.password }}
         </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="remember" class="checkbox-input" name="remember" />
+          <label for="remember" class="checkbox-label">Remember me</label>
+        </div>
+
         <input type="hidden" name="next" value="{{ next }}">
         <button type="submit" class="btn-primary">Log In</button>
+
+        <a href="#" class="forgot-password">Forgot your Password?</a>
+
+        <button type="button" class="btn-gbox">Continue with gbox</button>
       </form>
+
+      <!-- Footer -->
       <p class="footer-text">Powered by Ateneo de Naga IS</p>
     </div>
   </div>
