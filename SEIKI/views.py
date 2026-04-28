@@ -275,15 +275,17 @@ def office_student_assistants(request):
     
     office = profile.office
     if not office:
-        messages.error(request, "Your office information is not set. Please contact an administrator.")
-        return redirect('office_dashboard')
-    
+        # If office not set, show all students (for debugging/admin purposes)
+        students = User.objects.filter(is_staff=False).select_related('userprofile')
+        office_name = 'All Departments'
+    else:
+        students = User.objects.filter(
+            userprofile__office=office,
+            is_staff=False
+        ).select_related('userprofile')
+        office_name = office
+
     search_query = request.GET.get('search', '')
-    
-    students = User.objects.filter(
-        userprofile__office=office,
-        is_staff=False
-    ).select_related('userprofile')
 
     if search_query:
         students = students.filter(
@@ -294,7 +296,7 @@ def office_student_assistants(request):
 
     return render(request, 'office_head/student_assistants.html', {
         'students': students,
-        'office_name': office,
+        'office_name': office_name,
     })
 
 @login_required
@@ -331,19 +333,22 @@ def office_dtr_submissions(request):
     
     office = profile.office
     if not office:
-        messages.error(request, "Your office information is not set. Please contact an administrator.")
-        return redirect('office_dashboard')
-    
-    # TEMPORARY DEBUG: Show all submissions regardless of office
-    base_submissions = DTRSubmission.objects.select_related('user', 'user__userprofile').order_by('-submitted_date')
-    
+        # If office not set, show all DTR submissions (for debugging/admin purposes)
+        base_submissions = DTRSubmission.objects.select_related('user', 'user__userprofile').order_by('-submitted_date')
+        office_name = 'All Departments'
+    else:
+        base_submissions = DTRSubmission.objects.filter(
+            user__userprofile__office=office
+        ).select_related('user', 'user__userprofile').order_by('-submitted_date')
+        office_name = office
+
     # Filter values for the template
-    status_filter = request.GET.get('status', '')
+    status_filter = request.GET.get('status', 'pending')
     search_query = request.GET.get('search', '')
     month_filter = request.GET.get('month', '')
 
     submissions = base_submissions
-    if status_filter:
+    if status_filter and status_filter != 'all':
         submissions = submissions.filter(status=status_filter)
 
     if search_query:
@@ -360,7 +365,6 @@ def office_dtr_submissions(request):
         except ValueError:
             pass
 
-    # TEMPORARY: Count all pending submissions
     pending_count = base_submissions.filter(status='pending').count()
     approved_count = base_submissions.filter(status='approved').count()
     rejected_count = base_submissions.filter(status='rejected').count()
@@ -371,7 +375,7 @@ def office_dtr_submissions(request):
 
     return render(request, 'office_head/dtr_submissions.html', {
         'submissions': page_obj,
-        'office_name': office,
+        'office_name': office_name,
         'status_filter': status_filter,
         'search_query': search_query,
         'month_filter': month_filter,
@@ -1860,9 +1864,11 @@ def dtr_approvals(request):
         # This is an office head, filter to their office only
         try:
             user_office = request.user.userprofile.office
-            dtr_submissions = dtr_submissions.filter(user__userprofile__office=user_office)
+            if user_office:
+                dtr_submissions = dtr_submissions.filter(user__userprofile__office=user_office)
+            # If office not set, show all (for debugging)
         except (UserProfile.DoesNotExist, AttributeError):
-            dtr_submissions = dtr_submissions.none()
+            pass  # Show all if no profile
     
     # Apply status filter
     if status_filter in ['pending', 'approved', 'rejected']:
