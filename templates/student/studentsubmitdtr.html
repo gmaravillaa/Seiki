@@ -569,13 +569,19 @@
                     No Logs Available to Submit
                   </button>
                 {% else %}
-                  <button class="btn-submit" type="button" onclick="showConfirmationModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="22" y1="2" x2="11" y2="13"></line>
-                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                    Submit Monthly DTR
-                  </button>
+                  <form method="post" action="{% url 'submit_dtr' %}" id="dtrForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="month" value="{{ current_month }}">
+                    <input type="hidden" name="year" value="{{ current_year }}">
+                    <input type="hidden" name="remarks" id="formRemarks" value="">
+                    <button class="btn-submit" type="button" onclick="showConfirmationModal()">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      Submit Monthly DTR
+                    </button>
+                  </form>
                 {% endif %}
               </div>
             </div>
@@ -733,18 +739,12 @@
     }
 
     function submitDTR() {
-      hideConfirmationModal();
-      document.getElementById('successMessage').style.display = 'flex';
+      // Set remarks from textarea to hidden input
+      const remarks = document.getElementById('remarks').value;
+      document.getElementById('formRemarks').value = remarks;
       
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      // Hide success message after 5 seconds
-      setTimeout(() => {
-        document.getElementById('successMessage').style.display = 'none';
-      }, 5000);
-      
-      console.log('✅ DTR Submitted for approval');
+      // Submit the form
+      document.getElementById('dtrForm').submit();
     }
 
     // Close modals when clicking outside

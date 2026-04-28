@@ -2055,8 +2055,16 @@ def delete_time_record(request, record_id):
     messages.success(request, "Log entry removed.")
     return redirect('time_correction', dtr_id=dtr_id)
 
-@user_passes_test(lambda u: u.is_staff, login_url='login')
-def time_correction_list(request):
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
+def debug_dtr_submissions(request):
+    """Temporary debug view to list all DTR submissions"""
+    submissions = DTRSubmission.objects.select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')[:50]
+    
+    context = {
+        'submissions': submissions,
+    }
+    
+    return render(request, 'caao_admin/debug_dtr.html', context)
     """List all students for time correction"""
     students = User.objects.filter(is_staff=False, is_superuser=False)
     if request.user.is_staff and not request.user.is_superuser:
