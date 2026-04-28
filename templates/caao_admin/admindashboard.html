@@ -26,6 +26,7 @@
     <nav class="w-64 bg-blue-900 min-h-screen flex flex-col justify-between">
 
         <div class="p-6 text-white">
+            <h1 class="text-lg font-bold">DTR SYSTEMl</h1>
             <h1 class="text-lg font-bold">Admin Panel</h1>
 
             <div class="mt-6 space-y-2 text-sm">
@@ -120,11 +121,6 @@
             </div>
 
             <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
-                <h3 class="text-sm font-semibold text-gray-500">Pending DTRs</h3>
-                <p class="text-2xl font-bold text-blue-900">{{ pending_dtrs }}</p>
-            </div>
-
-            <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
                 <h3 class="text-sm font-semibold text-gray-500">Approved DTRs</h3>
                 <p class="text-2xl font-bold text-blue-900">{{ approved_dtrs }}</p>
             </div>
@@ -139,7 +135,7 @@
         <!-- STUDENTS TABLE -->
         <div class="bg-white shadow rounded-lg p-6 mb-6">
 
-            <h3 class="text-xl font-bold text-blue-900">Student Assistants</h3>
+            <h3 class="text-xl font-bold text-blue-900">Student Overview</h3>
 
             <table class="min-w-full mt-4">
 
@@ -204,37 +200,10 @@
 
         </div>
 
-        <!-- CHART SECTION (ready for Chart.js) -->
-        <div class="bg-white shadow rounded-lg p-6 mb-6">
-            <h3 class="text-xl font-bold text-blue-900 mb-4">Statistics</h3>
-            <canvas id="chart"></canvas>
-        </div>
 
     </main>
 
 </div>
-
-<!-- CHART JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const ctx = document.getElementById('chart');
-
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Students', 'Pending', 'Approved'],
-        datasets: [{
-            label: 'Overview',
-            data: [
-                {{ total_students|default:0 }},
-                {{ pending_dtrs|default:0 }},
-                {{ approved_dtrs|default:0 }},
-                {{ approved_dtrs|default:0 }}
-            ]
-        }]
-    }
-});
-</script>
 
 <!-- PROGRESS -->
 <script>
