@@ -1,43 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Progress - Seiki Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Progress - Seiki Admin</title>
 
-    <style>
-        body { overflow: hidden; }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
-            background: #003A6C;
-            color: white;
-            padding: 20px;
-        }
+<style>
+body {
+    overflow: hidden;
+}
 
-        .main {
-            margin-left: 260px;
-            height: 100vh;
-            overflow-y: auto;
-        }
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: #003A6C;
+    color: white;
+    transition: 0.3s;
+    z-index: 50;
+}
 
-        .card:hover {
-            transform: translateY(-4px);
-            transition: 0.2s ease;
-            cursor: pointer;
-        }
-    </style>
+/* MAIN */
+.main {
+    margin-left: 260px;
+    height: 100vh;
+    overflow-y: auto;
+    transition: 0.3s;
+}
+
+/* HIDE */
+.sidebar.hide {
+    transform: translateX(-260px);
+}
+
+.main.full {
+    margin-left: 0;
+}
+
+/* CARD HOVER */
+.card:hover {
+    transform: translateY(-4px);
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+</style>
 </head>
 
 <body class="bg-gray-50 text-gray-900">
 
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<aside id="sidebar" class="sidebar p-5">
+
     <h1 class="text-xl font-bold">DTR SYSTEM</h1>
     <p class="text-xs opacity-70">Admin Panel</p>
 
@@ -48,18 +66,30 @@
         <a href="{% url 'dtr_records' %}" class="block py-2 px-3 rounded hover:bg-white/10">DTR Records</a>
         <a href="{% url 'chat' %}" class="block py-2 px-3 rounded hover:bg-white/10">Chat</a>
     </nav>
+
 </aside>
 
 <!-- MAIN -->
-<div class="main p-6 space-y-6 max-w-7xl mx-auto">
+<div id="main" class="main">
 
-<!-- HEADER -->
-<div class="flex justify-between items-center border-b pb-4">
-    <div>
-        <h1 class="text-2xl font-bold text-[#003A6C]">User Progress</h1>
-        <p class="text-gray-500 text-sm">Track Student Assistant performance</p>
+<!-- TOP BAR -->
+<div class="flex items-center justify-between px-6 py-3 bg-white shadow-sm sticky top-0 z-40">
+
+    <div class="flex items-center gap-4">
+        <button onclick="toggleSidebar()" class="text-xl text-gray-600 hover:text-[#003A6C]">
+            ☰
+        </button>
+
+        <div>
+            <h1 class="font-bold text-[#003A6C]">User Progress</h1>
+            <p class="text-xs text-gray-500">Track Student Assistant performance</p>
+        </div>
     </div>
+
 </div>
+
+<!-- CONTENT -->
+<div class="p-6 space-y-6 max-w-7xl mx-auto">
 
 <!-- SEARCH -->
 <form method="GET" class="bg-white p-4 rounded-lg shadow flex gap-2">
@@ -117,8 +147,9 @@ class="card bg-white p-6 rounded-xl border-t-4 border-[#003A6C] shadow">
 </div>
 
 </div>
+</div>
 
-<!-- MODAL -->
+<!-- MODAL (UNCHANGED) -->
 <div id="modal" class="fixed inset-0 hidden bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md p-6 rounded-xl">
 
@@ -150,6 +181,13 @@ class="card bg-white p-6 rounded-xl border-t-4 border-[#003A6C] shadow">
 </div>
 
 <script>
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('hide');
+    document.getElementById('main').classList.toggle('full');
+}
+
+/* MODAL */
 function openModal(name,email,id,office,percent,hours,req,joined){
     document.getElementById('modal').classList.remove('hidden');
 
@@ -168,6 +206,7 @@ function openModal(name,email,id,office,percent,hours,req,joined){
 function closeModal(){
     document.getElementById('modal').classList.add('hidden');
 }
+
 </script>
 
 </body>
