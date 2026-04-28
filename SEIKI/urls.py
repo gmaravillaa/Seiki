@@ -214,6 +214,16 @@ urlpatterns = [
 
     # =======================
 
+    # DEBUG
+
+    # =======================
+
+    path('debug-dtr/', views.debug_dtr_submissions, name='debug_dtr'),
+
+
+
+    # =======================
+
     # CHAT SYSTEM
 
     # =======================

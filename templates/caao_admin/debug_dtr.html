@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug DTR Submissions</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h1>All DTR Submissions (Debug)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Username</th>
+        <th>Office</th>
+        <th>Month/Year</th>
+        <th>Status</th>
+        <th>Total Hours</th>
+        <th>Submitted Date</th>
+        <th>Approver</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for submission in submissions %}
+      <tr>
+        <td>{{ submission.id }}</td>
+        <td>{{ submission.user.get_full_name }}</td>
+        <td>{{ submission.user.username }}</td>
+        <td>{{ submission.user.userprofile.office|default:"-" }}</td>
+        <td>{{ submission.month }}/{{ submission.year }}</td>
+        <td>{{ submission.status }}</td>
+        <td>{{ submission.total_hours }}</td>
+        <td>{{ submission.submitted_date }}</td>
+        <td>{{ submission.approver.get_full_name if submission.approver else "-" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
