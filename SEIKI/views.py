@@ -1432,6 +1432,17 @@ def delete_time_record(request, record_id):
     return redirect('time_correction', dtr_id=dtr_id)
 
 @user_passes_test(lambda u: u.is_staff, login_url='login')
+def time_correction_list(request):
+    """List all students for time correction"""
+    students = User.objects.filter(is_staff=False, is_superuser=False).order_by('first_name', 'last_name')
+    
+    context = {
+        'students': students,
+    }
+    
+    return render(request, 'caao_admin/time_correction_list.html', context)
+
+@user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction_user(request, user_id):
     """Show DTR submissions for a specific user"""
     try:
