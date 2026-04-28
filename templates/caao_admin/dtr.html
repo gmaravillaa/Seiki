@@ -37,7 +37,7 @@
     </div>
 
     <!-- STATS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600">
@@ -54,8 +54,18 @@
                 <i class="fas fa-check-double"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-gray-400 uppercase">Accepted</p>
-                <p class="text-xl font-black text-gray-900">{{ accepted_count }} Accepted</p>
+                <p class="text-xs font-bold text-gray-400 uppercase">Approved</p>
+                <p class="text-xl font-black text-gray-900">{{ accepted_count }} Approved</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-600">
+                <i class="fas fa-times"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Total</p>
+                <p class="text-xl font-black text-gray-900">{{ dtr_records|length }} Total</p>
             </div>
         </div>
 
@@ -72,9 +82,10 @@
 
         <select name="status"
                 class="px-4 py-2 border rounded-lg text-sm">
-            <option value="">All</option>
-            <option value="pending">Only Pending</option>
-            <option value="accepted">Only Accepted</option>
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Approved</option>
+            <option value="rejected">Rejected</option>
         </select>
 
         <button class="px-6 py-2 bg-[#003A6C] text-white rounded-lg text-sm font-bold hover:bg-[#002a5c]">
@@ -92,8 +103,10 @@
                 <tr>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Student</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Office</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Period</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Hours</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Status</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Remarks</th>
                     <th class="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase">Action</th>
                 </tr>
             </thead>
@@ -129,9 +142,11 @@
                         <div class="font-medium text-gray-700">
                             {{ dtr.user.userprofile.office }}
                         </div>
-                        <div class="text-xs text-gray-400 italic">
-                            {{ dtr.period }}
-                        </div>
+                    </td>
+
+                    <!-- PERIOD -->
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ dtr.get_month_display }} {{ dtr.year }}
                     </td>
 
                     <!-- HOURS -->
@@ -146,30 +161,33 @@
                             <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">
                                 Pending
                             </span>
-                        {% else %}
+                        {% elif dtr.status == "approved" %}
                             <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">
-                                Accepted
+                                Approved
+                            </span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">
+                                Rejected
                             </span>
                         {% endif %}
 
                     </td>
 
+                    <!-- REMARKS -->
+                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                        {% if dtr.remarks %}
+                            {{ dtr.remarks }}
+                        {% else %}
+                            <span class="text-gray-400">No remarks</span>
+                        {% endif %}
+                    </td>
+
                     <!-- ACTION -->
                     <td class="px-6 py-4 text-right">
-
-                        {% if dtr.status == "pending" %}
-
-                        <form method="POST" action="{% url 'accept_dtr' dtr.id %}">
-                            {% csrf_token %}
-                            <button class="px-3 py-1 bg-green-600 text-white text-xs rounded font-bold hover:bg-green-700">
-                                Accept
-                            </button>
-                        </form>
-
-                        {% else %}
-                            <span class="text-xs text-gray-400 font-bold">Processed</span>
-                        {% endif %}
-
+                        <a href="{% url 'time_correction_user' dtr.user.id %}"
+                           class="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold hover:bg-blue-700">
+                            View Records
+                        </a>
                     </td>
 
                 </tr>
@@ -177,7 +195,7 @@
                 {% empty %}
 
                 <tr>
-                    <td colspan="5" class="text-center py-10 text-gray-400">
+                    <td colspan="7" class="text-center py-10 text-gray-400">
                         No DTR records found
                     </td>
                 </tr>

@@ -510,7 +510,11 @@
                 </td>
                 <td>{{ submission.submitted_date|date:"M d, Y" }}</td>
                 <td>
+                  {% if not is_superuser %}
                   <a href="{% url 'time_correction' submission.id %}" class="btn-edit" style="text-decoration: none;">Edit Time Records</a>
+                  {% else %}
+                  <a href="{% url 'time_correction' submission.id %}" class="btn-edit" style="text-decoration: none; color: #6c757d;">View Time Records</a>
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}
@@ -596,7 +600,7 @@
     {% endif %}
 
     <!-- Add Record Form - Only for Staff (not superusers) -->
-    {% if user.is_staff and not user.is_superuser %}
+    {% if not is_superuser %}
     <div class="add-record-section">
       <div class="section-title">Add New Time Record</div>
       <form method="post" action="{% url 'add_time_record' %}">
@@ -622,7 +626,7 @@
         </div>
       </form>
     </div>
-    {% elif user.is_superuser %}
+    {% elif is_superuser %}
     <div style="background-color: #e8f4f8; border-left: 5px solid #0099cc; padding: 1.5rem; margin-bottom: 2rem; border-radius: 0.25rem;">
       <p style="color: #003a6c; font-weight: 500; margin: 0;">
         <strong>View Mode:</strong> As a superuser/CAAO staff, you have read-only access to this page. Only office heads can add or edit time records.
@@ -643,7 +647,7 @@
                 <th>Type</th>
                 <th>Duration</th>
                 <th>Edit Info</th>
-                {% if user.is_staff and not user.is_superuser %}<th>Actions</th>{% endif %}
+                {% if not is_superuser %}<th>Actions</th>{% endif %}
               </tr>
             </thead>
             <tbody>
@@ -674,7 +678,7 @@
                       <span style="color: #ccc;">No edit history</span>
                     {% endif %}
                   </td>
-                  {% if user.is_staff and not user.is_superuser %}
+                  {% if not is_superuser %}
                   <td>
                     <div class="action-buttons">
                       <button class="btn-edit" onclick="openEditModal({{ record.id }}, '{{ record.timestamp|date:"Y-m-d H:i" }}')">Edit</button>
