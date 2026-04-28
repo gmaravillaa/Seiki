@@ -125,7 +125,7 @@
                 <button type="submit" class="btn btn-sm btn-danger">Reject</button>
               </form>
               {% else %}
-              <a href="{% url 'user_dtr_details' submission.user.id %}" class="btn btn-sm btn-outline">View</a>
+              <a href="{% url 'time_correction' submission.id %}" class="btn btn-sm btn-outline">View</a>
               {% endif %}
             </td>
           </tr>

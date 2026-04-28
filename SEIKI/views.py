@@ -1965,7 +1965,7 @@ def reject_dtr(request, dtr_id):
     return redirect('dtr_approvals')
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 def time_correction(request, dtr_id):
     """
     Handles path('time-correction/<int:dtr_id>/', name='time_correction')
@@ -2048,7 +2048,7 @@ def time_correction(request, dtr_id):
     return render(request, template_name, context)
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def update_time_record(request, record_id):
     """
@@ -2094,7 +2094,7 @@ def update_time_record(request, record_id):
     return redirect('time_correction', dtr_id=dtr_id)
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def add_time_record(request):
     """Handles path('time-correction/add/', name='add_time_record')"""
@@ -2134,7 +2134,7 @@ def add_time_record(request):
     return redirect('time_correction', dtr_id=dtr_id)
 
 @login_required
-@user_passes_test(lambda u: u.is_staff, login_url='login')
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 def delete_time_record(request, record_id):
     """Handles path('time-correction/delete/<int:record_id>/', name='delete_time_record')"""
     record = get_object_or_404(TimeRecord, id=record_id)
