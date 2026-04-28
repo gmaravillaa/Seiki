@@ -500,11 +500,10 @@
                         <p>
                           {% for record in records %}
                             {% if record.record_type == "out" and record.duration %}
-                              {% with hours=record.duration.total_seconds|div:3600 %}
-                                {{ hours|floatformat:1 }} hrs
-                              {% endwith %}
-                              {% break %}
+                              {{ record.hours_display }}
                             {% endif %}
+                          {% empty %}
+                            --
                           {% endfor %}
                         </p>
                       </div>
