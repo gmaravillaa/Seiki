@@ -451,6 +451,7 @@ a {
 @media (min-width: 640px) {
   .user-info {
     display: block;
+    text-align: left;
   }
 }
 
