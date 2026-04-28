@@ -15,6 +15,10 @@
     --bg-light: #f4f7f9;
 }
 
+/* Smooth transition */
+#main {
+    transition: all 0.3s ease;
+}
 body {
     background-color: var(--bg-light);
 }
@@ -85,26 +89,25 @@ body {
 </aside>
 
 <!-- MAIN -->
-<div class="flex-1">
+<div id="main" class="flex-1 ml-64">
 
     <!-- HEADER -->
     <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
 
         <!-- LEFT -->
         <div class="flex items-center gap-4">
-
-            <!-- MENU BUTTON -->
             <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
                 ☰
             </button>
 
-            <div>
+            <div
                 <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
                 <p class="text-xs text-gray-500">
                     Welcome, {{ request.user.username }}
                 </p>
             </div>
         </div>
+
 
         <!-- RIGHT -->
         <div class="text-right">
@@ -114,34 +117,40 @@ body {
 
     </header>
 
+    
     <!-- CONTENT -->
     <main class="p-8">
 
-        <!-- STATS (ONE LINE) -->
+        <!-- STATS -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-md transition">
+            <!-- CARD -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
                 <p class="text-gray-500 text-sm">Total Students</p>
                 <h3 class="text-3xl font-bold mt-2" style="color: var(--primary-blue);">
                     {{ total_students }}
                 </h3>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-md transition">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
                 <p class="text-gray-500 text-sm">Pending DTRs</p>
                 <h3 class="text-3xl font-bold mt-2 text-yellow-500">
                     {{ pending_dtrs }}
                 </h3>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-md transition">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
                 <p class="text-gray-500 text-sm">Approved DTRs</p>
                 <h3 class="text-3xl font-bold mt-2 text-green-500">
                     {{ approved_dtrs }}
                 </h3>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-md transition">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
                 <p class="text-gray-500 text-sm">Active Offices</p>
                 <h3 class="text-3xl font-bold mt-2 text-indigo-500">
                     {{ active_offices }}
@@ -221,10 +230,21 @@ body {
 
 <!-- SCRIPTS -->
 <script>
+// Toggle sidebar + expand content
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('sidebar-hidden');
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+
+    sidebar.classList.toggle('hidden');
+
+    if (sidebar.classList.contains('hidden')) {
+        main.classList.remove('ml-64');
+    } else {
+        main.classList.add('ml-64');
+    }
 }
 
+// Date + Time
 function updateDateTime() {
     const now = new Date();
 
@@ -243,6 +263,7 @@ function updateDateTime() {
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
+// Progress
 function openProgress(id) {
     fetch(`/user-progress/${id}/json/`)
     .then(res => res.json())
