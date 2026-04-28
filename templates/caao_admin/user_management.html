@@ -93,6 +93,8 @@
                     <tr>
                         <th class="px-6 py-4 text-left">Username</th>
                         <th class="px-6 py-4 text-left">Full Name</th>
+                        <th class="px-6 py-3 text-left">ID</th>
+                        <th class="px-6 py-3 text-left">Hours</th>
                         <th class="px-6 py-4 text-left">Office</th>
                         <th class="px-6 py-4 text-left">Role</th>
                         <th class="px-6 py-4 text-right">Action</th>
@@ -103,6 +105,8 @@
                     <tr class="user-row hover:bg-blue-50/20 transition" data-role="{% if user.is_superuser %}CAAO STAFF{% elif user.is_staff %}OFFICE HEAD{% else %}STUDENT{% endif %}">
                         <td class="px-6 py-4 font-bold text-[#003A6C]">@{{ user.username }}</td>
                         <td class="px-6 py-4 font-medium">{{ user.get_full_name }}</td>
+                        <td class="px-6 py-4 font-medium">{{ user.userprofile.id_number }}</td>
+                        <td class="px-6 py-4 font-medium">{{ user.userprofile.required_hours }}</td>
                         <td class="px-6 py-4 text-xs text-gray-500">{{ user.userprofile.office|default:"N/A" }}</td>
                         <td class="px-6 py-4">
                             <span class="role-badge text-[10px] font-black uppercase px-2 py-1 rounded ring-1 
