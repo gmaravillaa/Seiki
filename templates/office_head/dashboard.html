@@ -1,0 +1,171 @@
+{% extends 'office_head/base.html' %}
+{% load static %} {% load custom_filters %}
+
+{% block title %}Dashboard - Office Head Portal{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/office_head/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-description">Welcome back! Here's an overview of your office.</p>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="card">
+    <div class="card-content stat-card">
+      <div class="stat-info">
+        <h3>Total Student Assistants</h3>
+        <div class="stat-value">{{ total_students|default:"0" }}</div>
+        <p class="stat-description">{{ active_students|default:"0" }} Active</p>
+      </div>
+      <div class="stat-icon blue">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-content stat-card">
+      <div class="stat-info">
+        <h3>Total Hours Rendered</h3>
+        <div class="stat-value">{{ total_hours|default:"0" }}</div>
+        <p class="stat-description">This month</p>
+      </div>
+      <div class="stat-icon green">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-content stat-card">
+      <div class="stat-info">
+        <h3>Pending DTR Approvals</h3>
+        <div class="stat-value">{{ pending_dtrs|default:"0" }}</div>
+        <p class="stat-description">Requires action</p>
+      </div>
+      <div class="stat-icon orange">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-content stat-card">
+      <div class="stat-info">
+        <h3>Today's Attendance</h3>
+        <div class="stat-value">{{ today_attendance|default:"0" }}%</div>
+        <p class="stat-description">Checked in today</p>
+      </div>
+      <div class="stat-icon blue">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Two Column Layout -->
+<div class="grid-2">
+  <!-- Active Student Assistants -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Active Student Assistants</h2>
+      <p class="card-description">Currently active student assistants</p>
+    </div>
+    <div class="card-content">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>ID</th>
+              <th>Status</th>
+              <th class="text-right">Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in recent_students %}
+            <tr>
+              <td style="font-weight: 500;">{{ student.get_full_name|default:student.username }}</td>
+              <td style="color: var(--gray-500); font-size: 13px;">{{ student.userprofile.id_number|default:"N/A" }}</td>
+              <td><span class="badge success">Active</span></td>
+              <td class="text-right">{{ student.userprofile.hours_rendered|default:"0" }}h</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center" style="padding: 24px; color: var(--gray-500);">
+                No students found
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 16px;">
+        <a href="{% url 'office_student_assistants' %}" class="btn btn-outline" style="width: 100%; text-align: center;">View All Students</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Logs -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Logs</h2>
+      <p class="card-description">Latest time in/out records</p>
+    </div>
+    <div class="card-content">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in recent_logs %}
+            <tr>
+              <td style="font-weight: 500; font-size: 13px;">{{ log.user.get_full_name|default:log.user.username }}</td>
+              <td style="font-size: 13px;">{{ log.time_in|time:"h:i A" }}</td>
+              <td style="font-size: 13px;">{{ log.time_out|time:"h:i A"|default:"-" }}</td>
+              <td>
+                {% if log.time_out %}
+                <span class="badge success">Complete</span>
+                {% else %}
+                <span class="badge warning">In Progress</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center" style="padding: 24px; color: var(--gray-500);">
+                No recent logs
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 16px;">
+        <a href="{% url 'office_logs' %}" class="btn btn-outline" style="width: 100%; text-align: center;">View All Logs</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
