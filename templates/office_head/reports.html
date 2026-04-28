@@ -10,88 +10,91 @@
   </div>
 </div>
 
-<!-- Report Types -->
-<div class="grid-2">
+<div class="reports-grid">
+
   <!-- Attendance Report -->
-  <div class="card">
+  <div class="card report-card">
     <div class="card-header">
       <h2 class="card-title">Attendance Report</h2>
       <p class="card-description">Daily attendance summary for all student assistants</p>
     </div>
+
     <div class="card-content">
-      <form method="get" action="{% url 'export_report' %}">
+      <form method="get" action="{% url 'export_report' %}" class="report-form">
         <input type="hidden" name="report_type" value="attendance">
+
         <div class="input-group">
           <label class="input-label">Date Range</label>
-          <div style="display: flex; gap: 12px;">
+
+          <div class="date-range">
             <input type="date" name="date_from" required>
             <input type="date" name="date_to" required>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
+
+        <button type="submit" class="btn btn-primary full-btn">
           Download CSV
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Hours Summary Report -->
-  <div class="card">
+  <!-- Hours Summary -->
+  <div class="card report-card">
     <div class="card-header">
       <h2 class="card-title">Hours Summary Report</h2>
       <p class="card-description">Total hours rendered by each student assistant</p>
     </div>
+
     <div class="card-content">
-      <form method="get" action="{% url 'export_report' %}">
+      <form method="get" action="{% url 'export_report' %}" class="report-form">
         <input type="hidden" name="report_type" value="hours">
+
         <div class="input-group">
           <label class="input-label">Month</label>
           <input type="month" name="month" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
+
+        <button type="submit" class="btn btn-primary full-btn">
           Download CSV
         </button>
       </form>
     </div>
   </div>
 
-  <!-- DTR Summary Report -->
-  <div class="card">
+  <!-- DTR Summary -->
+  <div class="card report-card">
     <div class="card-header">
       <h2 class="card-title">DTR Summary Report</h2>
       <p class="card-description">Summary of all DTR submissions and their status</p>
     </div>
+
     <div class="card-content">
-      <form method="get" action="{% url 'export_report' %}">
+      <form method="get" action="{% url 'export_report' %}" class="report-form">
         <input type="hidden" name="report_type" value="dtr_summary">
+
         <div class="input-group">
           <label class="input-label">Period</label>
           <input type="month" name="month" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
+
+        <button type="submit" class="btn btn-primary full-btn">
           Download CSV
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Student List Report -->
-  <div class="card">
+  <!-- Student List -->
+  <div class="card report-card">
     <div class="card-header">
       <h2 class="card-title">Student List Report</h2>
       <p class="card-description">Complete list of all student assistants in your office</p>
     </div>
+
     <div class="card-content">
-      <form method="get" action="{% url 'export_students' %}">
+      <form method="get" action="{% url 'export_students' %}" class="report-form">
+
         <div class="input-group">
           <label class="input-label">Status Filter</label>
           <select name="status">
@@ -100,14 +103,13 @@
             <option value="inactive">Inactive Only</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
+
+        <button type="submit" class="btn btn-primary full-btn">
           Download CSV
         </button>
       </form>
     </div>
   </div>
+
 </div>
 {% endblock %}
