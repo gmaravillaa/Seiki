@@ -278,27 +278,181 @@ def office_reports(request):
 
 @login_required
 def student_dashboard(request):
-    return render(request, 'student/studentdashboard.html')
+    """Student Dashboard with dynamic data from database"""
+    user = request.user
+    
+    try:
+        profile = user.userprofile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=user)
+    
+    # Get all time records for this student
+    time_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')
+    
+    # Calculate total hours rendered
+    total_duration = time_records.filter(
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    total_hours = 0
+    if total_duration:
+        total_hours = round(total_duration.total_seconds() / 3600, 2)
+    
+    # Calculate hours this week
+    from django.utils import timezone
+    from datetime import timedelta
+    today = timezone.now()
+    week_start = today - timedelta(days=today.weekday())
+    
+    week_duration = time_records.filter(
+        timestamp__gte=week_start,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    week_hours = 0
+    if week_duration:
+        week_hours = round(week_duration.total_seconds() / 3600, 2)
+    
+    # Calculate remaining hours
+    required_hours = profile.required_hours
+    remaining_hours = required_hours - total_hours
+    
+    # Get recent DTR submissions (for recent logs)
+    dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month')[:10]
+    
+    context = {
+        'profile': profile,
+        'total_hours': total_hours,
+        'week_hours': week_hours,
+        'remaining_hours': max(remaining_hours, 0),  # Don't show negative
+        'required_hours': required_hours,
+        'dtr_submissions': dtr_submissions,
+        'time_records_count': time_records.count(),
+    }
+    return render(request, 'student/studentdashboard.html', context)
 
 @login_required
 def student_logs(request):
     """Student Assistant Time Logs"""
-    return render(request, 'student/studentlogs.html')
+    user = request.user
+    
+    # Get all time records grouped by date
+    time_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')
+    
+    # Group records by date
+    from datetime import date as date_type
+    from django.db.models.functions import TruncDate
+    
+    daily_records = {}
+    for record in time_records:
+        record_date = record.timestamp.date()
+        if record_date not in daily_records:
+            daily_records[record_date] = {'records': [], 'total_hours': 0}
+        daily_records[record_date]['records'].append(record)
+    
+    # Calculate total hours per day
+    for day, data in daily_records.items():
+        out_records = [r for r in data['records'] if r.record_type == 'out' and r.duration]
+        total_duration = sum([r.duration for r in out_records], timedelta())
+        data['total_hours'] = round(total_duration.total_seconds() / 3600, 2)
+    
+    context = {
+        'daily_records': daily_records,
+        'total_records': time_records.count(),
+    }
+    return render(request, 'student/studentlogs.html', context)
 
 @login_required
 def student_submit_dtr(request):
     """Student Assistant Submit DTR"""
-    return render(request, 'student/studentsubmitdtr.html')
+    from datetime import datetime
+    user = request.user
+    
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    
+    # Check if DTR already submitted for this month
+    existing_dtr = DTRSubmission.objects.filter(
+        user=user,
+        month=current_month,
+        year=current_year
+    ).first()
+    
+    # Get all time records for current month
+    time_records = TimeRecord.objects.filter(
+        user=user,
+        timestamp__month=current_month,
+        timestamp__year=current_year
+    ).order_by('timestamp')
+    
+    # Calculate total hours for this month
+    total_duration = time_records.filter(
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    total_hours = 0
+    if total_duration:
+        total_hours = round(total_duration.total_seconds() / 3600, 2)
+    
+    # Group records by date
+    daily_logs = {}
+    for record in time_records:
+        record_date = record.timestamp.date()
+        if record_date not in daily_logs:
+            daily_logs[record_date] = []
+        daily_logs[record_date].append(record)
+    
+    context = {
+        'current_month': current_month,
+        'current_year': current_year,
+        'daily_logs': daily_logs,
+        'total_hours': total_hours,
+        'existing_dtr': existing_dtr,
+        'time_records': time_records,
+    }
+    return render(request, 'student/studentsubmitdtr.html', context)
 
 @login_required
 def student_schedule(request):
-    """Student Assistant Availability Schedule"""
+    """Student Assistant Availability Schedule - QR Scanner"""
     return render(request, 'student/studentscanner.html')
 
 @login_required
 def student_profile_page(request):
     """Student Assistant Profile Page"""
-    return render(request, 'student/studentprofile.html')
+    user = request.user
+    
+    try:
+        profile = user.userprofile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=user)
+    
+    # Get statistics
+    total_records = TimeRecord.objects.filter(user=user).count()
+    total_duration = TimeRecord.objects.filter(
+        user=user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(total=Sum('duration'))['total']
+    
+    total_hours = 0
+    if total_duration:
+        total_hours = round(total_duration.total_seconds() / 3600, 2)
+    
+    dtr_count = DTRSubmission.objects.filter(user=user).count()
+    approved_dtr_count = DTRSubmission.objects.filter(user=user, status='approved').count()
+    
+    context = {
+        'profile': profile,
+        'total_hours': total_hours,
+        'total_records': total_records,
+        'dtr_count': dtr_count,
+        'approved_dtr_count': approved_dtr_count,
+    }
+    return render(request, 'student/studentprofile.html', context)
     
 @login_required
 def user_progress(request):

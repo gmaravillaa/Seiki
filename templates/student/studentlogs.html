@@ -97,10 +97,10 @@
 
           <div class="user-profile">
             <div class="user-info">
-              <p class="user-name">Juan Dela Cruz</p>
+              <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
               <p class="user-role">Student Assistant</p>
             </div>
-            <div class="user-avatar">JD</div>
+            <div class="user-avatar">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
           </div>
         </div>
 
@@ -189,62 +189,33 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td class="font-semibold">Apr 16, 2026</td>
-                  <td>Wednesday</td>
-                  <td>9:00 AM</td>
-                  <td>5:00 PM</td>
-                  <td class="font-semibold">8 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 15, 2026</td>
-                  <td>Tuesday</td>
-                  <td>9:00 AM</td>
-                  <td>5:00 PM</td>
-                  <td class="font-semibold">8 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 14, 2026</td>
-                  <td>Monday</td>
-                  <td>9:00 AM</td>
-                  <td>5:00 PM</td>
-                  <td class="font-semibold">8 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 13, 2026</td>
-                  <td>Sunday</td>
-                  <td>9:00 AM</td>
-                  <td>4:00 PM</td>
-                  <td class="font-semibold">7 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 12, 2026</td>
-                  <td>Saturday</td>
-                  <td>10:00 AM</td>
-                  <td>5:00 PM</td>
-                  <td class="font-semibold">7 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 11, 2026</td>
-                  <td>Friday</td>
-                  <td>9:00 AM</td>
-                  <td>5:00 PM</td>
-                  <td class="font-semibold">8 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 10, 2026</td>
-                  <td>Thursday</td>
-                  <td>9:00 AM</td>
-                  <td>5:00 PM</td>
-                  <td class="font-semibold">8 hrs</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">Apr 09, 2026</td>
-                  <td>Wednesday</td>
-                  <td>9:00 AM</td>
-                  <td>3:00 PM</td>
-                  <td class="font-semibold">6 hrs</td>
-                </tr>
+                {% if daily_records %}
+                  {% for date, data in daily_records.items %}
+                    <tr>
+                      <td class="font-semibold">{{ date|date:"M d, Y" }}</td>
+                      <td>{{ date|date:"l" }}</td>
+                      <td>
+                        {% for record in data.records %}
+                          {% if record.record_type == "in" %}
+                            {{ record.timestamp|date:"g:i A" }}
+                          {% endif %}
+                        {% endfor %}
+                      </td>
+                      <td>
+                        {% for record in data.records %}
+                          {% if record.record_type == "out" %}
+                            {{ record.timestamp|date:"g:i A" }}
+                          {% endif %}
+                        {% endfor %}
+                      </td>
+                      <td class="font-semibold">{{ data.total_hours }} hrs</td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No time records found</td>
+                  </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>

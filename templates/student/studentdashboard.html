@@ -99,10 +99,10 @@
 
           <div class="user-profile">
             <div class="user-info">
-              <p class="user-name">Juan Dela Cruz</p>
+              <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
               <p class="user-role">Student Assistant</p>
             </div>
-            <div class="user-avatar">JD</div>
+            <div class="user-avatar">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
           </div>
         </div>
 
@@ -160,7 +160,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Total Hours Rendered</p>
-              <p class="summary-value">180 hrs</p>
+              <p class="summary-value">{{ total_hours }} hrs</p>
             </div>
           </div>
 
@@ -173,7 +173,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Hours This Week</p>
-              <p class="summary-value">32 hrs</p>
+              <p class="summary-value">{{ week_hours }} hrs</p>
             </div>
           </div>
 
@@ -188,7 +188,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Remaining Hours</p>
-              <p class="summary-value">120 hrs</p>
+              <p class="summary-value">{{ remaining_hours }} hrs</p>
             </div>
           </div>
 
@@ -200,7 +200,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Assigned Office</p>
-              <p class="summary-value">President</p>
+              <p class="summary-value">{{ profile.office }}</p>
             </div>
           </div>
         </div>
@@ -212,44 +212,40 @@
             <table class="logs-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Entries</th>
+                  <th>Period</th>
+                  <th>Submitted</th>
                   <th>Total Hours</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div class="date-cell">
-                      <p class="date-main">Apr 15, 2026</p>
-                      <p class="date-sub">Tuesday</p>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="entries-cell">
-                      <p class="entry-time">09:00:00 AM - 12:00:00 PM</p>
-                      <p class="entry-time">01:00:00 PM - 05:00:00 PM</p>
-                    </div>
-                  </td>
-                  <td><span class="hours-value">07:00:00</span></td>
-                  <td><span class="status-badge status-approved">Approved</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="date-cell">
-                      <p class="date-main">Apr 14, 2026</p>
-                      <p class="date-sub">Monday</p>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="entries-cell">
-                      <p class="entry-time">09:00:00 AM - 05:00:00 PM</p>
-                    </div>
-                  </td>
-                  <td><span class="hours-value">08:00:00</span></td>
-                  <td><span class="status-badge status-pending">Pending</span></td>
-                </tr>
+                {% if dtr_submissions %}
+                  {% for submission in dtr_submissions %}
+                    <tr>
+                      <td>
+                        <div class="date-cell">
+                          <p class="date-main">{{ submission.month }}/{{ submission.year }}</p>
+                          <p class="date-sub">Monthly Report</p>
+                        </div>
+                      </td>
+                      <td>{{ submission.submitted_date|date:"M d, Y" }}</td>
+                      <td><span class="hours-value">{{ submission.total_hours }} hrs</span></td>
+                      <td>
+                        {% if submission.status == 'approved' %}
+                          <span class="status-badge status-approved">Approved</span>
+                        {% elif submission.status == 'rejected' %}
+                          <span class="status-badge status-rejected">Rejected</span>
+                        {% else %}
+                          <span class="status-badge status-pending">Pending</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="4" style="text-align: center; padding: 2rem; color: #999;">No DTR submissions yet</td>
+                  </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>

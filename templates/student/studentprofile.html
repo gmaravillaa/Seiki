@@ -97,10 +97,10 @@
 
           <div class="user-profile">
             <div class="user-info">
-              <p class="user-name">Juan Dela Cruz</p>
+              <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
               <p class="user-role">Student Assistant</p>
             </div>
-            <div class="user-avatar">JD</div>
+            <div class="user-avatar">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
           </div>
         </div>
 
@@ -148,7 +148,7 @@
                   </div>
                   <div class="profile-name-section">
                     <div>
-                      <h2 class="profile-name">Juan Dela Cruz</h2>
+                      <h2 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h2>
                       <p class="profile-position">Student Assistant</p>
                     </div>
                     <span class="status-badge-active">Active</span>
@@ -169,11 +169,11 @@
               <div class="info-grid">
                 <div class="info-field">
                   <label class="info-label">Full Name</label>
-                  <div class="info-value">Juan Dela Cruz</div>
+                  <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">Student ID</label>
-                  <div class="info-value">2021-12345</div>
+                  <div class="info-value">{{ profile.id_number|default:"Not set" }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">
@@ -183,16 +183,16 @@
                     </svg>
                     Email Address
                   </label>
-                  <div class="info-value">juan.delacruz@g.msuiit.edu.ph</div>
+                  <div class="info-value">{{ user.email|default:"Not set" }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
-                    Phone Number
+                    Office/Department
                   </label>
-                  <div class="info-value">+63 912 345 6789</div>
+                  <div class="info-value">{{ profile.office|default:"Not assigned" }}</div>
                 </div>
               </div>
             </div>
@@ -211,19 +211,11 @@
               <div class="info-grid">
                 <div class="info-field">
                   <label class="info-label">Assigned Office</label>
-                  <div class="info-value">Office of the President</div>
+                  <div class="info-value">{{ profile.office|default:"Not assigned" }}</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">Position</label>
                   <div class="info-value">Student Assistant</div>
-                </div>
-                <div class="info-field">
-                  <label class="info-label">Start Date</label>
-                  <div class="info-value">January 5, 2026</div>
-                </div>
-                <div class="info-field">
-                  <label class="info-label">Supervisor</label>
-                  <div class="info-value">Ms. Maria Santos</div>
                 </div>
                 <div class="info-field">
                   <label class="info-label">Work Status</label>
@@ -244,21 +236,21 @@
                 <div class="progress-item">
                   <div class="progress-header">
                     <span class="progress-label">Hours Completed</span>
-                    <span class="progress-value">180 hrs</span>
+                    <span class="progress-value">{{ total_hours }} hrs</span>
                   </div>
                   <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 60%"></div>
+                    <div class="progress-bar" style="width: {% widthratio total_hours required_hours 100 %}%"></div>
                   </div>
                 </div>
                 <div class="progress-divider"></div>
                 <div class="progress-details">
                   <div class="progress-detail-item">
                     <span class="progress-detail-label">Target Hours</span>
-                    <span class="progress-detail-value">300 hrs</span>
+                    <span class="progress-detail-value">{{ profile.required_hours }} hrs</span>
                   </div>
                   <div class="progress-detail-item">
                     <span class="progress-detail-label">Remaining</span>
-                    <span class="progress-detail-value">120 hrs</span>
+                    <span class="progress-detail-value">{{ profile.required_hours|add:total_hours|stringformat:".2f" }} hrs</span>
                   </div>
                 </div>
               </div>
