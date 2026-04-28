@@ -407,9 +407,14 @@ def student_logs(request):
         total_duration = sum([r.duration for r in out_records], timedelta())
         data['total_hours'] = round(total_duration.total_seconds() / 3600, 2)
     
+    approved_dtrs = DTRSubmission.objects.filter(user=user, status='approved').count()
+    pending_dtrs = DTRSubmission.objects.filter(user=user, status='pending').count()
+
     context = {
         'daily_records': daily_records,
         'total_records': time_records.count(),
+        'approved_dtrs': approved_dtrs,
+        'pending_dtrs': pending_dtrs,
     }
     return render(request, 'student/studentlogs.html', context)
 
@@ -429,7 +434,7 @@ def student_submit_dtr(request):
         profile.office = ""
     if profile.required_hours is None:
         profile.required_hours = 80.0
-        
+
     current_month = datetime.now().month
     current_year = datetime.now().year
     
@@ -477,6 +482,8 @@ def student_submit_dtr(request):
         record.hours_display = hours_display
         daily_logs[record_date].append(record)
     
+    has_time_records = time_records.exists()
+
     context = {
         'current_month': current_month,
         'current_year': current_year,
@@ -484,6 +491,7 @@ def student_submit_dtr(request):
         'total_hours': total_hours,
         'existing_dtr': existing_dtr,
         'time_records': time_records,
+        'has_time_records': has_time_records,
     }
     return render(request, 'student/studentsubmitdtr.html', context)
 

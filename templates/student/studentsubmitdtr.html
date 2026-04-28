@@ -539,13 +539,39 @@
 
             <!-- Submit Actions -->
             <div class="submit-actions">
-              <button class="btn-submit" onclick="showConfirmationModal()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-                Submit Monthly DTR
-              </button>
+              {% if existing_dtr %}
+                <button class="btn-submit" disabled>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                  {% if existing_dtr.status == 'pending' %}
+                    Monthly DTR Submitted - Pending Approval
+                  {% elif existing_dtr.status == 'approved' %}
+                    Monthly DTR Approved
+                  {% elif existing_dtr.status == 'rejected' %}
+                    Monthly DTR Rejected
+                  {% else %}
+                    Monthly DTR Submitted
+                  {% endif %}
+                </button>
+              {% elif not has_time_records %}
+                <button class="btn-submit" disabled>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                  No Logs Available to Submit
+                </button>
+              {% else %}
+                <button class="btn-submit" type="button" onclick="showConfirmationModal()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                  Submit Monthly DTR
+                </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -680,6 +706,19 @@
       window.location.href = 'login.html';
     }
 
+    document.addEventListener('DOMContentLoaded', function () {
+      updateCurrentDate();
+    });
+
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+      const dateEl = document.getElementById('currentDate');
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString(undefined, options);
+      }
+    }
+
     function showConfirmationModal() {
       const remarks = document.getElementById('remarks').value;
       const modalRemarks = document.getElementById('modalRemarks');
@@ -727,5 +766,6 @@
       }
     });
   </script>
+  <script src="{% static 'student/common.js' %}"></script>
 </body>
 </html>
