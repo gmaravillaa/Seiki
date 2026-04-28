@@ -521,12 +521,16 @@ def student_dashboard(request):
     # Get recent time records for logs (not DTR submissions)
     recent_records = time_records[:10]  # Last 10 records
     
-    # Group recent records by date for display
+    # Group recent records by date for display and aggregate daily totals
     recent_logs = {}
     for record in recent_records:
         record_date = record.timestamp.date()
         if record_date not in recent_logs:
-            recent_logs[record_date] = []
+            recent_logs[record_date] = {
+                'records': [],
+                'total_duration_seconds': 0,
+                'daily_total_display': '0 sec',
+            }
         
         # Calculate hours for this record if it's an 'out' record with duration
         hours_display = ""
@@ -534,15 +538,19 @@ def student_dashboard(request):
             try:
                 hours = record.duration.total_seconds() / 3600
                 hours_display = format_hours_display(hours)
+                recent_logs[record_date]['total_duration_seconds'] += record.duration.total_seconds()
             except (AttributeError, TypeError):
-                hours_display = "0 min"
+                hours_display = "0 sec"
         
         # Add hours_display to the record for template use
         record.hours_display = hours_display
-        recent_logs[record_date].append(record)
-    
-    # Calculate progress percentage
-    progress_percentage = 0
+        recent_logs[record_date]['records'].append(record)
+
+    for record_date, info in recent_logs.items():
+        if info['total_duration_seconds']:
+            info['daily_total_display'] = format_hours_display(info['total_duration_seconds'] / 3600)
+        else:
+            info['daily_total_display'] = '0 sec'
     if required_hours > 0:
         progress_percentage = min((total_hours / required_hours) * 100, 100)
     

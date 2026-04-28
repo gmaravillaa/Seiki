@@ -258,7 +258,7 @@
               </thead>
               <tbody>
                 {% if recent_logs %}
-                  {% for date, records in recent_logs.items %}
+                  {% for date, info in recent_logs.items %}
                     <tr>
                       <td>
                         <div class="date-cell">
@@ -267,25 +267,21 @@
                         </div>
                       </td>
                       <td>
-                        {% for record in records %}
+                        {% for record in info.records %}
                           {% if record.record_type == "in" %}
                             <p class="entry-time">{{ record.timestamp|date:"g:i A" }}</p>
                           {% endif %}
                         {% endfor %}
                       </td>
                       <td>
-                        {% for record in records %}
+                        {% for record in info.records %}
                           {% if record.record_type == "out" %}
                             <p class="entry-time">{{ record.timestamp|date:"g:i A" }}</p>
                           {% endif %}
                         {% endfor %}
                       </td>
                       <td>
-                        {% for record in records %}
-                          {% if record.record_type == "out" and record.duration %}
-                            <span class="hours-value">{{ record.hours_display }}</span>
-                          {% endif %}
-                        {% endfor %}
+                        <span class="hours-value">{{ info.daily_total_display }}</span>
                       </td>
                     </tr>
                   {% endfor %}
