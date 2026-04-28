@@ -19,6 +19,14 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.contrib.auth import logout
 
 
+def format_hours_display(hours_value):
+    """Format hours to show minutes for values under one hour."""
+    if hours_value < 1:
+        minutes = round(hours_value * 60)
+        return f"{minutes} min" if minutes > 0 else "0 min"
+    return f"{round(hours_value, 1)} hrs"
+
+
 def dashboard_redirect(request):
     if request.user.is_superuser:
         return redirect('admin_dashboard')  # Django admin panel
@@ -387,31 +395,25 @@ def student_logs(request):
     """Student Assistant Time Logs"""
     user = request.user
     
-    # Get all time records grouped by date
+    # Get all time records ordered newest first
     time_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')
-    
-    # Group records by date
-    from datetime import date as date_type
-    from django.db.models.functions import TruncDate
-    
-    daily_records = {}
+    records = []
     for record in time_records:
-        record_date = record.timestamp.date()
-        if record_date not in daily_records:
-            daily_records[record_date] = {'records': [], 'total_hours': 0}
-        daily_records[record_date]['records'].append(record)
-    
-    # Calculate total hours per day
-    for day, data in daily_records.items():
-        out_records = [r for r in data['records'] if r.record_type == 'out' and r.duration]
-        total_duration = sum([r.duration for r in out_records], timedelta())
-        data['total_hours'] = round(total_duration.total_seconds() / 3600, 2)
+        hours_display = ""
+        if record.record_type == 'out' and record.duration:
+            try:
+                hours = record.duration.total_seconds() / 3600
+                hours_display = format_hours_display(hours)
+            except (AttributeError, TypeError):
+                hours_display = "0 min"
+        record.hours_display = hours_display
+        records.append(record)
     
     approved_dtrs = DTRSubmission.objects.filter(user=user, status='approved').count()
     pending_dtrs = DTRSubmission.objects.filter(user=user, status='pending').count()
 
     context = {
-        'daily_records': daily_records,
+        'records': records,
         'total_records': time_records.count(),
         'approved_dtrs': approved_dtrs,
         'pending_dtrs': pending_dtrs,
@@ -463,8 +465,9 @@ def student_submit_dtr(request):
     if total_duration:
         total_hours = round(total_duration.total_seconds() / 3600, 2)
     
-    # Group records by date
+    # Group records by date and prepare flat monthly record list
     daily_logs = {}
+    monthly_records = []
     for record in time_records:
         record_date = record.timestamp.date()
         if record_date not in daily_logs:
@@ -482,6 +485,7 @@ def student_submit_dtr(request):
         # Add hours_display to the record for template use
         record.hours_display = hours_display
         daily_logs[record_date].append(record)
+        monthly_records.append(record)
     
     has_time_records = time_records.exists()
 
@@ -490,6 +494,7 @@ def student_submit_dtr(request):
         'current_year': current_year,
         'month_name': month_name,
         'daily_logs': daily_logs,
+        'monthly_records': monthly_records,
         'total_hours': total_hours,
         'existing_dtr': existing_dtr,
         'time_records': time_records,

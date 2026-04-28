@@ -226,6 +226,30 @@
       border: 1px solid var(--gray-200);
     }
 
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid var(--gray-200);
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    .summary-table th {
+      color: var(--gray-600);
+      font-weight: 700;
+      background-color: var(--gray-0);
+    }
+
+    .summary-table tbody tr:hover {
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
     .modal-entry {
       padding-bottom: 0.75rem;
       border-bottom: 1px solid var(--gray-300);
@@ -466,56 +490,37 @@
           <div style="padding: 1.5rem;">
             <!-- Entry List -->
             <div id="entriesList">
-              {% if daily_logs %}
-                {% for date, records in daily_logs.items %}
-                  <div class="entry-card">
-                    <div class="entry-header">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      <span class="entry-number">{{ date|date:"M d, Y" }}</span>
-                    </div>
-                    <div class="entry-grid">
-                      <div class="entry-field time-in">
-                        <label>Earliest Time In</label>
-                        <p>
-                          {% for record in records %}
-                            {% if record.record_type == "in" %}
-                              {{ record.timestamp|date:"g:i A" }}
-                              {% endif %}
-                          {% empty %}
-                            --
-                          {% endfor %}
-                        </p>
-                      </div>
-                      <div class="entry-field time-out">
-                        <label>Latest Time Out</label>
-                        <p>
-                          {% for record in records reversed %}
-                            {% if record.record_type == "out" %}
-                              {{ record.timestamp|date:"g:i A" }}
-                              {% endif %}
-                          {% empty %}
-                            --
-                          {% endfor %}
-                        </p>
-                      </div>
-                      <div class="entry-field duration">
-                        <label>Total Hours</label>
-                        <p>
-                          {% for record in records %}
-                            {% if record.record_type == "out" and record.duration %}
+              {% if monthly_records %}
+                <div class="table-wrapper">
+                  <table class="data-table summary-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Type</th>
+                        <th>Time</th>
+                        <th>Hours</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for record in monthly_records %}
+                        <tr>
+                          <td>{{ record.timestamp|date:"M d, Y" }}</td>
+                          <td>{{ record.timestamp|date:"l" }}</td>
+                          <td>{{ record.get_record_type_display }}</td>
+                          <td>{{ record.timestamp|date:"g:i A" }}</td>
+                          <td>
+                            {% if record.record_type == 'out' and record.duration %}
                               {{ record.hours_display }}
+                            {% else %}
+                              --
                             {% endif %}
-                          {% empty %}
-                            --
-                          {% endfor %}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
               {% else %}
                 <div class="no-entries-alert">
                   <div class="no-entries-icon">📭</div>
@@ -604,30 +609,37 @@
       </div>
 
       <div class="modal-entries">
-        {% if daily_logs %}
-          {% for date, records in daily_logs.items %}
-            <div class="modal-entry">
-              <p class="modal-entry-label">Entry #{{ forloop.counter }} - {{ date|date:"M d, Y" }}</p>
-              {% for record in records %}
-                <div class="modal-entry-grid">
-                  <div class="modal-entry-field">
-                    <label>Type</label>
-                    <p>{{ record.get_record_type_display }}</p>
-                  </div>
-                  <div class="modal-entry-field">
-                    <label>Time</label>
-                    <p>{{ record.timestamp|date:"g:i A" }}</p>
-                  </div>
-                  {% if record.record_type == 'out' %}
-                    <div class="modal-entry-field">
-                      <label>Hours</label>
-                      <p style="color: var(--blue-900);">{{ record.hours_display }}</p>
-                    </div>
-                  {% endif %}
-                </div>
-              {% endfor %}
-            </div>
-          {% endfor %}
+        {% if monthly_records %}
+          <div class="table-wrapper">
+            <table class="data-table summary-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Day</th>
+                  <th>Type</th>
+                  <th>Time</th>
+                  <th>Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in monthly_records %}
+                  <tr>
+                    <td>{{ record.timestamp|date:"M d, Y" }}</td>
+                    <td>{{ record.timestamp|date:"l" }}</td>
+                    <td>{{ record.get_record_type_display }}</td>
+                    <td>{{ record.timestamp|date:"g:i A" }}</td>
+                    <td>
+                      {% if record.record_type == 'out' and record.duration %}
+                        {{ record.hours_display }}
+                      {% else %}
+                        --
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         {% else %}
           <div class="modal-entry">
             <p class="modal-entry-label">No records available for this month.</p>
