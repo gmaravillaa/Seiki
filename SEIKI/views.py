@@ -393,7 +393,7 @@ def office_dtr_submissions(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'office_head/dtr_submissions.html', {
-        'submissions': page_obj,
+        'dtr_submissions': page_obj,
         'office_name': office_name,
         'status_filter': status_filter,
         'search_query': search_query,
@@ -1593,16 +1593,17 @@ def office_users(request):
     
     user_office = profile.office
     if not user_office:
-        messages.error(request, "Your office information is not set. Please contact an administrator.")
-        return redirect('office_dashboard')
+        # If office not set, show all students (for debugging)
+        office_users = User.objects.filter(is_staff=False, is_superuser=False).exclude(id=request.user.id).select_related('userprofile')
+        office_name = 'All Departments'
+    else:
+        office_users = User.objects.filter(
+            userprofile__office=user_office
+        ).exclude(id=request.user.id).select_related('userprofile')
+        office_name = user_office
     
     # Get search query
     search_query = request.GET.get('search', '').strip()
-    
-    # Get users in the same office (excluding the current user)
-    office_users = User.objects.filter(
-        userprofile__office=user_office
-    ).exclude(id=request.user.id).select_related('userprofile')
     
     # Apply search filter if query exists
     if search_query:

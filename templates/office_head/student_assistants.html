@@ -53,22 +53,22 @@
           </tr>
         </thead>
         <tbody>
-          {% for student in students %}
+          {% for user_data in users_data %}
           <tr>
-            <td style="font-weight: 500;">{{ student.get_full_name|default:student.username }}</td>
-            <td>{{ student.userprofile.id_number|default:"N/A" }}</td>
-            <td>{{ student.userprofile.office|default:"N/A" }}</td>
+            <td style="font-weight: 500;">{{ user_data.user.get_full_name|default:user_data.user.username }}</td>
+            <td>{{ user_data.profile.id_number|default:"N/A" }}</td>
+            <td>{{ user_data.profile.office|default:"N/A" }}</td>
             <td>
-              {% if student.is_active %}
+              {% if user_data.user.is_active %}
               <span class="badge success">Active</span>
               {% else %}
               <span class="badge danger">Inactive</span>
               {% endif %}
             </td>
-            <td>{{ student.userprofile.hours_rendered|default:"0" }}h / {{ student.userprofile.required_hours|default:"0" }}h</td>
-            <td style="font-size: 13px; color: var(--gray-600);">{{ student.email|default:"N/A" }}</td>
+            <td>{{ user_data.total_hours_rendered|default:"0" }}h / {{ user_data.required_hours|default:"0" }}h</td>
+            <td style="font-size: 13px; color: var(--gray-600);">{{ user_data.user.email|default:"N/A" }}</td>
             <td class="text-right">
-              <a href="{% url 'user_dtr_details' student.id %}" class="btn btn-sm btn-outline">View</a>
+              <a href="{% url 'user_dtr_details' user_data.user.id %}" class="btn btn-sm btn-outline">View</a>
             </td>
           </tr>
           {% empty %}
