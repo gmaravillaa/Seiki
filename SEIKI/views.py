@@ -353,7 +353,7 @@ def office_dtr_submissions(request):
         messages.error(request, "Your office information is not set. Please contact an administrator.")
         return redirect('office_dashboard')
     
-    # TEMPORARY DEBUG: Show all submissions regardless of office
+    # TEMPORARY DEBUG: Show all submissions without any filtering
     base_submissions = DTRSubmission.objects.select_related('user', 'user__userprofile').order_by('-submitted_date')
     
     # Filter values for the template
@@ -361,23 +361,8 @@ def office_dtr_submissions(request):
     search_query = request.GET.get('search', '')
     month_filter = request.GET.get('month', '')
 
+    # TEMPORARY: No filtering applied
     submissions = base_submissions
-    if status_filter:
-        submissions = submissions.filter(status=status_filter)
-
-    if search_query:
-        submissions = submissions.filter(
-            Q(user__first_name__icontains=search_query) |
-            Q(user__last_name__icontains=search_query) |
-            Q(user__userprofile__id_number__icontains=search_query)
-        )
-
-    if month_filter:
-        try:
-            year, month = month_filter.split('-')
-            submissions = submissions.filter(year=int(year), month=int(month))
-        except ValueError:
-            pass
 
     # TEMPORARY: Count all pending submissions
     pending_count = base_submissions.filter(status='pending').count()
