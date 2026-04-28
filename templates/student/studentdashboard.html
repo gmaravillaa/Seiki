@@ -272,7 +272,7 @@
                       <td>
                         {% for record in records %}
                           {% if record.record_type == "out" and record.duration %}
-                            <span class="hours-value">{{ record.duration.total_seconds|div:3600|floatformat:1 }} hrs</span>
+                            <span class="hours-value">{{ record.hours_display }}</span>
                           {% endif %}
                         {% endfor %}
                       </td>

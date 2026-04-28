@@ -323,12 +323,20 @@ def student_dashboard(request):
     recent_records = time_records[:10]  # Last 10 records
     
     # Group recent records by date for display
-    from datetime import date as date_type
     recent_logs = {}
     for record in recent_records:
         record_date = record.timestamp.date()
         if record_date not in recent_logs:
             recent_logs[record_date] = []
+        
+        # Calculate hours for this record if it's an 'out' record with duration
+        hours_display = ""
+        if record.record_type == "out" and record.duration:
+            hours = round(record.duration.total_seconds() / 3600, 1)
+            hours_display = f"{hours} hrs"
+        
+        # Add hours_display to the record for template use
+        record.hours_display = hours_display
         recent_logs[record_date].append(record)
     
     # Calculate progress percentage
