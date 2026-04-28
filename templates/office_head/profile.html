@@ -1,0 +1,84 @@
+{% extends 'office_head/base.html' %}
+
+{% block title %}Profile - Office Head Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Profile</h1>
+    <p class="page-description">View your account information</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Profile Info -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Account Information</h2>
+    </div>
+    <div class="card-content">
+      <div class="info-row">
+        <span class="info-label">Username</span>
+        <span class="info-value">{{ request.user.username }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Full Name</span>
+        <span class="info-value">{{ request.user.get_full_name|default:"Not set" }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">{{ request.user.email|default:"Not set" }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Office</span>
+        <span class="info-value">{{ office_name|default:"Not assigned" }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Role</span>
+        <span class="info-value">Office Head</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Office Stats -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Office Overview</h2>
+    </div>
+    <div class="card-content">
+      <div class="info-row">
+        <span class="info-label">Total Students</span>
+        <span class="info-value">{{ total_students }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Pending DTRs</span>
+        <span class="info-value">{{ pending_dtrs }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Today's Attendance</span>
+        <span class="info-value">{{ today_attendance }}%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+.info-row:last-child {
+  border-bottom: none;
+}
+.info-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+.info-value {
+  font-weight: 600;
+  color: #111827;
+}
+</style>
+{% endblock %}

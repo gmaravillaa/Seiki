@@ -100,6 +100,7 @@ def dtr_approvals(request):
     return render(request, 'office_head/dtr-approvals.html', context)
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def admin_dashboard(request):
     total_students = User.objects.filter(is_staff=False, is_superuser=False).count()
     active_offices = UserProfile.objects.values('office').distinct().count()
@@ -466,6 +467,7 @@ def export_report(request):
 
 
 @login_required
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def student_dashboard(request):
     """Student Dashboard with dynamic data from database"""
     user = request.user
@@ -572,6 +574,7 @@ def student_dashboard(request):
     return render(request, 'student/studentdashboard.html', context)
 
 @login_required
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def student_logs(request):
     """Student Assistant Time Logs"""
     user = request.user
@@ -592,6 +595,7 @@ def student_logs(request):
     return render(request, 'student/studentlogs.html', context)
 
 @login_required
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def student_submit_dtr(request):
     """Student Assistant Submit DTR"""
     from datetime import datetime
@@ -728,6 +732,7 @@ def user_progress(request):
     return render(request, 'caao_admin/user_progress.html')
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def user_management(request):
     return render(request, 'caao_admin/user_management.html')
 
@@ -766,11 +771,41 @@ def profile(request):
     return render(request, 'core/profile.html', context)
 
 @login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
+def office_head_profile(request):
+    """Office Head Profile View"""
+    try:
+        profile = request.user.userprofile
+    except (UserProfile.DoesNotExist, AttributeError):
+        profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={'office': '', 'required_hours': 0})
+    
+    office = profile.office
+    
+    # Get office stats
+    total_students = UserProfile.objects.filter(office=office).exclude(user__is_staff=True).count() if office else 0
+    pending_dtrs = DTRSubmission.objects.filter(
+        user__userprofile__office=office, 
+        status='pending'
+    ).count() if office else 0
+    
+    # Today's attendance
+    today_count = TimeRecord.objects.filter(
+        user__userprofile__office=office,
+        timestamp__date=date.today()
+    ).values('user').distinct().count() if office else 0
+    today_attendance = round((today_count / total_students) * 100, 0) if total_students > 0 else 0
+    
+    context = {
+        'office_name': office,
+        'total_students': total_students,
+        'pending_dtrs': pending_dtrs,
+        'today_attendance': int(today_attendance),
+    }
+    return render(request, 'office_head/profile.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def dtr_records(request):
-    # Only allow staff and superusers to access this page
-    if not (request.user.is_staff or request.user.is_superuser):
-        from django.http import HttpResponseForbidden
-        return HttpResponseForbidden("Access denied. This page is only for staff members.")
 
     # Get filters from the HTML form
     status_filter = request.GET.get('status', '')
@@ -1947,18 +1982,72 @@ def time_correction_user(request, user_id):
 
 @login_required(login_url='login')
 def chat(request):
-    """Main chat view"""
-    # Get all users for the user list (excluding current user)
-    users = User.objects.exclude(id=request.user.id).order_by('username')
+    """Main chat view - Private conversations only"""
+    # Get selected user for conversation
+    selected_user_id = request.GET.get('user')
+    selected_user = None
+    conversation_messages = []
     
-    # Get recent messages (global messages only for initial load)
-    recent_messages = ChatMessage.objects.filter(
-        Q(recipient__isnull=True)  # Global messages
-    ).order_by('-timestamp')[:50]  # Last 50 messages
+    if selected_user_id:
+        try:
+            selected_user = User.objects.get(id=selected_user_id)
+            # Get conversation between current user and selected user
+            conversation_messages = ChatMessage.objects.filter(
+                (Q(sender=request.user, recipient=selected_user) | 
+                 Q(sender=selected_user, recipient=request.user))
+            ).order_by('timestamp')[:100]
+        except User.DoesNotExist:
+            selected_user = None
+    
+    # Get users the current user has chatted with + all available users
+    # Get IDs of users who have sent messages to current user or received from current user
+    chatted_user_ids = ChatMessage.objects.filter(
+        Q(sender=request.user) | Q(recipient=request.user)
+    ).exclude(
+        Q(sender=request.user, recipient__isnull=True)  # Exclude global messages
+    ).values_list('sender', 'recipient')
+    
+    # Flatten and get unique user IDs (excluding current user and None)
+    unique_user_ids = set()
+    for sender_id, recipient_id in chatted_user_ids:
+        if sender_id and sender_id != request.user.id:
+            unique_user_ids.add(sender_id)
+        if recipient_id and recipient_id != request.user.id:
+            unique_user_ids.add(recipient_id)
+    
+    # Get all users excluding current user (for starting new conversations)
+    all_users = User.objects.exclude(id=request.user.id).order_by('username')
+    
+    # Get users with unread message counts
+    users_with_unread = []
+    for user in all_users:
+        unread_count = ChatMessage.objects.filter(
+            sender=user,
+            recipient=request.user,
+            is_read=False
+        ).count()
+        
+        # Check if this user has chatted with current user
+        has_chatted = user.id in unique_user_ids
+        
+        users_with_unread.append({
+            'user': user,
+            'unread_count': unread_count,
+            'has_chatted': has_chatted
+        })
+    
+    # Mark messages from selected user as read
+    if selected_user:
+        ChatMessage.objects.filter(
+            sender=selected_user,
+            recipient=request.user,
+            is_read=False
+        ).update(is_read=True)
     
     context = {
-        'users': users,
-        'recent_messages': recent_messages[::-1],  # Reverse to show oldest first
+        'users_with_unread': users_with_unread,
+        'selected_user': selected_user,
+        'conversation_messages': conversation_messages,
     }
     
     return render(request, 'core/chat.html', context)
@@ -1966,7 +2055,7 @@ def chat(request):
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def send_message(request):
-    """Send a chat message"""
+    """Send a private chat message - requires recipient"""
     try:
         message_text = request.POST.get('message', '').strip()
         recipient_id = request.POST.get('recipient_id')
@@ -1974,14 +2063,19 @@ def send_message(request):
         if not message_text:
             return JsonResponse({'success': False, 'error': 'Message cannot be empty'})
         
-        recipient = None
-        if recipient_id:
-            try:
-                recipient = User.objects.get(id=recipient_id)
-            except User.DoesNotExist:
-                return JsonResponse({'success': False, 'error': 'Recipient not found'})
+        if not recipient_id:
+            return JsonResponse({'success': False, 'error': 'Recipient is required for private messages'})
         
-        # Create the message
+        try:
+            recipient = User.objects.get(id=recipient_id)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Recipient not found'})
+        
+        # Prevent messaging yourself
+        if recipient == request.user:
+            return JsonResponse({'success': False, 'error': 'Cannot send message to yourself'})
+        
+        # Create the private message
         chat_message = ChatMessage.objects.create(
             sender=request.user,
             recipient=recipient,
@@ -1993,7 +2087,9 @@ def send_message(request):
             'message_id': chat_message.id,
             'timestamp': chat_message.timestamp.strftime('%H:%M'),
             'sender': chat_message.sender.username,
-            'recipient': chat_message.recipient.username if chat_message.recipient else None
+            'sender_id': chat_message.sender.id,
+            'recipient': chat_message.recipient.username,
+            'recipient_id': chat_message.recipient.id
         })
         
     except Exception as e:
@@ -2001,24 +2097,21 @@ def send_message(request):
 
 @login_required(login_url='login')
 def get_messages(request):
-    """Get new messages via AJAX"""
+    """Get new private messages via AJAX - requires recipient_id"""
     last_message_id = request.GET.get('last_id', 0)
     recipient_id = request.GET.get('recipient_id')
     
-    if recipient_id:
-        # Private chat with this user
-        try:
-            recipient = User.objects.get(id=recipient_id)
-            new_messages = ChatMessage.objects.filter(
-                (Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user))
-            ).filter(id__gt=last_message_id).order_by('timestamp')
-        except User.DoesNotExist:
-            return JsonResponse({'messages': []})
-    else:
-        # Global chat
+    if not recipient_id:
+        return JsonResponse({'messages': [], 'error': 'Recipient required'})
+    
+    try:
+        recipient = User.objects.get(id=recipient_id)
+        # Get only messages between current user and recipient
         new_messages = ChatMessage.objects.filter(
-            Q(recipient__isnull=True)
+            (Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user))
         ).filter(id__gt=last_message_id).order_by('timestamp')
+    except User.DoesNotExist:
+        return JsonResponse({'messages': []})
     
     messages_data = []
     for msg in new_messages:

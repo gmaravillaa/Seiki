@@ -102,6 +102,8 @@ urlpatterns = [
 
     path('export-report/', views.export_report, name='export_report'),
 
+    path('office-head-profile/', views.office_head_profile, name='office_head_profile'),
+
     path('dtr-approvals/', views.dtr_approvals, name='dtr_approvals'),
 
 

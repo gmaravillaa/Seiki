@@ -310,7 +310,13 @@
   <header class="header">
     <div class="header-content">
       <h1 class="header-title">Chat</h1>
+      {% if request.user.is_superuser %}
       <a href="{% url 'admin_dashboard' %}" class="back-button">Back to Dashboard</a>
+      {% elif request.user.is_staff %}
+      <a href="{% url 'office_dashboard' %}" class="back-button">Back to Dashboard</a>
+      {% else %}
+      <a href="{% url 'student_dashboard' %}" class="back-button">Back to Dashboard</a>
+      {% endif %}
     </div>
   </header>
 
