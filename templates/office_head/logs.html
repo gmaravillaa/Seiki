@@ -1,0 +1,117 @@
+{% extends 'office_head/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Logs - Office Head Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Time Logs</h1>
+    <p class="page-description">View and manage time in/out records</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 24px;">
+  <div class="card-content">
+    <form method="get" class="filters">
+      <div class="filter-group">
+        <input type="search" name="search" value="{{ search_query }}" placeholder="Search by student name..." style="width: 300px;">
+      </div>
+      <div class="filter-group">
+        <label style="font-size: 14px; color: var(--gray-600); margin-right: 8px;">From:</label>
+        <input type="date" name="date_from" value="{{ date_from }}" style="width: 160px;">
+      </div>
+      <div class="filter-group">
+        <label style="font-size: 14px; color: var(--gray-600); margin-right: 8px;">To:</label>
+        <input type="date" name="date_to" value="{{ date_to }}" style="width: 160px;">
+      </div>
+      <div class="filter-group">
+        <select name="status">
+          <option value="">All Status</option>
+          <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
+          <option value="incomplete" {% if status_filter == 'incomplete' %}selected{% endif %}>Incomplete</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Filter</button>
+      <a href="{% url 'office_logs' %}" class="btn btn-outline">Clear</a>
+    </form>
+  </div>
+</div>
+
+<!-- Logs Table -->
+<div class="card">
+  <div class="card-content">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Student Name</th>
+            <th>Student ID</th>
+            <th>Time In</th>
+            <th>Time Out</th>
+            <th>Total Hours</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.timestamp|date:"M j, Y" }}</td>
+            <td style="font-weight: 500;">{{ log.user.get_full_name|default:log.user.username }}</td>
+            <td>{{ log.user.userprofile.id_number|default:"N/A" }}</td>
+            <td>{{ log.timestamp|time:"h:i A" }}</td>
+            <td>{{ log.time_out|time:"h:i A"|default:"-" }}</td>
+            <td>
+              {% if log.duration %}
+                {{ log.duration }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if log.time_out %}
+              <span class="badge success">Complete</span>
+              {% else %}
+              <span class="badge warning">In Progress</span>
+              {% endif %}
+            </td>
+            <td class="text-right">
+              <a href="{% url 'user_dtr_details' log.user.id %}" class="btn btn-sm btn-outline">View</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center" style="padding: 48px; color: var(--gray-500);">
+              <div class="empty-state">
+                <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p>No time logs found</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div style="margin-top: 24px; display: flex; justify-content: center;">
+      <div style="display: flex; gap: 8px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="btn btn-outline">Previous</a>
+        {% endif %}
+        <span style="padding: 8px 16px; color: var(--gray-600);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="btn btn-outline">Next</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

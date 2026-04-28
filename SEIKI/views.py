@@ -174,17 +174,37 @@ def student_progress_json(request, user_id):
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_dashboard(request):
     """Refined Dashboard for Office Heads aligned with System Logic"""
+    # Get or create profile for office heads - they MUST have a profile
     try:
-        # Get the profile and office in one query to prevent errors
         profile = request.user.userprofile
-        office = profile.office
     except (UserProfile.DoesNotExist, AttributeError):
-        messages.error(request, "Your profile information is incomplete.")
-        return redirect('profile')
+        # Create profile with empty office - validation happens at form level, not here
+        profile, created = UserProfile.objects.get_or_create(
+            user=request.user,
+            defaults={'office': '', 'required_hours': 0}
+        )
     
+    office = profile.office
+    
+    # Office heads MUST have an office assigned - this is a data integrity requirement
     if not office:
-        messages.error(request, "Your office information is not set.")
-        return redirect('profile')
+        messages.error(request, "Your office information is not set. Please contact an administrator to assign you to an office.")
+        # Log the error for administrators to fix
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Office head user '{request.user.username}' (ID: {request.user.id}) has no office assigned. This is a data integrity issue.")
+        # Do not redirect to profile - office heads should never see student profile
+        # Instead, render an error page or show a message on the dashboard
+        return render(request, 'office_head/dashboard.html', {
+            'office_name': None,
+            'error_message': 'No office assigned. Please contact an administrator.',
+            'total_students': 0,
+            'total_hours': 0,
+            'pending_dtrs': 0,
+            'today_attendance': 0,
+            'recent_students': [],
+            'recent_logs': [],
+        })
 
     # 1. Dashboard Stats
     # Total students in this office
@@ -242,16 +262,20 @@ def office_dashboard(request):
         'recent_logs': recent_logs,
     }
     
-    return render(request, 'office_head/office-dashboard.html', context)
+    return render(request, 'office_head/dashboard.html', context)
 @login_required
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_student_assistants(request):
     """View list of all SAs in the department"""
     try:
-        office = request.user.userprofile.office
+        profile = request.user.userprofile
     except (UserProfile.DoesNotExist, AttributeError):
-        messages.error(request, "Your profile information is incomplete.")
-        return redirect('profile')
+        profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={'office': '', 'required_hours': 0})
+    
+    office = profile.office
+    if not office:
+        messages.error(request, "Your office information is not set. Please contact an administrator.")
+        return redirect('office_dashboard')
     
     search_query = request.GET.get('search', '')
     
@@ -267,7 +291,7 @@ def office_student_assistants(request):
             Q(userprofile__id_number__icontains=search_query)
         )
 
-    return render(request, 'office_head/office_users.html', {
+    return render(request, 'office_head/student_assistants.html', {
         'students': students,
         'office_name': office,
     })
@@ -277,16 +301,20 @@ def office_student_assistants(request):
 def office_logs(request):
     """Detailed logs for the office head to monitor attendance"""
     try:
-        office = request.user.userprofile.office
+        profile = request.user.userprofile
     except (UserProfile.DoesNotExist, AttributeError):
-        messages.error(request, "Your profile information is incomplete.")
-        return redirect('profile')
+        profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={'office': '', 'required_hours': 0})
+    
+    office = profile.office
+    if not office:
+        messages.error(request, "Your office information is not set. Please contact an administrator.")
+        return redirect('office_dashboard')
     
     logs = TimeRecord.objects.filter(
         user__userprofile__office=office
     ).order_by('-timestamp')
     
-    return render(request, 'office_head/officeheadlogs.html', {
+    return render(request, 'office_head/logs.html', {
         'logs': logs,
         'office_name': office,
     })
@@ -296,16 +324,20 @@ def office_logs(request):
 def office_dtr_submissions(request):
     """View all DTR submissions for the department"""
     try:
-        office = request.user.userprofile.office
+        profile = request.user.userprofile
     except (UserProfile.DoesNotExist, AttributeError):
-        messages.error(request, "Your profile information is incomplete.")
-        return redirect('profile')
+        profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={'office': '', 'required_hours': 0})
+    
+    office = profile.office
+    if not office:
+        messages.error(request, "Your office information is not set. Please contact an administrator.")
+        return redirect('office_dashboard')
     
     submissions = DTRSubmission.objects.filter(
         user__userprofile__office=office
     ).order_by('-submitted_date')
     
-    return render(request, 'office_head/officeheaddtrsubmission.html', {
+    return render(request, 'office_head/dtr_submissions.html', {
         'submissions': submissions,
         'office_name': office,
     })
@@ -314,8 +346,123 @@ def office_dtr_submissions(request):
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_reports(request):
     """Departmental analytics and hour breakdowns"""
-    # Logic for rendering officeheadreport.html
-    return render(request, 'office_head/officeheadreport.html')
+    # Logic for rendering reports.html
+    return render(request, 'office_head/reports.html')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
+def export_report(request):
+    """Export office reports as CSV"""
+    import csv
+    from datetime import datetime
+    from django.http import HttpResponse
+    
+    report_type = request.GET.get('report_type', 'attendance')
+    
+    # Get user's office
+    try:
+        profile = request.user.userprofile
+    except (UserProfile.DoesNotExist, AttributeError):
+        profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={'office': '', 'required_hours': 0})
+    
+    office = profile.office
+    if not office:
+        messages.error(request, "Your office information is not set.")
+        return redirect('office_dashboard')
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{report_type}_report_{datetime.now().strftime("%Y%m%d")}.csv"'
+    
+    writer = csv.writer(response)
+    
+    if report_type == 'attendance':
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        
+        writer.writerow(['Attendance Report', f'From: {date_from} To: {date_to}'])
+        writer.writerow([])
+        writer.writerow(['Student Name', 'Date', 'Time In', 'Time Out', 'Duration'])
+        
+        # Query attendance data
+        records = TimeRecord.objects.filter(
+            user__userprofile__office=office,
+            timestamp__date__gte=date_from,
+            timestamp__date__lte=date_to
+        ).select_related('user').order_by('user__username', 'timestamp')
+        
+        for record in records:
+            writer.writerow([
+                record.user.get_full_name() or record.user.username,
+                record.timestamp.date(),
+                record.timestamp.time() if record.record_type == 'in' else '',
+                record.timestamp.time() if record.record_type == 'out' else '',
+                str(record.duration) if record.duration else ''
+            ])
+    
+    elif report_type == 'hours':
+        month = request.GET.get('month')  # Format: YYYY-MM
+        
+        writer.writerow(['Hours Summary Report', f'Month: {month}'])
+        writer.writerow([])
+        writer.writerow(['Student Name', 'ID Number', 'Total Hours', 'Required Hours', 'Remaining'])
+        
+        # Get students in office
+        students = User.objects.filter(
+            userprofile__office=office,
+            is_staff=False
+        ).select_related('userprofile')
+        
+        for student in students:
+            # Calculate total hours for the month
+            records = TimeRecord.objects.filter(
+                user=student,
+                record_type='out',
+                duration__isnull=False,
+                timestamp__year=int(month[:4]),
+                timestamp__month=int(month[5:7])
+            )
+            
+            total_seconds = sum([r.duration.total_seconds() for r in records if r.duration])
+            total_hours = round(total_seconds / 3600, 2)
+            required = student.userprofile.required_hours if hasattr(student, 'userprofile') else 80.0
+            remaining = max(0, float(required) - total_hours)
+            
+            writer.writerow([
+                student.get_full_name() or student.username,
+                student.userprofile.id_number if hasattr(student, 'userprofile') else '',
+                total_hours,
+                required,
+                remaining
+            ])
+    
+    elif report_type == 'dtr_summary':
+        month = request.GET.get('month')  # Format: YYYY-MM
+        year = int(month[:4])
+        month_num = int(month[5:7])
+        
+        writer.writerow(['DTR Summary Report', f'Month: {month}'])
+        writer.writerow([])
+        writer.writerow(['Student Name', 'Status', 'Submitted Date', 'Total Hours', 'Approver'])
+        
+        # Get DTR submissions for the office
+        submissions = DTRSubmission.objects.filter(
+            user__userprofile__office=office,
+            month=month_num,
+            year=year
+        ).select_related('user', 'approver')
+        
+        for submission in submissions:
+            writer.writerow([
+                submission.user.get_full_name() or submission.user.username,
+                submission.get_status_display(),
+                submission.submitted_date.strftime('%Y-%m-%d') if submission.submitted_date else '',
+                submission.total_hours,
+                submission.approver.get_full_name() if submission.approver else 'N/A'
+            ])
+    
+    return response
 
 
 @login_required
@@ -773,7 +920,7 @@ def qr(request):
 @login_required(login_url='login')
 def scanner(request):
     if not request.user.is_staff:
-        return redirect('profile')
+        return redirect('dashboard_redirect')
     return render(request, 'office_head/scanner.html')
 
 @csrf_exempt
@@ -991,6 +1138,12 @@ def user_management(request):
             users = User.objects.all().select_related('userprofile').order_by('username')
             return render(request, 'caao_admin/user_management.html', {'users': users})
         
+        # Validate office_head has an office selected
+        if role == 'office_head' and not office:
+            messages.error(request, 'Office Head users must have an office assigned!')
+            users = User.objects.all().select_related('userprofile').order_by('username')
+            return render(request, 'caao_admin/user_management.html', {'users': users})
+        
         try:
             # Create user
             user = User.objects.create_user(
@@ -1003,14 +1156,26 @@ def user_management(request):
                 is_superuser=is_superuser
             )
             
+            # Set appropriate defaults based on role
+            if role == 'office_head':
+                # Office heads don't need id_number or required_hours
+                profile_defaults = {
+                    'office': office,
+                    'id_number': '',
+                    'required_hours': 0
+                }
+            else:
+                # Students need all fields
+                profile_defaults = {
+                    'office': office,
+                    'id_number': id_number,
+                    'required_hours': required_hours or 80.0
+                }
+            
             # Update or create user profile with the provided data
             UserProfile.objects.update_or_create(
                 user=user,
-                defaults={
-                    'office': office,
-                    'id_number': id_number,
-                    'required_hours': required_hours
-                }
+                defaults=profile_defaults
             )
             
             messages.success(request, f'User {user.username} created successfully!')
@@ -1301,20 +1466,21 @@ def user_dtr_details(request, user_id):
 
 #office head
 @login_required(login_url='login')
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.office and not u.is_superuser, login_url='login')
+@user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_users(request):
     """Office users page for office heads to view users in their office"""
     from django.core.paginator import Paginator
     
-    # Get current user's office
+    # Get current user's office - create profile if missing
     try:
-        user_office = request.user.userprofile.office
-        if not user_office:
-            messages.error(request, "Your office information is not set. Please contact an administrator.")
-            return redirect('profile')
+        profile = request.user.userprofile
     except (UserProfile.DoesNotExist, AttributeError):
-        messages.error(request, "Your profile information is not complete. Please contact an administrator.")
-        return redirect('profile')
+        profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={'office': '', 'required_hours': 0})
+    
+    user_office = profile.office
+    if not user_office:
+        messages.error(request, "Your office information is not set. Please contact an administrator.")
+        return redirect('office_dashboard')
     
     # Get search query
     search_query = request.GET.get('search', '').strip()
@@ -1386,7 +1552,7 @@ def office_users(request):
         'total_office_users': office_users.count(),
     }
     
-    return render(request, 'office_head/office_users.html', context)
+    return render(request, 'office_head/student_assistants.html', context)
 
 @login_required(login_url='login')
 def monthly_dtr(request):

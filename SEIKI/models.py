@@ -1,12 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     office = models.CharField(max_length=100, blank=True)
     id_number = models.CharField(max_length=50, blank=True, null=True)
     required_hours = models.DecimalField(max_digits=5, decimal_places=2, default=80.0, help_text="Total hours needed to render")  # total hours required
+    
+    def clean(self):
+        """
+        Validate that office head users (is_staff=True, is_superuser=False)
+        have an office assigned.
+        """
+        super().clean()
+        if self.user.is_staff and not self.user.is_superuser:
+            if not self.office:
+                raise ValidationError({
+                    'office': 'Office Head users must have an office assigned.'
+                })
+    
+    def save(self, *args, **kwargs):
+        # Note: Validation is handled in clean() for forms/admin
+        # We don't call full_clean() here to allow temporary invalid states
+        # during automated profile creation
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.user.username} - {self.office}"
