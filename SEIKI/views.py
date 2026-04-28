@@ -27,7 +27,7 @@ def dashboard_redirect(request):
         return redirect('office_dashboard')
 
     else:
-        return redirect('user_dashboard')
+        return redirect('student_dashboard')
     
 def logout_view(request):
     logout(request)
