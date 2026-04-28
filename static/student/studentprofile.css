@@ -251,6 +251,7 @@
 
 .progress-value {
   font-weight: 700;
+  color: white;
 }
 
 .progress-bar-container {
@@ -293,6 +294,7 @@
 
 .progress-detail-value {
   font-weight: 700;
+  color: white;
 }
 
 .achievements-card {
