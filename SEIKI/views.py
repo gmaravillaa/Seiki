@@ -722,10 +722,7 @@ def student_profile_page(request):
         'approved_dtr_count': approved_dtr_count,
     }
     return render(request, 'student/studentprofile.html', context)
-    
-@login_required
-def_user_progress(request):
-    return render(request, 'caao_admin/user_progress.html')
+
 def user_progress_json(request, user_id):
 
     user = User.objects.select_related('userprofile').get(id=user_id)
@@ -941,7 +938,7 @@ def dashboard(request):
     
     dtr_submission = DTRSubmission.objects.filter(
         user=request.user,
-        month=current_month,f
+        month=current_month,
         year=current_year
     ).first()
     
@@ -1128,7 +1125,7 @@ def accept_dtr(request, dtr_id):
     dtr.save()
     return redirect("dtr_acceptance")
 
-def_user_progress_data(request):
+def user_progress_data(request):
     students = User.objects.filter(is_staff=False, is_superuser=False)
 
     data = []
@@ -1299,7 +1296,7 @@ def delete_user(request, user_id):
     return redirect('user_management')
 
 @user_passes_test(lambda u: u.is_superuser)
-def_user_progress(request):
+def user_progress(request):
     """User progress page for superusers to view detailed user information and work progress"""
     from django.core.paginator import Paginator
     

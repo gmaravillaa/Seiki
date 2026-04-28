@@ -237,10 +237,6 @@ urlpatterns = [
 
     path('api/record-time/', views.record_time, name='record_time'),
 
-    path('user-progress/', views.user_progress, name='user_progress'),
-
-    path('user-progress/<int:user_id>/json/', views.student_progress_json, name='student_progress_json'),
-
     path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),
 
     path("dtr/accept/<int:dtr_id>/", views.accept_dtr, name="accept_dtr"),
