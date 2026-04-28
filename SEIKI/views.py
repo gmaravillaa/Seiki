@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
@@ -12,11 +12,8 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db import models
-from django.db.models import Count, Sum, Q  # Combined all models.db imports
-from .models import DTRSubmission, TimeRecord
-
+from django.db.models import Count, Sum, Q
 from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
-from django.contrib.auth import logout
 
 
 def get_user_office(user):
@@ -95,28 +92,6 @@ def logout_view(request):
     # Redirecting to 'login' here bypasses the "next" logic 
     # because the login page itself isn't protected by @login_required
     return redirect('login')  
-    
-@login_required
-def dtr_approvals(request):
-    office = request.user.userprofile.office
-    
-    # Get filters from the HTML form
-    status_filter = request.GET.get('status', 'pending')
-    search_query = request.GET.get('search', '')
-
-    # Filter submissions for THIS office only
-    submissions = DTRSubmission.objects.filter(user__userprofile__office=office)
-    
-    if status_filter:
-        submissions = submissions.filter(status=status_filter)
-    
-    context = {
-        'office_name': office,
-        'dtr_submissions': submissions,
-        'status_filter': status_filter,
-        'search_query': search_query,
-    }
-    return render(request, 'office_head/dtr-approvals.html', context)
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser, login_url='login')
@@ -164,15 +139,20 @@ def admin_dashboard(request):
     return render(request, 'caao_admin/admindashboard.html', context)
 
 
-
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def student_progress_json(request, user_id):
-    user = User.objects.get(id=user_id)
+    """JSON endpoint for student progress data"""
+    try:
+        user = User.objects.select_related('userprofile').get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
 
     total = TimeRecord.objects.filter(
         user=user,
         record_type='out',
         duration__isnull=False
-    ).aggregate(total=models.Sum('duration'))['total']
+    ).aggregate(total=Sum('duration'))['total']
 
     try:
         hours = round(total.total_seconds()/3600, 2) if total else 0
@@ -681,6 +661,7 @@ def student_submit_dtr(request):
     return render(request, 'student/studentsubmitdtr.html', context)
 
 @login_required
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def student_qr_code(request):
     """Student Assistant Availability Schedule - QR Code"""
     user = request.user
@@ -698,6 +679,7 @@ def student_qr_code(request):
     return render(request, 'student/studentqrcode.html')
 
 @login_required
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def student_profile_page(request):
     """Student Assistant Profile Page"""
     user = request.user
@@ -802,15 +784,13 @@ def user_progress_json(request, user_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser, login_url='login')
-def user_management(request):
-    return render(request, 'caao_admin/user_management.html')
-
-@login_required
 def student_assistants(request):
     return render(request, 'caao_admin/student_assistants.html')
 
 @login_required
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def profile(request):
+    """Generic profile view for students"""
     try:
         user_profile = request.user.userprofile
     except UserProfile.DoesNotExist:
@@ -932,7 +912,9 @@ def index(request):
     return render(request, 'core/index.html')
 
 @login_required(login_url='login')
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def notification(request):
+    """Notification view for students"""
     total_duration = TimeRecord.objects.filter(
         user=request.user,
         record_type='out',
@@ -967,8 +949,9 @@ def notification(request):
     return render(request, 'core/notification.html', context)
 
 @login_required(login_url='login')
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def dashboard(request):
-    """Dashboard/home page for students/users"""
+    """Dashboard/home page for students"""
     
     today = date.today()
     current_time = timezone.now()
@@ -1089,7 +1072,9 @@ def record_time(request):
     })
 
 @login_required(login_url='login')
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def logs(request):
+    """Logs view for students"""
     # Get all time records for the current user
     time_records = TimeRecord.objects.filter(
         user=request.user
@@ -1151,6 +1136,8 @@ def logs(request):
     
     return render(request, 'core/logs.html', {'logs_data': logs_data})
 
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
 def dtr_acceptance(request):
     search = request.GET.get("search", "")
     status = request.GET.get("status", "")
@@ -1172,12 +1159,26 @@ def dtr_acceptance(request):
         "search_query": search
     })
 
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
+@require_http_methods(["POST"])
 def accept_dtr(request, dtr_id):
-    dtr = DTRSubmission.objects.get(id=dtr_id)
-    dtr.status = "accepted"
-    dtr.save()
+    try:
+        dtr = DTRSubmission.objects.get(id=dtr_id)
+        # Check office head can only accept from their office
+        if request.user.is_staff and not request.user.is_superuser:
+            if not user_in_same_office(request.user, dtr.user):
+                messages.error(request, "You can only accept DTRs from your office.")
+                return redirect("dtr_acceptance")
+        dtr.status = "accepted"
+        dtr.save()
+        messages.success(request, f"DTR for {dtr.user.username} accepted successfully.")
+    except DTRSubmission.DoesNotExist:
+        messages.error(request, "DTR submission not found.")
     return redirect("dtr_acceptance")
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def user_progress_data(request):
     students = User.objects.filter(is_staff=False, is_superuser=False)
 
@@ -1435,6 +1436,8 @@ def user_progress(request):
     
     return render(request, 'caao_admin/user_progress.html', context)
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def student_assistant_progress(request):
     search = request.GET.get('search', '')
     status_filter = request.GET.get('status', 'all')
@@ -1493,6 +1496,8 @@ def student_assistant_progress(request):
     })
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def export_students(request):
     students = User.objects.filter(is_staff=False, is_superuser=False)
 
@@ -1526,7 +1531,8 @@ def export_students(request):
 
     return response
 
-@user_passes_test(lambda u: u.is_superuser)
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def user_dtr_details(request, user_id):
     """View all DTR submissions for a specific user"""
     try:
@@ -1660,6 +1666,7 @@ def office_users(request):
     return render(request, 'office_head/student_assistants.html', context)
 
 @login_required(login_url='login')
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 def monthly_dtr(request):
     """Display monthly DTR for user before submission"""
     from calendar import monthrange
@@ -1755,6 +1762,7 @@ def format_hours_minutes(decimal_hours):
     return f"{hours}h {minutes}m"
 
 @login_required(login_url='login')
+@user_passes_test(lambda u: not u.is_staff and not u.is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def submit_dtr(request):
     """Submit monthly DTR"""
