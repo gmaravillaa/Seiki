@@ -19,6 +19,48 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.contrib.auth import logout
 
 
+def format_hours_display(hours_value):
+    """Format hours to show minutes for values under one hour."""
+    if hours_value < 1:
+        minutes = round(hours_value * 60)
+        return f"{minutes} min" if minutes > 0 else "0 min"
+    return f"{round(hours_value, 1)} hrs"
+
+
+def get_paired_records(time_records):
+    """Pair time in and time out records into one completed shift row."""
+    pairs = []
+    current_in = None
+
+    for record in time_records:
+        if record.record_type == 'in':
+            current_in = record
+            continue
+
+        if record.record_type == 'out' and current_in is not None:
+            hours_display = ""
+            if record.duration:
+                try:
+                    hours = record.duration.total_seconds() / 3600
+                    hours_display = format_hours_display(hours)
+                except (AttributeError, TypeError):
+                    hours_display = "0 min"
+
+            pairs.append({
+                'date': current_in.timestamp.date(),
+                'day': current_in.timestamp.strftime('%A'),
+                'time_in': current_in.timestamp,
+                'time_out': record.timestamp,
+                'hours_display': hours_display,
+                'time_in_record': current_in,
+                'time_out_record': record,
+            })
+            current_in = None
+
+    pairs.sort(key=lambda pair: pair['time_out'], reverse=True)
+    return pairs
+
+
 def dashboard_redirect(request):
     if request.user.is_superuser:
         return redirect('admin_dashboard')  # Django admin panel
@@ -534,29 +576,18 @@ def student_logs(request):
     """Student Assistant Time Logs"""
     user = request.user
     
-    # Get all time records grouped by date
-    time_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')
+    # Get all time records in chronological order so we can pair in/out scans
+    time_records = TimeRecord.objects.filter(user=user).order_by('timestamp')
+    paired_records = get_paired_records(time_records)
     
-    # Group records by date
-    from datetime import date as date_type
-    from django.db.models.functions import TruncDate
-    
-    daily_records = {}
-    for record in time_records:
-        record_date = record.timestamp.date()
-        if record_date not in daily_records:
-            daily_records[record_date] = {'records': [], 'total_hours': 0}
-        daily_records[record_date]['records'].append(record)
-    
-    # Calculate total hours per day
-    for day, data in daily_records.items():
-        out_records = [r for r in data['records'] if r.record_type == 'out' and r.duration]
-        total_duration = sum([r.duration for r in out_records], timedelta())
-        data['total_hours'] = round(total_duration.total_seconds() / 3600, 2)
-    
+    approved_dtrs = DTRSubmission.objects.filter(user=user, status='approved').count()
+    pending_dtrs = DTRSubmission.objects.filter(user=user, status='pending').count()
+
     context = {
-        'daily_records': daily_records,
-        'total_records': time_records.count(),
+        'paired_records': paired_records,
+        'total_pairs': len(paired_records),
+        'approved_dtrs': approved_dtrs,
+        'pending_dtrs': pending_dtrs,
     }
     return render(request, 'student/studentlogs.html', context)
 
@@ -576,9 +607,10 @@ def student_submit_dtr(request):
         profile.office = ""
     if profile.required_hours is None:
         profile.required_hours = 80.0
-        
+
     current_month = datetime.now().month
     current_year = datetime.now().year
+    month_name = datetime.now().strftime('%B')
     
     # Check if DTR already submitted for this month
     existing_dtr = DTRSubmission.objects.filter(
@@ -604,33 +636,25 @@ def student_submit_dtr(request):
     if total_duration:
         total_hours = round(total_duration.total_seconds() / 3600, 2)
     
-    # Group records by date
+    # Group records by date for daily count and build paired shift records
     daily_logs = {}
     for record in time_records:
         record_date = record.timestamp.date()
-        if record_date not in daily_logs:
-            daily_logs[record_date] = []
-        
-        # Calculate hours display for this record
-        hours_display = ""
-        if record.record_type == "out" and record.duration:
-            try:
-                hours = round(record.duration.total_seconds() / 3600, 1)
-                hours_display = f"{hours} hrs"
-            except (AttributeError, TypeError):
-                hours_display = "0.0 hrs"
-        
-        # Add hours_display to the record for template use
-        record.hours_display = hours_display
-        daily_logs[record_date].append(record)
-    
+        daily_logs.setdefault(record_date, []).append(record)
+
+    monthly_pairs = get_paired_records(time_records)
+    has_time_records = time_records.exists()
+
     context = {
         'current_month': current_month,
         'current_year': current_year,
+        'month_name': month_name,
         'daily_logs': daily_logs,
+        'monthly_pairs': monthly_pairs,
         'total_hours': total_hours,
         'existing_dtr': existing_dtr,
         'time_records': time_records,
+        'has_time_records': has_time_records,
     }
     return render(request, 'student/studentsubmitdtr.html', context)
 
@@ -743,7 +767,48 @@ def profile(request):
 
 @login_required
 def dtr_records(request):
-    return render(request, 'caao_admin/dtr.html')
+    # Only allow staff and superusers to access this page
+    if not (request.user.is_staff or request.user.is_superuser):
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden("Access denied. This page is only for staff members.")
+
+    # Get filters from the HTML form
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+
+    # For superusers and staff, show all DTR submissions from all students
+    dtr_records = DTRSubmission.objects.select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')
+
+    # Apply search filter
+    if search_query:
+        dtr_records = dtr_records.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__userprofile__id_number__icontains=search_query)
+        )
+
+    # Apply status filter
+    if status_filter:
+        if status_filter == 'pending':
+            dtr_records = dtr_records.filter(status='pending')
+        elif status_filter == 'accepted':
+            dtr_records = dtr_records.filter(status='approved')
+        elif status_filter == 'rejected':
+            dtr_records = dtr_records.filter(status='rejected')
+
+    # Calculate counts
+    all_submissions = DTRSubmission.objects.all()
+    pending_count = all_submissions.filter(status='pending').count()
+    accepted_count = all_submissions.filter(status='approved').count()
+
+    context = {
+        'dtr_records': dtr_records,
+        'pending_count': pending_count,
+        'accepted_count': accepted_count,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+    return render(request, 'caao_admin/dtr.html', context)
 
 def index(request):
     if request.method == 'POST':
@@ -1875,6 +1940,7 @@ def time_correction_user(request, user_id):
     context = {
         'selected_user': user,
         'dtr_submissions': dtr_submissions,
+        'is_superuser': request.user.is_superuser,  # Flag for read-only mode
     }
     
     return render(request, 'caao_admin/time_correction.html', context)

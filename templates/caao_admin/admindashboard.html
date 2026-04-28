@@ -1,174 +1,201 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
 
-    <!-- Tailwind -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
 
-    <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary-blue: #003a6c;
+    --accent-light: #e6eef6;
+    --bg-light: #f4f7f9;
+}
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+/* Smooth transition */
+#main {
+    transition: all 0.3s ease;
+}
+body {
+    background-color: var(--bg-light);
+}
+
+/* Sidebar toggle */
+.sidebar-hidden {
+    transform: translateX(-100%);
+}
+</style>
 </head>
 
-<body class="bg-gray-100">
+<body class="flex">
 
-<div class="flex">
+<!-- SIDEBAR -->
+<aside id="sidebar" class="w-64 min-h-screen text-white flex flex-col justify-between transition-all duration-300"
+       style="background-color: var(--primary-blue);">
 
-    <!-- SIDEBAR -->
-    <nav class="w-64 bg-blue-900 min-h-screen flex flex-col justify-between">
+    <div class="p-6">
+        <h1 class="text-xl font-bold">DTR System</h1>
+        <p class="text-xs opacity-70 mb-6">Admin Panel</p>
 
-        <div class="p-6 text-white">
-            <h1 class="text-lg font-bold">DTR SYSTEMl</h1>
-            <h1 class="text-lg font-bold">Admin Panel</h1>
+        <div class="space-y-2 text-sm">
 
-            <div class="mt-6 space-y-2 text-sm">
+            <a href="{% url 'admin_dashboard' %}" 
+               class="block px-4 py-2 rounded-lg bg-white/10 border-l-4 font-semibold"
+               style="border-color: white;">
+                Dashboard
+            </a>
 
-                <a href="{% url 'admin_dashboard' %}" class="block px-3 py-2 rounded bg-white/10">
-                    Dashboard
-                </a>
+            <a href="{% url 'user_management' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Management
+            </a>
 
-                <a href="{% url 'user_management' %}" class="block px-3 py-2 rounded hover:bg-white/10">
-                    Management
-                </a>
+            <a href="{% url 'user_progress' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Progress
+            </a>
 
-                <a href="{% url 'user_progress' %}" class="block px-3 py-2 rounded hover:bg-white/10">
-                    Progress
-                </a>
+            <a href="{% url 'dtr_records' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                DTR Records
+            </a>
 
-                <a href="{% url 'dtr_records' %}" class="block px-3 py-2 rounded hover:bg-white/10">
-                    DTR Records
-                </a>
+            <a href="{% url 'student_assistants' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Student Assistants
+            </a>
 
-                <a href="{% url 'student_assistants' %}" class="block px-3 py-2 rounded hover:bg-white/10">
-                    Student Assistants
-                </a>
+            <a href="{% url 'chat' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Chat
+            </a>
 
-                <a href="{% url 'chat' %}" class="block px-3 py-2 rounded hover:bg-white/10">
-                    Chat
-                </a>
-
-            </div>
         </div>
+    </div>
 
-        <!-- LOGOUT -->
-        <div class="p-4">
-            <form method="POST" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button class="w-full bg-red-500 py-2 rounded text-white hover:bg-red-600">
-                    Logout
-                </button>
-            </form>
-        </div>
+    <!-- LOGOUT (ADNU STYLE - CLEAN) -->
+    <div class="p-4">
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="w-full border border-white/40 py-2 rounded-lg text-white hover:bg-white/10 transition text-sm">
+                Logout
+            </button>
+        </form>
+    </div>
 
-    </nav>
+</aside>
 
-    <!-- MAIN -->
-    <main class="flex-1 p-6">
+<!-- MAIN -->
+<div id="main" class="flex-1">
 
-        <!-- HEADER -->
-        <header class="mb-6 flex justify-between items-center">
+    <!-- HEADER -->
+    <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
 
-            <div>
-                <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
-                <p class="text-sm text-gray-500">
+        <!-- LEFT -->
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
+                ☰
+            </button>
+
+            <div
+                <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
+                <p class="text-xs text-gray-500">
                     Welcome, {{ request.user.username }}
                 </p>
             </div>
+        </div>
 
-            <!-- MONTH FILTER -->
-            <form method="GET">
-                <select name="month" onchange="this.form.submit()"
-                    class="p-2 border rounded">
 
-                    <option value="">All</option>
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
+        <!-- RIGHT -->
+        <div class="text-right">
+            <p id="date" class="text-sm font-semibold text-gray-700"></p>
+            <p id="time" class="text-xs text-gray-500"></p>
+        </div>
 
-                </select>
-            </form>
+    </header>
 
-        </header>
+    
+    <!-- CONTENT -->
+    <main class="p-8">
 
         <!-- STATS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
-            <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
-                <h3 class="text-sm font-semibold text-gray-500">Total Students</h3>
-                <p class="text-2xl font-bold text-blue-900">{{ total_students }}</p>
+            <!-- CARD -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Total Students</p>
+                <h3 class="text-3xl font-bold mt-2" style="color: var(--primary-blue);">
+                    {{ total_students }}
+                </h3>
             </div>
 
-            <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
-                <h3 class="text-sm font-semibold text-gray-500">Pending DTRs</h3>
-                <p class="text-2xl font-bold text-blue-900">{{ pending_dtrs }}</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Pending DTRs</p>
+                <h3 class="text-3xl font-bold mt-2 text-yellow-500">
+                    {{ pending_dtrs }}
+                </h3>
             </div>
 
-            <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
-                <h3 class="text-sm font-semibold text-gray-500">Approved DTRs</h3>
-                <p class="text-2xl font-bold text-blue-900">{{ approved_dtrs }}</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Approved DTRs</p>
+                <h3 class="text-3xl font-bold mt-2 text-green-500">
+                    {{ approved_dtrs }}
+                </h3>
             </div>
 
-            <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
-                <h3 class="text-sm font-semibold text-gray-500">Active Offices</h3>
-                <p class="text-2xl font-bold text-blue-900">{{ active_offices }}</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Active Offices</p>
+                <h3 class="text-3xl font-bold mt-2 text-indigo-500">
+                    {{ active_offices }}
+                </h3>
             </div>
 
         </div>
 
-        <!-- STUDENTS TABLE -->
-        <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <!-- TABLE -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 border">
 
-            <h3 class="text-xl font-bold text-blue-900">Student Overview</h3>
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">
+                Student Overview
+            </h3>
 
-            <table class="min-w-full mt-4">
-
+            <table class="w-full text-sm">
                 <thead>
-                    <tr>
-                        <th class="bg-gray-200 p-2 text-left">Name</th>
-                        <th class="bg-gray-200 p-2 text-left">Office</th>
-                        <th class="bg-gray-200 p-2 text-left">Hours</th>
-                        <th class="bg-gray-200 p-2 text-right">Actions</th>
+                    <tr class="text-gray-500 border-b">
+                        <th class="p-3 text-left">Name</th>
+                        <th class="p-3 text-left">Office</th>
+                        <th class="p-3 text-left">Hours</th>
+                        <th class="p-3 text-right">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
-
                     {% for student in students %}
-                    <tr class="hover:bg-gray-50">
+                    <tr class="border-b hover:bg-gray-50">
 
-                        <td class="border p-2">
+                        <td class="p-3 font-semibold">
                             {{ student.get_full_name }}
                         </td>
 
-                        <td class="border p-2">
+                        <td class="p-3">
                             {{ student.userprofile.office|default:"N/A" }}
                         </td>
 
-                        <td class="border p-2">
+                        <td class="p-3">
                             {{ student.total_hours }} hrs
                         </td>
 
-                        <td class="border p-2 text-right">
+                        <td class="p-3 text-right space-x-2">
 
                             <button onclick="openProgress({{ student.id }})"
-                                class="bg-blue-500 text-white px-2 py-1 rounded">
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs">
                                 View
                             </button>
 
@@ -178,7 +205,7 @@
                                 {% csrf_token %}
                                 <button type="submit"
                                     onclick="return confirm('Delete user?')"
-                                    class="bg-red-500 text-white px-2 py-1 rounded">
+                                    class="border border-gray-300 text-gray-600 hover:bg-gray-100 px-3 py-1 rounded-lg text-xs">
                                     Delete
                                 </button>
                             </form>
@@ -193,20 +220,50 @@
                         </td>
                     </tr>
                     {% endfor %}
-
                 </tbody>
-
             </table>
 
         </div>
 
-
     </main>
-
 </div>
 
-<!-- PROGRESS -->
+<!-- SCRIPTS -->
 <script>
+// Toggle sidebar + expand content
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+
+    sidebar.classList.toggle('hidden');
+
+    if (sidebar.classList.contains('hidden')) {
+        main.classList.remove('ml-64');
+    } else {
+        main.classList.add('ml-64');
+    }
+}
+
+// Date + Time
+function updateDateTime() {
+    const now = new Date();
+
+    document.getElementById('date').innerText =
+        now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+    document.getElementById('time').innerText =
+        now.toLocaleTimeString('en-US');
+}
+
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Progress
 function openProgress(id) {
     fetch(`/user-progress/${id}/json/`)
     .then(res => res.json())
