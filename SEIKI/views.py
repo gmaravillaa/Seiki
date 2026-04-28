@@ -19,6 +19,21 @@ from .models import TimeRecord, UserProfile, DTRSubmission, ChatMessage
 from django.contrib.auth import logout
 
 
+def get_user_office(user):
+    try:
+        return user.userprofile.office
+    except (UserProfile.DoesNotExist, AttributeError):
+        return None
+
+
+def user_in_same_office(request_user, target_user):
+    if request_user.is_superuser:
+        return True
+    if request_user.is_staff and not request_user.is_superuser:
+        return get_user_office(request_user) and get_user_office(request_user) == get_user_office(target_user)
+    return False
+
+
 def format_hours_display(hours_value):
     """Format hours to show minutes and seconds for values under one hour."""
     if hours_value < 1:
@@ -1802,6 +1817,11 @@ def approve_dtr(request, dtr_id):
     """Approve a DTR submission"""
     try:
         dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+
+        if not user_in_same_office(request.user, dtr_submission.user):
+            messages.error(request, "You are not authorized to approve that DTR.")
+            return redirect('dtr_approvals')
+
         remarks = request.POST.get('remarks', '')
         
         dtr_submission.status = 'approved'
@@ -1833,6 +1853,11 @@ def reject_dtr(request, dtr_id):
     """Reject a DTR submission"""
     try:
         dtr_submission = DTRSubmission.objects.get(id=dtr_id)
+
+        if not user_in_same_office(request.user, dtr_submission.user):
+            messages.error(request, "You are not authorized to reject that DTR.")
+            return redirect('dtr_approvals')
+
         remarks = request.POST.get('remarks', 'No reason provided')
         
         dtr_submission.status = 'rejected'
@@ -1858,6 +1883,11 @@ def time_correction(request, dtr_id):
     """
     template_name = 'office_head/time-correction.html' 
     dtr_submission = get_object_or_404(DTRSubmission, id=dtr_id)
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, dtr_submission.user):
+            messages.error(request, "You are not authorized to access that student's DTR records.")
+            return redirect('office_dashboard')
     
     # Fetch records for the specific month/year of the DTR
     time_records = TimeRecord.objects.filter(
@@ -1893,6 +1923,11 @@ def update_time_record(request, record_id):
     """
     record = get_object_or_404(TimeRecord, id=record_id)
     dtr_id = request.POST.get('dtr_id') # Passed via hidden input in your modal
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, record.user):
+            messages.error(request, "You are not authorized to edit this time record.")
+            return redirect('office_dashboard')
     
     try:
         timestamp_str = request.POST.get('timestamp')
@@ -1931,6 +1966,11 @@ def add_time_record(request):
     """Handles path('time-correction/add/', name='add_time_record')"""
     dtr_id = request.POST.get('dtr_id')
     dtr = get_object_or_404(DTRSubmission, id=dtr_id)
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, dtr.user):
+            messages.error(request, "You are not authorized to add a time record for this student.")
+            return redirect('office_dashboard')
     
     try:
         ts_str = request.POST.get('timestamp')
@@ -1965,6 +2005,12 @@ def delete_time_record(request, record_id):
     """Handles path('time-correction/delete/<int:record_id>/', name='delete_time_record')"""
     record = get_object_or_404(TimeRecord, id=record_id)
     dtr_id = request.POST.get('dtr_id')
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, record.user):
+            messages.error(request, "You are not authorized to delete this time record.")
+            return redirect('office_dashboard')
+
     record.delete()
     messages.success(request, "Log entry removed.")
     return redirect('time_correction', dtr_id=dtr_id)
@@ -1972,7 +2018,11 @@ def delete_time_record(request, record_id):
 @user_passes_test(lambda u: u.is_staff, login_url='login')
 def time_correction_list(request):
     """List all students for time correction"""
-    students = User.objects.filter(is_staff=False, is_superuser=False).order_by('first_name', 'last_name')
+    students = User.objects.filter(is_staff=False, is_superuser=False)
+    if request.user.is_staff and not request.user.is_superuser:
+        office = get_user_office(request.user)
+        students = students.filter(userprofile__office=office)
+    students = students.order_by('first_name', 'last_name')
     
     context = {
         'students': students,
@@ -1988,6 +2038,11 @@ def time_correction_user(request, user_id):
     except User.DoesNotExist:
         messages.error(request, "User not found.")
         return redirect('time_correction_list')
+
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, user):
+            messages.error(request, "You are not authorized to view that student's DTR submissions.")
+            return redirect('time_correction_list')
     
     # Get all DTR submissions for this user
     dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month')
