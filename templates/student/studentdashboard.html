@@ -227,7 +227,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Assigned Office</p>
-              <p class="summary-value">{{ profile.office }}</p>
+              <p class="summary-value">{{ profile.office|default:"Not Assigned" }}</p>
             </div>
           </div>
         </div>

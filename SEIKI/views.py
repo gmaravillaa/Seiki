@@ -284,7 +284,13 @@ def student_dashboard(request):
     try:
         profile = user.userprofile
     except UserProfile.DoesNotExist:
-        profile = UserProfile.objects.create(user=user)
+        profile = UserProfile.objects.create(user=user, office="", required_hours=80.0)
+    
+    # Ensure profile has required fields with defaults
+    if not profile.office:
+        profile.office = ""
+    if profile.required_hours is None:
+        profile.required_hours = 80.0
     
     # Get all time records for this student
     time_records = TimeRecord.objects.filter(user=user).order_by('-timestamp')
@@ -316,7 +322,7 @@ def student_dashboard(request):
         week_hours = round(week_duration.total_seconds() / 3600, 2)
     
     # Calculate remaining hours
-    required_hours = profile.required_hours
+    required_hours = float(profile.required_hours) if profile.required_hours else 80.0
     remaining_hours = max(required_hours - total_hours, 0)  # Don't show negative
     
     # Get recent time records for logs (not DTR submissions)
@@ -332,8 +338,11 @@ def student_dashboard(request):
         # Calculate hours for this record if it's an 'out' record with duration
         hours_display = ""
         if record.record_type == "out" and record.duration:
-            hours = round(record.duration.total_seconds() / 3600, 1)
-            hours_display = f"{hours} hrs"
+            try:
+                hours = round(record.duration.total_seconds() / 3600, 1)
+                hours_display = f"{hours} hrs"
+            except (AttributeError, TypeError):
+                hours_display = "0.0 hrs"
         
         # Add hours_display to the record for template use
         record.hours_display = hours_display
