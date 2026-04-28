@@ -1009,3 +1009,49 @@ a {
   font-weight: 600;
   color: var(--primary-blue);
 }
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.report-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.report-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 15px;
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-range {
+  display: flex;
+  gap: 10px;
+}
+
+.date-range input {
+  width: 100%;
+}
+
+.full-btn {
+  width: 100%;
+  margin-top: auto;
+}
