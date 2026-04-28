@@ -118,13 +118,13 @@ a {
 .brand-sei {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--brand-pink);
+  color: #ffffff;
 }
 
 .brand-ki {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--brand-green);
+  color: #050a30;
 }
 
 .login-form {
