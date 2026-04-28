@@ -432,10 +432,101 @@ textarea:focus {
 }
 
 /* ── Grid Layouts ── */
+/* ================= GRID LAYOUT ================= */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* ================= CARD ================= */
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* HEADER */
+.card-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+/* CONTENT */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px;
+}
+
+/* ================= FORM ================= */
+.card-content form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+
+/* INPUT GROUP */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* DATE RANGE ROW */
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* INPUTS */
+input,
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ================= BUTTON ALIGNMENT FIX ================= */
+.btn {
+  margin-top: auto;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #003A6C;
+  color: white;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1200px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── Stats Grid (shared across pages) ── */
