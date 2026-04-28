@@ -724,8 +724,62 @@ def student_profile_page(request):
     return render(request, 'student/studentprofile.html', context)
     
 @login_required
-def user_progress(request):
+def_user_progress(request):
     return render(request, 'caao_admin/user_progress.html')
+def user_progress_json(request, user_id):
+
+    user = User.objects.select_related('userprofile').get(id=user_id)
+
+    # Total rendered hours
+    total_duration = TimeRecord.objects.filter(
+        user=user,
+        record_type='out',
+        duration__isnull=False
+    ).aggregate(
+        total=models.Sum('duration')
+    )['total']
+
+    total_hours_rendered = 0
+
+    if total_duration:
+        total_seconds = total_duration.total_seconds()
+        total_hours_rendered = total_seconds / 3600
+
+    # Required hours
+    required_hours = (
+        user.userprofile.required_hours
+        if hasattr(user, 'userprofile')
+        else 80.0
+    )
+
+    # Percentage
+    percentage = (
+        min(100, (total_hours_rendered / float(required_hours)) * 100)
+        if required_hours > 0
+        else 0
+    )
+
+    return JsonResponse({
+
+        "name": user.get_full_name(),
+
+        "student_id": user.username,
+
+        "office": (
+            user.userprofile.office
+            if hasattr(user, 'userprofile')
+            else "N/A"
+        ),
+
+        "status": (
+            "Active"
+            if user.is_active
+            else "Inactive"
+        ),
+
+        "percent": round(percentage, 1)
+
+    })
 
 @login_required
 def user_management(request):
@@ -764,6 +818,7 @@ def profile(request):
     }
     
     return render(request, 'core/profile.html', context)
+    
 
 @login_required
 def dtr_records(request):
@@ -886,7 +941,7 @@ def dashboard(request):
     
     dtr_submission = DTRSubmission.objects.filter(
         user=request.user,
-        month=current_month,
+        month=current_month,f
         year=current_year
     ).first()
     
@@ -1073,7 +1128,7 @@ def accept_dtr(request, dtr_id):
     dtr.save()
     return redirect("dtr_acceptance")
 
-def user_progress_data(request):
+def_user_progress_data(request):
     students = User.objects.filter(is_staff=False, is_superuser=False)
 
     data = []
@@ -1244,7 +1299,7 @@ def delete_user(request, user_id):
     return redirect('user_management')
 
 @user_passes_test(lambda u: u.is_superuser)
-def user_progress(request):
+def_user_progress(request):
     """User progress page for superusers to view detailed user information and work progress"""
     from django.core.paginator import Paginator
     
