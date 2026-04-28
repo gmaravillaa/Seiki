@@ -596,7 +596,49 @@ def profile(request):
 
 @login_required
 def dtr_records(request):
-    return render(request, 'caao_admin/dtr.html')
+    # Get filters from the HTML form
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+
+    # For superusers, show all DTR submissions from all students
+    if request.user.is_superuser:
+        dtr_records = DTRSubmission.objects.select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')
+    else:
+        # For regular staff, show only their office's submissions (if needed)
+        dtr_records = DTRSubmission.objects.filter(
+            user__userprofile__office=request.user.userprofile.office
+        ).select_related('user', 'user__userprofile', 'approver').order_by('-submitted_date')
+
+    # Apply search filter
+    if search_query:
+        dtr_records = dtr_records.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__userprofile__id_number__icontains=search_query)
+        )
+
+    # Apply status filter
+    if status_filter:
+        if status_filter == 'pending':
+            dtr_records = dtr_records.filter(status='pending')
+        elif status_filter == 'accepted':
+            dtr_records = dtr_records.filter(status='approved')
+        elif status_filter == 'rejected':
+            dtr_records = dtr_records.filter(status='rejected')
+
+    # Calculate counts
+    all_submissions = DTRSubmission.objects.all() if request.user.is_superuser else DTRSubmission.objects.filter(user__userprofile__office=request.user.userprofile.office)
+    pending_count = all_submissions.filter(status='pending').count()
+    accepted_count = all_submissions.filter(status='approved').count()
+
+    context = {
+        'dtr_records': dtr_records,
+        'pending_count': pending_count,
+        'accepted_count': accepted_count,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+    return render(request, 'caao_admin/dtr.html', context)
 
 def index(request):
     if request.method == 'POST':
@@ -1709,6 +1751,7 @@ def time_correction_user(request, user_id):
     context = {
         'selected_user': user,
         'dtr_submissions': dtr_submissions,
+        'is_superuser': request.user.is_superuser,  # Flag for read-only mode
     }
     
     return render(request, 'caao_admin/time_correction.html', context)
