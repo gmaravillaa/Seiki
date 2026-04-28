@@ -10,6 +10,7 @@
 <body>
   <div class="login-container">
     <div class="login-wrapper">
+
       <!-- Logo -->
       <div class="logo-container">
         <div class="logo-circle">
@@ -22,76 +23,69 @@
         <span class="brand-sei">Sei</span><span class="brand-ki">ki</span>
       </h1>
 
-      <!-- Error Message -->
-      {% if error %}
+      <!-- Django Error Message -->
+      {% if form.non_field_errors %}
       <div class="error-message">
         <svg class="error-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        <p class="error-text">{{ error }}</p>
+        <div class="error-text">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
       </div>
       {% endif %}
 
-      <!-- Login Form -->
-      <form class="login-form" id="loginForm">
-        <!-- Username Field -->
+      <!-- LOGIN FORM (FIXED) -->
+      <form method="post" action="{% url 'login' %}" class="login-form">
+        {% csrf_token %}
+
+        <!-- Username -->
         <div class="form-group">
           <label class="form-label">Username</label>
-          <input type="text" class="form-input" id="username" />
+          <input 
+            type="text" 
+            name="username" 
+            class="form-input"
+            id="username"
+            value="{{ form.username.value|default:'' }}"
+            required
+          >
         </div>
 
-        <!-- Password Field -->
+        <!-- Password -->
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" class="form-input" id="password" />
+          <input 
+            type="password" 
+            name="password" 
+            class="form-input"
+            id="password"
+            required
+          >
         </div>
 
-        <!-- Remember Me Checkbox -->
+        <!-- Remember Me -->
         <div class="checkbox-group">
-          <input type="checkbox" id="remember" class="checkbox-input" />
+          <input type="checkbox" name="remember" id="remember" class="checkbox-input" />
           <label for="remember" class="checkbox-label">Remember me</label>
         </div>
 
-        <!-- Login Button -->
+        <!-- Submit -->
         <button type="submit" class="btn-primary">Log In</button>
 
-        <!-- Forgot Password Link -->
+        <!-- Optional Links -->
         <a href="#" class="forgot-password">Forgot your Password?</a>
-
-        <!-- Gbox Login Button -->
         <button type="button" class="btn-gbox">Continue with gbox</button>
+
       </form>
 
       <!-- Footer -->
       <p class="footer-text">Powered by Ateneo de Naga IS</p>
     </div>
   </div>
-
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      if (!username || !password) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.innerHTML = `
-          <svg class="error-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <p class="error-text">Please enter both username and password</p>
-        `;
-        document.getElementById('loginForm').parentElement.insertBefore(errorDiv, document.getElementById('loginForm'));
-      } else {
-        // Redirect to student dashboard
-        window.location.href = '{% url 'student_dashboard' %}';
-      }
-    });
-  </script>
 </body>
 </html>
