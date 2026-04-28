@@ -477,8 +477,9 @@
                           {% for record in records %}
                             {% if record.record_type == "in" %}
                               {{ record.timestamp|date:"g:i A" }}
-                              {% break %}
-                            {% endif %}
+                              {% endif %}
+                          {% empty %}
+                            --
                           {% endfor %}
                         </p>
                       </div>
@@ -488,8 +489,9 @@
                           {% for record in records reversed %}
                             {% if record.record_type == "out" %}
                               {{ record.timestamp|date:"g:i A" }}
-                              {% break %}
-                            {% endif %}
+                              {% endif %}
+                          {% empty %}
+                            --
                           {% endfor %}
                         </p>
                       </div>
