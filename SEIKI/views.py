@@ -325,6 +325,15 @@ def student_dashboard(request):
     required_hours = float(profile.required_hours) if profile.required_hours else 80.0
     remaining_hours = max(required_hours - total_hours, 0)  # Don't show negative
     
+    # Format hours display function
+    def format_hours_display(hours_value):
+        """Format hours to show minutes for values < 1 hour"""
+        if hours_value < 1:
+            minutes = round(hours_value * 60)
+            return f"{minutes} min" if minutes > 0 else "0 min"
+        else:
+            return f"{round(hours_value, 1)} hrs"
+    
     # Get recent time records for logs (not DTR submissions)
     recent_records = time_records[:10]  # Last 10 records
     
@@ -339,10 +348,10 @@ def student_dashboard(request):
         hours_display = ""
         if record.record_type == "out" and record.duration:
             try:
-                hours = round(record.duration.total_seconds() / 3600, 1)
-                hours_display = f"{hours} hrs"
+                hours = record.duration.total_seconds() / 3600
+                hours_display = format_hours_display(hours)
             except (AttributeError, TypeError):
-                hours_display = "0.0 hrs"
+                hours_display = "0 min"
         
         # Add hours_display to the record for template use
         record.hours_display = hours_display
@@ -353,11 +362,19 @@ def student_dashboard(request):
     if required_hours > 0:
         progress_percentage = min((total_hours / required_hours) * 100, 100)
     
+    # Format display values for template
+    total_hours_display = format_hours_display(total_hours)
+    week_hours_display = format_hours_display(week_hours)
+    remaining_hours_display = format_hours_display(remaining_hours)
+    
     context = {
         'profile': profile,
         'total_hours': total_hours,
+        'total_hours_display': total_hours_display,
         'week_hours': week_hours,
+        'week_hours_display': week_hours_display,
         'remaining_hours': remaining_hours,
+        'remaining_hours_display': remaining_hours_display,
         'required_hours': required_hours,
         'progress_percentage': progress_percentage,
         'recent_logs': recent_logs,

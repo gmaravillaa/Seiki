@@ -113,37 +113,40 @@
 
       <!-- Page Content -->
       <main class="page-content">
-        <!-- Clock and Time Tracking -->
+        <!-- Combined Clock and Progress Card -->
         <div class="clock-section">
-          <div class="clock-card">
-            <h2 class="section-title">Current Time</h2>
-            <div class="clock-display" id="clock">00:00:00</div>
-            <p class="clock-date" id="dateDisplay">Thursday, April 16, 2026</p>
-          </div>
+          <div class="combined-card">
+            <!-- Current Time Section -->
+            <div class="clock-section">
+              <h2 class="section-title">Current Time</h2>
+              <div class="clock-display" id="clock">00:00:00</div>
+              <p class="clock-date" id="dateDisplay">Thursday, April 16, 2026</p>
+            </div>
 
-          <!-- Work Progress Card -->
-          <div class="progress-card">
-            <h3 class="card-title">Work Progress</h3>
-            <div class="progress-content">
-              <div class="progress-stats">
-                <div class="progress-stat">
-                  <span class="progress-label">Completed</span>
-                  <span class="progress-value">{{ total_hours }} hrs</span>
+            <!-- Work Progress Section -->
+            <div class="progress-section">
+              <h3 class="card-title">Work Progress</h3>
+              <div class="progress-content">
+                <div class="progress-stats">
+                  <div class="progress-stat">
+                    <span class="progress-label">Completed</span>
+                    <span class="progress-value">{{ total_hours_display }}</span>
+                  </div>
+                  <div class="progress-stat">
+                    <span class="progress-label">Required</span>
+                    <span class="progress-value">{{ required_hours }} hrs</span>
+                  </div>
+                  <div class="progress-stat">
+                    <span class="progress-label">Remaining</span>
+                    <span class="progress-value">{{ remaining_hours_display }}</span>
+                  </div>
                 </div>
-                <div class="progress-stat">
-                  <span class="progress-label">Required</span>
-                  <span class="progress-value">{{ required_hours }} hrs</span>
+                <div class="progress-bar-container">
+                  <div class="progress-bar" style="width: {{ progress_percentage }}%"></div>
                 </div>
-                <div class="progress-stat">
-                  <span class="progress-label">Remaining</span>
-                  <span class="progress-value">{{ remaining_hours }} hrs</span>
+                <div class="progress-percentage">
+                  {{ progress_percentage|floatformat:1 }}% Complete
                 </div>
-              </div>
-              <div class="progress-bar-container">
-                <div class="progress-bar" style="width: {{ progress_percentage }}%"></div>
-              </div>
-              <div class="progress-percentage">
-                {{ progress_percentage|floatformat:1 }}% Complete
               </div>
             </div>
           </div>
