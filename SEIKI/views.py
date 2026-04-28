@@ -419,6 +419,17 @@ def student_submit_dtr(request):
     from datetime import datetime
     user = request.user
     
+    try:
+        profile = user.userprofile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=user, office="", required_hours=80.0)
+    
+    # Ensure profile has required fields with defaults
+    if not profile.office:
+        profile.office = ""
+    if profile.required_hours is None:
+        profile.required_hours = 80.0
+        
     current_month = datetime.now().month
     current_year = datetime.now().year
     
@@ -479,6 +490,18 @@ def student_submit_dtr(request):
 @login_required
 def student_qr_code(request):
     """Student Assistant Availability Schedule - QR Code"""
+    user = request.user
+    
+    try:
+        profile = user.userprofile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=user, office="", required_hours=80.0)
+    
+    # Ensure profile has required fields with defaults
+    if not profile.office:
+        profile.office = ""
+    if profile.required_hours is None:
+        profile.required_hours = 80.0
     return render(request, 'student/studentqrcode.html')
 
 @login_required
