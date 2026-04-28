@@ -477,9 +477,9 @@ def student_submit_dtr(request):
     return render(request, 'student/studentsubmitdtr.html', context)
 
 @login_required
-def student_schedule(request):
-    """Student Assistant Availability Schedule - QR Scanner"""
-    return render(request, 'student/studentscanner.html')
+def student_qr_code(request):
+    """Student Assistant Availability Schedule - QR Code"""
+    return render(request, 'student/studentqrcode.html')
 
 @login_required
 def student_profile_page(request):

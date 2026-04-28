@@ -59,7 +59,7 @@ urlpatterns = [
     path('office-users/', views.office_users, name='office_users'),
     path('student-logs/', views.student_logs, name='student_logs'),
     path('student-submit-dtr/', views.student_submit_dtr, name='student_submit_dtr'),
-    path('student-schedule/', views.student_schedule, name='student_schedule'),
+    path('student-qr-code/', views.student_qr_code, name='student_qr_code'),
     path('student-profile/', views.student_profile_page, name='student_profile'),
 
     # =======================
