@@ -593,53 +593,44 @@
       </div>
 
       <div class="modal-date">
-        <p class="modal-date-main">April 2026</p>
+        <p class="modal-date-main">{{ month_name }} {{ current_year }}</p>
         <p class="modal-date-sub">Monthly Summary</p>
       </div>
 
       <div class="modal-entries">
-        <!-- Entry 1 -->
-        <div class="modal-entry">
-          <p class="modal-entry-label">Entry #1</p>
-          <div class="modal-entry-grid">
-            <div class="modal-entry-field">
-              <label>In</label>
-              <p>09:00:23 AM</p>
+        {% if daily_logs %}
+          {% for date, records in daily_logs.items %}
+            <div class="modal-entry">
+              <p class="modal-entry-label">Entry #{{ forloop.counter }} - {{ date|date:"M d, Y" }}</p>
+              {% for record in records %}
+                <div class="modal-entry-grid">
+                  <div class="modal-entry-field">
+                    <label>Type</label>
+                    <p>{{ record.get_record_type_display }}</p>
+                  </div>
+                  <div class="modal-entry-field">
+                    <label>Time</label>
+                    <p>{{ record.timestamp|date:"g:i A" }}</p>
+                  </div>
+                  {% if record.record_type == 'out' %}
+                    <div class="modal-entry-field">
+                      <label>Hours</label>
+                      <p style="color: var(--blue-900);">{{ record.hours_display }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
             </div>
-            <div class="modal-entry-field">
-              <label>Out</label>
-              <p>12:00:15 PM</p>
-            </div>
-            <div class="modal-entry-field">
-              <label>Hours</label>
-              <p style="color: var(--blue-900);">02:59:52</p>
-            </div>
+          {% endfor %}
+        {% else %}
+          <div class="modal-entry">
+            <p class="modal-entry-label">No records available for this month.</p>
           </div>
-        </div>
+        {% endif %}
 
-        <!-- Entry 2 -->
-        <div class="modal-entry">
-          <p class="modal-entry-label">Entry #2</p>
-          <div class="modal-entry-grid">
-            <div class="modal-entry-field">
-              <label>In</label>
-              <p>01:00:10 PM</p>
-            </div>
-            <div class="modal-entry-field">
-              <label>Out</label>
-              <p>05:30:45 PM</p>
-            </div>
-            <div class="modal-entry-field">
-              <label>Hours</label>
-              <p style="color: var(--blue-900);">04:30:35</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total -->
         <div class="modal-total">
           <span class="modal-total-label">Total Hours:</span>
-          <span class="modal-total-value">07:30:27</span>
+          <span class="modal-total-value">{{ total_hours }} hrs</span>
         </div>
 
         <!-- Remarks (if any) -->

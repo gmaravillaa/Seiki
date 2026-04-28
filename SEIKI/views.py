@@ -437,6 +437,7 @@ def student_submit_dtr(request):
 
     current_month = datetime.now().month
     current_year = datetime.now().year
+    month_name = datetime.now().strftime('%B')
     
     # Check if DTR already submitted for this month
     existing_dtr = DTRSubmission.objects.filter(
@@ -487,6 +488,7 @@ def student_submit_dtr(request):
     context = {
         'current_month': current_month,
         'current_year': current_year,
+        'month_name': month_name,
         'daily_logs': daily_logs,
         'total_hours': total_hours,
         'existing_dtr': existing_dtr,
