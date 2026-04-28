@@ -113,8 +113,9 @@
 
       <!-- Page Content -->
       <main class="page-content">
-        <!-- Combined Clock and Progress Card -->
-        <div class="clock-section">
+        <!-- Combined Clock/Progress and QR Code Layout -->
+        <div class="main-dashboard-grid">
+          <!-- Left Side: Combined Clock and Progress -->
           <div class="combined-card">
             <!-- Current Time Section -->
             <div class="clock-section">
@@ -151,6 +152,7 @@
             </div>
           </div>
 
+          <!-- Right Side: Attendance QR Code -->
           <div class="time-tracking-card">
             <h3 class="card-title">Attendance QR Code</h3>
 
@@ -190,7 +192,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Total Hours Rendered</p>
-              <p class="summary-value">{{ total_hours }} hrs</p>
+              <p class="summary-value">{{ total_hours_display }}</p>
             </div>
           </div>
 
@@ -203,7 +205,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Hours This Week</p>
-              <p class="summary-value">{{ week_hours }} hrs</p>
+              <p class="summary-value">{{ week_hours_display }}</p>
             </div>
           </div>
 
@@ -218,7 +220,7 @@
             </div>
             <div class="summary-content">
               <p class="summary-label">Remaining Hours</p>
-              <p class="summary-value">{{ remaining_hours }} hrs</p>
+              <p class="summary-value">{{ remaining_hours_display }}</p>
             </div>
           </div>
 

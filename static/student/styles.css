@@ -509,6 +509,19 @@ a {
 }
 
 /* Combined Clock and Progress Card */
+.main-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .main-dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .combined-card {
   background-color: white;
   border-radius: 1rem;
@@ -518,12 +531,6 @@ a {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-}
-
-@media (min-width: 768px) {
-  .combined-card {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 .clock-section h2 {
