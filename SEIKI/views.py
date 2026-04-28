@@ -20,10 +20,14 @@ from django.contrib.auth import logout
 
 
 def format_hours_display(hours_value):
-    """Format hours to show minutes for values under one hour."""
+    """Format hours to show minutes and seconds for values under one hour."""
     if hours_value < 1:
-        minutes = round(hours_value * 60)
-        return f"{minutes} min" if minutes > 0 else "0 min"
+        total_seconds = int(hours_value * 3600)
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        if minutes > 0:
+            return f"{minutes} min {seconds} sec" if seconds > 0 else f"{minutes} min"
+        return f"{seconds} sec" if seconds > 0 else "0 sec"
     return f"{round(hours_value, 1)} hrs"
 
 
@@ -513,15 +517,6 @@ def student_dashboard(request):
     # Calculate remaining hours
     required_hours = float(profile.required_hours) if profile.required_hours else 80.0
     remaining_hours = max(required_hours - total_hours, 0)  # Don't show negative
-    
-    # Format hours display function
-    def format_hours_display(hours_value):
-        """Format hours to show minutes for values < 1 hour"""
-        if hours_value < 1:
-            minutes = round(hours_value * 60)
-            return f"{minutes} min" if minutes > 0 else "0 min"
-        else:
-            return f"{round(hours_value, 1)} hrs"
     
     # Get recent time records for logs (not DTR submissions)
     recent_records = time_records[:10]  # Last 10 records
