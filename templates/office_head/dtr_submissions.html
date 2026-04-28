@@ -101,7 +101,7 @@
           <tr>
             <td>{{ submission.submitted_date|date:"M j, Y" }}</td>
             <td style="font-weight: 500;">{{ submission.user.get_full_name|default:submission.user.username }}</td>
-            <td>{{ submission.user.userprofile.id_number|default:"N/A" }}</td>
+            <td>{% if submission.user.userprofile %}{{ submission.user.userprofile.id_number }}{% else %}N/A{% endif %}</td>
             <td style="font-size: 13px;">{{ submission.month }}/{{ submission.year }}</td>
             <td>{{ submission.total_hours|default:"0" }}h</td>
             <td>
