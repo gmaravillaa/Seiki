@@ -534,39 +534,50 @@
                   <p class="total-label">Total Entries</p>
                   <p class="total-value" id="totalEntries">{{ monthly_pairs|length }}</p>
                 </div>
-              {% if existing_dtr %}
-                <button class="btn-submit" disabled>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                  {% if existing_dtr.status == 'pending' %}
-                    Monthly DTR Submitted - Pending Approval
-                  {% elif existing_dtr.status == 'approved' %}
-                    Monthly DTR Approved
-                  {% elif existing_dtr.status == 'rejected' %}
-                    Monthly DTR Rejected
-                  {% else %}
-                    Monthly DTR Submitted
-                  {% endif %}
-                </button>
-              {% elif not has_time_records %}
-                <button class="btn-submit" disabled>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                  No Logs Available to Submit
-                </button>
-              {% else %}
-                <button class="btn-submit" type="button" onclick="showConfirmationModal()">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                  Submit Monthly DTR
-                </button>
-              {% endif %}
+              </div>
+
+              <!-- Remarks Section -->
+              <div class="remarks-section">
+                <label class="remarks-label" for="remarks">Remarks (Optional)</label>
+                <textarea class="remarks-textarea" id="remarks" placeholder="Add any notes or comments about this month..."></textarea>
+              </div>
+
+              <!-- Submit Actions -->
+              <div class="submit-actions">
+                {% if existing_dtr %}
+                  <button class="btn-submit" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    {% if existing_dtr.status == 'pending' %}
+                      Monthly DTR Submitted - Pending Approval
+                    {% elif existing_dtr.status == 'approved' %}
+                      Monthly DTR Approved
+                    {% elif existing_dtr.status == 'rejected' %}
+                      Monthly DTR Rejected
+                    {% else %}
+                      Monthly DTR Submitted
+                    {% endif %}
+                  </button>
+                {% elif not has_time_records %}
+                  <button class="btn-submit" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    No Logs Available to Submit
+                  </button>
+                {% else %}
+                  <button class="btn-submit" type="button" onclick="showConfirmationModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    Submit Monthly DTR
+                  </button>
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>
