@@ -58,13 +58,13 @@
 <!-- Filters -->
 <div class="card" style="margin-bottom: 24px;">
   <div class="card-content">
-    <form method="get" class="filters">
+    <form method="get" class="filters" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
       <div class="filter-group">
-        <input type="search" name="search" value="{{ search_query }}" placeholder="Search by student name..." style="width: 300px;">
+        <input type="search" name="search" value="{{ search_query }}" placeholder="Search by student name..." style="width: 250px;">
       </div>
       <div class="filter-group">
         <select name="status">
-          <option value="">All Status</option>
+          <option value="" {% if not status_filter %}selected{% endif %}>All Status</option>
           <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
           <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
           <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
@@ -73,8 +73,10 @@
       <div class="filter-group">
         <input type="month" name="month" value="{{ month_filter }}" style="width: 160px;">
       </div>
-      <button type="submit" class="btn btn-primary">Filter</button>
-      <a href="{% url 'office_dtr_submissions' %}" class="btn btn-outline">Clear</a>
+      <div class="filter-group">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{% url 'office_dtr_submissions' %}" class="btn btn-outline">Clear</a>
+      </div>
     </form>
   </div>
 </div>
