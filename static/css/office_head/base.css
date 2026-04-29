@@ -113,7 +113,7 @@ a {
 }
 
 .sidebar-logo {
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
@@ -142,7 +142,7 @@ a {
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.18);
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
@@ -164,11 +164,12 @@ a {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
   border-radius: 0.75rem;
   margin-bottom: 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
@@ -178,9 +179,9 @@ a {
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--white);
-  font-weight: 500;
+  background: var(--white);
+  color: var(--primary-blue);
+  font-weight: 600;
 }
 
 .nav-icon {
