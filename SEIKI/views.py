@@ -343,7 +343,7 @@ def office_dtr_submissions(request):
         office_name = office
 
     # Filter values for the template
-    status_filter = request.GET.get('status', 'pending')
+    status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
     month_filter = request.GET.get('month', '')
 
