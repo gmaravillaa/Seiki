@@ -6,93 +6,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
 
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-:root {
-    --primary-blue: #003a6c;
-    --bg-light: #f4f7f9;
-}
+    <style>
+        :root {
+            --primary-blue: #003a6c;
+            --bg-light: #f4f7f9;
+        }
 
-body {
-    background-color: var(--bg-light);
-}
-</style>
+        body {
+            background-color: var(--bg-light);
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--primary-blue);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .main {
+            margin-left: 260px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-active {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .main.full {
+            margin-left: 0;
+        }
+    </style>
 </head>
 
-<body class="flex">
+<body class="bg-gray-50 text-gray-900 flex">
 
 <!-- SIDEBAR -->
-<aside id="sidebar"
-       class="w-64 min-h-screen text-white flex flex-col justify-between transition-all duration-300"
-       style="background-color: var(--primary-blue);">
+<aside id="sidebar" class="sidebar p-5">
 
-    <div class="p-6">
-
+    <div>
         <h1 class="text-xl font-bold">DTR System</h1>
         <p class="text-xs opacity-70 mb-6">Admin Panel</p>
 
-        <div class="space-y-2 text-sm">
-
-            <a href="{% url 'admin_dashboard' %}"
-               class="block px-4 py-2 rounded-lg bg-white/10 border-l-4 font-semibold"
-               style="border-color: white;">
-                Dashboard
-            </a>
-
-            <a href="{% url 'user_management' %}"
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                Management
-            </a>
-
-            <a href="{% url 'user_progress' %}"
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                Progress
-            </a>
-
-            <a href="{% url 'dtr_records' %}"
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-               DTR Logs
-            </a>
-
-            <a href="{% url 'student_assistants' %}"
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                Student Assistants
-            </a>
-
-            <a href="{% url 'chat' %}"
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                Chat
-            </a>
-
-        </div>
+        <nav class="space-y-2">
+            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
+            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
+            <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
+            <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
+            <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
+            <a href="{% url 'chat' %}" class="nav-item">Chat</a>
+        </nav>
     </div>
 
-    <!-- LOGOUT -->
     <div class="p-4">
-
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
-
-            <button class="w-full border border-white/40 py-2 rounded-lg text-white hover:bg-white/10 transition text-sm">
+            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg">
                 Logout
             </button>
         </form>
-
     </div>
+
 </aside>
 
 <!-- MAIN -->
-<div id="main" class="flex-1">
+<div id="main" class="main w-full">
 
     <!-- HEADER -->
-    <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
+    <div class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
 
         <!-- LEFT -->
         <div class="flex items-center gap-4">
 
-            <button onclick="toggleSidebar()"
-                    class="text-gray-600 text-xl">
+            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
                 ☰
             </button>
 
