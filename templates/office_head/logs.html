@@ -59,10 +59,10 @@
         <tbody>
           {% for log in logs %}
           <tr>
-            <td>{{ log.timestamp|date:"M j, Y" }}</td>
+            <td>{{ log.timestamp|date:"M j, Y"|default:"N/A" }}</td>
             <td style="font-weight: 500;">{{ log.user.get_full_name|default:log.user.username }}</td>
             <td>{{ log.user.userprofile.id_number|default:"N/A" }}</td>
-            <td>{{ log.timestamp|time:"h:i A" }}</td>
+            <td>{{ log.timestamp|time:"h:i A"|default:"-" }}</td>
             <td>{{ log.time_out|time:"h:i A"|default:"-" }}</td>
             <td>
               {% if log.duration %}

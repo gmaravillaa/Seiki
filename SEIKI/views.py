@@ -343,12 +343,50 @@ def office_logs(request):
         messages.error(request, "Your office information is not set. Please contact an administrator.")
         return redirect('office_dashboard')
     
-    logs = TimeRecord.objects.filter(
+    # Get all time records for the office
+    records = TimeRecord.objects.filter(
         user__userprofile__office=office
-    ).order_by('-timestamp')
+    ).select_related('user', 'user__userprofile').order_by('-timestamp')
+    
+    # Pair up time-in and time-out records by user and date
+    from collections import defaultdict
+    from datetime import datetime
+    
+    paired_logs = []
+    user_date_records = defaultdict(list)
+    
+    for record in records:
+        # Group by user and date (ignoring time)
+        date_key = record.timestamp.date()
+        key = (record.user_id, date_key)
+        user_date_records[key].append(record)
+    
+    # Process each group to find in/out pairs
+    for (user_id, date_key), day_records in user_date_records.items():
+        time_in = None
+        time_out = None
+        duration = None
+        
+        for r in day_records:
+            if r.record_type == 'in':
+                time_in = r
+            elif r.record_type == 'out':
+                time_out = r
+                duration = r.duration
+        
+        # Use the time_in record as the base, or time_out if no time_in
+        base_record = time_in or time_out
+        if base_record:
+            paired_logs.append({
+                'user': base_record.user,
+                'timestamp': time_in.timestamp if time_in else None,
+                'time_out': time_out.timestamp if time_out else None,
+                'duration': duration,
+                'id': base_record.id,
+            })
     
     return render(request, 'office_head/logs.html', {
-        'logs': logs,
+        'logs': paired_logs,
         'office_name': office,
     })
 
