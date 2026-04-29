@@ -6,83 +6,103 @@
 <title>DTR Acceptance Portal</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-body { font-family: Inter, sans-serif; overflow: hidden; }
+    <style>
+        :root {
+            --primary-blue: #003a6c;
+            --bg-light: #f4f7f9;
+        }
 
-/* SIDEBAR (MOTHER DESIGN STYLE) */
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 260px;
-    background: #003A6C;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    transition: 0.3s;
-}
+        body {
+            background-color: var(--bg-light);
+        }
 
-/* HIDE SIDEBAR */
-.sidebar.hidden {
-    left: -260px;
-}
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--primary-blue);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
 
-/* MAIN */
-.main {
-    margin-left: 260px;
-    height: 100vh;
-    overflow-y: auto;
-    transition: 0.3s;
-}
+        .main {
+            margin-left: 260px;
+        }
 
-/* FULL WIDTH WHEN SIDEBAR HIDDEN */
-.main.full {
-    margin-left: 0;
-}
-</style>
+        .nav-item {
+            display: block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-active {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .main.full {
+            margin-left: 0;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 text-gray-900 flex">
 
 <!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar">
+<aside id="sidebar" class="sidebar p-5">
 
     <div>
-        <h1 class="text-xl font-bold">DTR SYSTEM</h1>
-        <p class="text-xs opacity-70">Admin Panel</p>
+        <h1 class="text-xl font-bold">DTR System</h1>
+        <p class="text-xs opacity-70 mb-6">Admin Panel</p>
+
+        <nav class="space-y-2">
+            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
+            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
+            <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
+            <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
+            <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
+            <a href="{% url 'chat' %}" class="nav-item">Chat</a>
+        </nav>
     </div>
 
-    <nav class="mt-8 space-y-2 text-sm">
-
-        <a href="{% url 'admin_dashboard' %}" class="block py-2 px-3 rounded hover:bg-white/10">Dashboard</a>
-        <a href="{% url 'user_management' %}" class="block py-2 px-3 rounded hover:bg-white/10">Management</a>
-        <a href="{% url 'user_progress' %}" class="block py-2 px-3 rounded hover:bg-white/10">Progress</a>
-        <a href="{% url 'dtr_records' %}" class="block py-2 px-3 rounded bg-white/10 font-bold">DTR Records</a>
-        <a href="{% url 'student_assistants' %}" class="block py-2 px-3 rounded hover:bg-white/10">Student Assistants</a>
-        <a href="{% url 'chat' %}" class="block py-2 px-3 rounded hover:bg-white/10">Chat</a>
-
-    </nav>
+    <div class="p-4">
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg">
+                Logout
+            </button>
+        </form>
+    </div>
 
 </aside>
 
 <!-- MAIN -->
-<div id="main" class="main">
-
-<div class="w-full h-2 bg-[#003A6C]"></div>
-
-<div class="p-6 space-y-6 max-w-7xl mx-auto">
+<div id="main" class="main w-full">
 
     <!-- HEADER -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
+    <div class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
 
-        <div class="flex items-center gap-3">
+        <!-- LEFT -->
+        <div class="flex items-center gap-4">
 
-            <!-- ☰ MENU BUTTON (ADDED) -->
-            <button onclick="toggleSidebar()" class="text-gray-700 text-2xl">
+            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
                 ☰
             </button>
 
