@@ -94,8 +94,8 @@ a {
 
 .logo-circle {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: 6rem;
+  height: 6rem;
   background-color: #d9d9d9;
   border-radius: 50%;
   display: flex;
