@@ -90,9 +90,8 @@ def dashboard_redirect(request):
     
 def logout_view(request):
     logout(request)
-    # Redirecting to 'login' here bypasses the "next" logic 
-    # because the login page itself isn't protected by @login_required
-    return redirect('login')  
+    # Redirecting to the root login page to preserve the same styling
+    return redirect('index')
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser, login_url='login')

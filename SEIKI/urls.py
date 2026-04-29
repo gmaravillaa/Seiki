@@ -64,7 +64,7 @@ urlpatterns = [
 
     # =======================
 
-    path('login/', LoginView.as_view(), name='login'),
+    path('login/', LoginView.as_view(template_name='core/index.html'), name='login'),
 
     path('logout/', views.logout_view, name='logout'),
 

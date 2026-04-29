@@ -219,14 +219,22 @@
         {{ error }}
       </div>
       {% endif %}
+      {% if form.non_field_errors %}
+      <div style="background-color: #ff6b6b; color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; text-align: center;">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
 
       <!-- Login Form -->
       <form class="login-form" method="POST">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}" />
 
         <div class="form-group">
           <label class="form-label">Username</label>
-          <input type="text" class="form-input" name="username" required />
+          <input type="text" class="form-input" name="username" required value="{{ form.username.value|default:'' }}" />
         </div>
 
         <div class="form-group">
