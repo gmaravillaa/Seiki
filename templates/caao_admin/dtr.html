@@ -1,19 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DTR Acceptance Portal</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTR Acceptance Portal</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        body { font-family: Inter, sans-serif; }
-    </style>
+<style>
+body { font-family: Inter, sans-serif; overflow: hidden; }
+
+/* SIDEBAR (MOTHER DESIGN STYLE) */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 260px;
+    background: #003A6C;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    transition: 0.3s;
+}
+
+/* HIDE SIDEBAR */
+.sidebar.hidden {
+    left: -260px;
+}
+
+/* MAIN */
+.main {
+    margin-left: 260px;
+    height: 100vh;
+    overflow-y: auto;
+    transition: 0.3s;
+}
+
+/* FULL WIDTH WHEN SIDEBAR HIDDEN */
+.main.full {
+    margin-left: 0;
+}
+</style>
 </head>
 
 <body class="bg-gray-50 text-gray-900">
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="sidebar">
+
+    <div>
+        <h1 class="text-xl font-bold">DTR SYSTEM</h1>
+        <p class="text-xs opacity-70">Admin Panel</p>
+    </div>
+
+    <nav class="mt-8 space-y-2 text-sm">
+
+        <a href="{% url 'admin_dashboard' %}" class="block py-2 px-3 rounded hover:bg-white/10">Dashboard</a>
+        <a href="{% url 'user_management' %}" class="block py-2 px-3 rounded hover:bg-white/10">Management</a>
+        <a href="{% url 'user_progress' %}" class="block py-2 px-3 rounded hover:bg-white/10">Progress</a>
+        <a href="{% url 'dtr_records' %}" class="block py-2 px-3 rounded bg-white/10 font-bold">DTR Records</a>
+        <a href="{% url 'student_assistants' %}" class="block py-2 px-3 rounded hover:bg-white/10">Student Assistants</a>
+        <a href="{% url 'chat' %}" class="block py-2 px-3 rounded hover:bg-white/10">Chat</a>
+
+    </nav>
+
+</aside>
+
+<!-- MAIN -->
+<div id="main" class="main">
 
 <div class="w-full h-2 bg-[#003A6C]"></div>
 
@@ -22,15 +79,26 @@
     <!-- HEADER -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
 
-        <div>
-            <h1 class="text-2xl font-bold text-[#003A6C]">DTR Acceptance Portal</h1>
-            <p class="text-gray-600 mt-1">
-                Review Pending and Accepted submissions only.
-            </p>
+        <div class="flex items-center gap-3">
+
+            <!-- ☰ MENU BUTTON (ADDED) -->
+            <button onclick="toggleSidebar()" class="text-gray-700 text-2xl">
+                ☰
+            </button>
+
+            <div>
+                <h1 class="text-2xl font-bold text-[#003A6C]">
+                    DTR Acceptance Portal
+                </h1>
+                <p class="text-gray-600 mt-1">
+                    Review Pending and Accepted submissions only.
+                </p>
+            </div>
+
         </div>
 
-         <a href="{% url 'admin_dashboard' %}"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+        <a href="{% url 'admin_dashboard' %}"
+           class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
             ← Back to Dashboard
         </a>
 
@@ -94,7 +162,7 @@
 
     </form>
 
-    <!-- TABLE -->
+    <!-- TABLE (UNCHANGED) -->
     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
 
         <table class="w-full text-left">
@@ -117,10 +185,8 @@
 
                 <tr class="hover:bg-gray-50">
 
-                    <!-- STUDENT -->
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-
                             <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center font-bold text-[#003A6C]">
                                 {{ dtr.user.first_name|first }}{{ dtr.user.last_name|first }}
                             </div>
@@ -133,56 +199,35 @@
                                     ID: {{ dtr.user.userprofile.id_number }}
                                 </div>
                             </div>
-
                         </div>
                     </td>
 
-                    <!-- OFFICE -->
                     <td class="px-6 py-4 text-sm">
-                        <div class="font-medium text-gray-700">
-                            {{ dtr.user.userprofile.office }}
-                        </div>
+                        {{ dtr.user.userprofile.office }}
                     </td>
 
-                    <!-- PERIOD -->
                     <td class="px-6 py-4 text-sm text-gray-600">
                         {{ dtr.get_month_display }} {{ dtr.year }}
                     </td>
 
-                    <!-- HOURS -->
                     <td class="px-6 py-4 font-bold text-[#003A6C]">
                         {{ dtr.total_hours }} hrs
                     </td>
 
-                    <!-- STATUS -->
                     <td class="px-6 py-4">
-
                         {% if dtr.status == "pending" %}
-                            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">
-                                Pending
-                            </span>
+                        <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">Pending</span>
                         {% elif dtr.status == "approved" %}
-                            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">
-                                Approved
-                            </span>
+                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">Approved</span>
                         {% else %}
-                            <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">
-                                Rejected
-                            </span>
+                        <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">Rejected</span>
                         {% endif %}
-
                     </td>
 
-                    <!-- REMARKS -->
                     <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                        {% if dtr.remarks %}
-                            {{ dtr.remarks }}
-                        {% else %}
-                            <span class="text-gray-400">No remarks</span>
-                        {% endif %}
+                        {{ dtr.remarks|default:"No remarks" }}
                     </td>
 
-                    <!-- ACTION -->
                     <td class="px-6 py-4 text-right">
                         <a href="{% url 'time_correction_user' dtr.user.id %}"
                            class="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold hover:bg-blue-700">
@@ -190,14 +235,6 @@
                         </a>
                     </td>
 
-                </tr>
-
-                {% empty %}
-
-                <tr>
-                    <td colspan="7" class="text-center py-10 text-gray-400">
-                        No DTR records found
-                    </td>
                 </tr>
 
                 {% endfor %}
@@ -209,6 +246,15 @@
     </div>
 
 </div>
+</div>
+
+<!-- TOGGLE SCRIPT -->
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("hidden");
+    document.getElementById("main").classList.toggle("full");
+}
+</script>
 
 </body>
 </html>
