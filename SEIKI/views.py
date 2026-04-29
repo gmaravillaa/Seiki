@@ -2252,6 +2252,55 @@ def time_correction_user(request, user_id):
     
     return render(request, 'caao_admin/time_correction.html', context)
 
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def approve_dtr(request, dtr_id):
+    """Approve a DTR submission with optional remarks"""
+    dtr = get_object_or_404(DTRSubmission, id=dtr_id)
+    
+    # Check authorization
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, dtr.user):
+            messages.error(request, "You are not authorized to approve this DTR submission.")
+            return redirect('office_dtr_submissions')
+    
+    # Update the DTR submission
+    remarks = request.POST.get('remarks', '').strip()
+    dtr.status = 'approved'
+    dtr.approver = request.user
+    dtr.approved_date = timezone.now()
+    if remarks:
+        dtr.remarks = remarks
+    dtr.save()
+    
+    messages.success(request, f"DTR submission for {dtr.user.get_full_name()} ({dtr.month}/{dtr.year}) has been approved.")
+    return redirect('office_dtr_submissions')
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def reject_dtr(request, dtr_id):
+    """Reject a DTR submission with remarks"""
+    dtr = get_object_or_404(DTRSubmission, id=dtr_id)
+    
+    # Check authorization
+    if request.user.is_staff and not request.user.is_superuser:
+        if not user_in_same_office(request.user, dtr.user):
+            messages.error(request, "You are not authorized to reject this DTR submission.")
+            return redirect('office_dtr_submissions')
+    
+    # Update the DTR submission
+    remarks = request.POST.get('remarks', 'Rejected without specific reason').strip()
+    dtr.status = 'rejected'
+    dtr.approver = request.user
+    dtr.approved_date = timezone.now()
+    dtr.remarks = remarks
+    dtr.save()
+    
+    messages.success(request, f"DTR submission for {dtr.user.get_full_name()} ({dtr.month}/{dtr.year}) has been rejected.")
+    return redirect('office_dtr_submissions')
+
 @login_required(login_url='login')
 def chat(request):
     """Main chat view - Private conversations only"""
