@@ -385,6 +385,7 @@ a {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 th {
@@ -397,6 +398,18 @@ th {
   padding: 12px 20px;
   color: var(--gray-600);
   border-bottom: 1px solid var(--gray-200);
+}
+
+th:first-child,
+td:first-child {
+  min-width: 220px;
+}
+
+td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+  white-space: normal;
 }
 
 th.text-right {
@@ -488,7 +501,7 @@ textarea:focus {
 /* ================= GRID LAYOUT ================= */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   align-items: stretch;
 }
