@@ -33,8 +33,10 @@ body {
 <body class="flex">
 
 <!-- SIDEBAR -->
-<aside id="sidebar" class="w-64 min-h-screen text-white flex flex-col justify-between transition-all duration-300"
-       style="background-color: var(--primary-blue);">
+<aside id="sidebar"
+class="fixed left-0 top-0 h-screen w-64 text-white flex flex-col justify-between
+transform transition-transform duration-300 z-50"
+style="background-color: var(--primary-blue);"
 
     <div class="p-6">
         <h1 class="text-xl font-bold">DTR System</h1>
@@ -89,7 +91,7 @@ body {
 </aside>
 
 <!-- MAIN -->
-<div id="main" class="flex-1">
+<div id="main" class="flex-1 transition-all duration-300">
 
     <!-- HEADER -->
     <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
@@ -233,15 +235,7 @@ body {
 // Toggle sidebar + expand content
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('main');
-
-    sidebar.classList.toggle('hidden');
-
-    if (sidebar.classList.contains('hidden')) {
-        main.classList.remove('ml-64');
-    } else {
-        main.classList.add('ml-64');
-    }
+    sidebar.classList.toggle('-translate-x-full');
 }
 
 // Date + Time
