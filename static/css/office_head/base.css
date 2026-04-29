@@ -113,12 +113,12 @@ a {
 }
 
 .sidebar-logo {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% - 3rem);
+  max-width: calc(100% - 2.5rem);
 }
 
 .sidebar-nav {
