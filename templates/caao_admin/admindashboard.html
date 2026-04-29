@@ -11,21 +11,31 @@
 <style>
 :root {
     --primary-blue: #003a6c;
-    --accent-light: #e6eef6;
     --bg-light: #f4f7f9;
 }
 
-/* Smooth transition */
-#main {
-    transition: all 0.3s ease;
-}
 body {
     background-color: var(--bg-light);
 }
 
-/* Sidebar toggle */
-.sidebar-hidden {
-    transform: translateX(-100%);
+/* FIXED SIDEBAR */
+#sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 16rem;
+    background: var(--primary-blue);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 50;
+}
+
+/* MAIN OFFSET */
+#main {
+    margin-left: 16rem;
 }
 </style>
 </head>
@@ -33,8 +43,7 @@ body {
 <body class="flex">
 
 <!-- SIDEBAR -->
-<aside id="sidebar
-    "class="fixed left-0 top-0 h-screen w-64 text-white flex flex-col justify-between transition-all duration-300 transform z-50">
+<aside id="sidebar">
 
     <div class="p-6">
         <h1 class="text-xl font-bold">DTR System</h1>
@@ -42,45 +51,25 @@ body {
 
         <div class="space-y-2 text-sm">
 
-            <a href="{% url 'admin_dashboard' %}" 
-               class="block px-4 py-2 rounded-lg bg-white/10 border-l-4 font-semibold"
-               style="border-color: white;">
+            <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 bg-white/10 rounded-lg font-semibold">
                 Dashboard
             </a>
 
-            <a href="{% url 'user_management' %}" 
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+            <a href="{% url 'user_management' %}" class="block px-4 py-2 hover:bg-white/10 rounded-lg">
                 Management
             </a>
 
-            <a href="{% url 'user_progress' %}" 
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                Progress
-            </a>
-
-            <a href="{% url 'dtr_records' %}" 
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                DTR Records
-            </a>
-
-            <a href="{% url 'student_assistants' %}" 
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+            <a href="{% url 'student_assistants' %}" class="block px-4 py-2 hover:bg-white/10 rounded-lg">
                 Student Assistants
-            </a>
-
-            <a href="{% url 'chat' %}" 
-               class="block px-4 py-2 rounded-lg hover:bg-white/10">
-                Chat
             </a>
 
         </div>
     </div>
 
-    <!-- LOGOUT (ADNU STYLE - CLEAN) -->
     <div class="p-4">
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button class="w-full border border-white/40 py-2 rounded-lg text-white hover:bg-white/10 transition text-sm">
+            <button class="w-full border border-white/40 py-2 rounded-lg hover:bg-white/10">
                 Logout
             </button>
         </form>
@@ -89,180 +78,219 @@ body {
 </aside>
 
 <!-- MAIN -->
-<div id="main" class="flex-1 flex flex-col ml-64">
+<div id="main" class="flex flex-col">
 
-    <!-- HEADER -->
-    <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
+<!-- HEADER -->
+<header class="bg-white h-14 px-6 flex items-center justify-between border-b shadow-sm">
 
-        <!-- LEFT -->
-        <div class="flex items-center gap-4">
-    <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
-        ☰
-    </button>
+    <div class="flex items-center gap-4">
+        <button onclick="toggleSidebar()" class="text-xl">☰</button>
 
-    <div>
-        <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
-        <p class="text-xs text-gray-500">
-            Welcome, {{ request.user.username }}
-        </p>
+        <div>
+            <h2 class="font-semibold">Dashboard</h2>
+            <p class="text-xs text-gray-500">Welcome, {{ request.user.username }}</p>
+        </div>
     </div>
+
+    <div class="text-right">
+        <p id="date" class="text-sm font-semibold"></p>
+        <p id="time" class="text-xs text-gray-500"></p>
+    </div>
+
+</header>
+
+<!-- CONTENT -->
+<main class="p-8">
+
+<!-- STATS -->
+<div class="grid grid-cols-4 gap-4 mb-6">
+
+    <div class="bg-white p-4 rounded-xl text-center">
+        <p>Total Students</p>
+        <h2 class="text-2xl font-bold">{{ total_students }}</h2>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl text-center">
+        <p>Pending</p>
+        <h2 class="text-2xl text-yellow-500 font-bold">{{ pending_dtrs }}</h2>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl text-center">
+        <p>Approved</p>
+        <h2 class="text-2xl text-green-500 font-bold">{{ approved_dtrs }}</h2>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl text-center">
+        <p>Offices</p>
+        <h2 class="text-2xl text-indigo-500 font-bold">{{ active_offices }}</h2>
+    </div>
+
 </div>
 
+<!-- TABLE -->
+<div class="bg-white p-6 rounded-xl">
 
-        <!-- RIGHT -->
-        <div class="text-right">
-            <p id="date" class="text-sm font-semibold text-gray-700"></p>
-            <p id="time" class="text-xs text-gray-500"></p>
-        </div>
+<table class="w-full text-sm">
 
-    </header>
+<thead>
+<tr class="border-b text-left text-gray-500">
+<th>Name</th>
+<th>Office</th>
+<th>Hours</th>
+<th class="text-right">Actions</th>
+</tr>
+</thead>
 
-    
-    <!-- CONTENT -->
-    <main class="p-8">
+<tbody>
 
-        <!-- STATS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+{% for student in students %}
+<tr class="border-b">
 
-            <!-- CARD -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Total Students</p>
-                <h3 class="text-3xl font-bold mt-2" style="color: var(--primary-blue);">
-                    {{ total_students }}
-                </h3>
-            </div>
+<td class="p-3 font-semibold">
+{{ student.get_full_name }}
+</td>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Pending DTRs</p>
-                <h3 class="text-3xl font-bold mt-2 text-yellow-500">
-                    {{ pending_dtrs }}
-                </h3>
-            </div>
+<td class="p-3">
+{{ student.userprofile.office|default:"N/A" }}
+</td>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Approved DTRs</p>
-                <h3 class="text-3xl font-bold mt-2 text-green-500">
-                    {{ approved_dtrs }}
-                </h3>
-            </div>
+<td class="p-3">
+{{ student.total_hours }} hrs
+</td>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
-                        flex flex-col items-center justify-center text-center">
-                <p class="text-gray-500 text-sm">Active Offices</p>
-                <h3 class="text-3xl font-bold mt-2 text-indigo-500">
-                    {{ active_offices }}
-                </h3>
-            </div>
+<td class="p-3 text-right space-x-2">
 
-        </div>
+<!-- VIEW -->
+<button onclick="openView(
+'{{ student.get_full_name }}',
+'{{ student.total_hours }}',
+'{{ student.progress_percent|default:"0" }}'
+)"
+class="bg-blue-600 text-white px-3 py-1 rounded text-xs">
+View
+</button>
 
-        <!-- TABLE -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 border">
+<!-- DELETE -->
+<button onclick="openDelete('{% url 'delete_user' student.id %}')"
+class="bg-red-500 text-white px-3 py-1 rounded text-xs">
+Delete
+</button>
 
-            <h3 class="text-lg font-semibold mb-4 text-gray-700">
-                Student Overview
-            </h3>
+</td>
 
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="text-gray-500 border-b">
-                        <th class="p-3 text-left">Name</th>
-                        <th class="p-3 text-left">Office</th>
-                        <th class="p-3 text-left">Hours</th>
-                        <th class="p-3 text-right">Actions</th>
-                    </tr>
-                </thead>
+</tr>
+{% endfor %}
 
-                <tbody>
-                    {% for student in students %}
-                    <tr class="border-b hover:bg-gray-50">
+</tbody>
 
-                        <td class="p-3 font-semibold">
-                            {{ student.get_full_name }}
-                        </td>
+</table>
 
-                        <td class="p-3">
-                            {{ student.userprofile.office|default:"N/A" }}
-                        </td>
+<!-- VIEW MORE -->
+<div class="mt-4 flex justify-end">
 
-                        <td class="p-3">
-                            {{ student.total_hours }} hrs
-                        </td>
+<a href="{% url 'student_assistants' %}"
+class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm">
 
-                        <td class="p-3 text-right space-x-2">
+View More Students →
+</a>
 
-                            <button onclick="openProgress({{ student.id }})"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs">
-                                View
-                            </button>
-
-                            <form method="POST"
-                                  action="{% url 'delete_user' student.id %}"
-                                  class="inline">
-                                {% csrf_token %}
-                                <button type="submit"
-                                    onclick="return confirm('Delete user?')"
-                                    class="border border-gray-300 text-gray-600 hover:bg-gray-100 px-3 py-1 rounded-lg text-xs">
-                                    Delete
-                                </button>
-                            </form>
-
-                        </td>
-
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="p-4 text-center text-gray-500">
-                            No students found.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-        </div>
-
-    </main>
 </div>
 
-<!-- SCRIPTS -->
+</div>
+
+</main>
+</div>
+
+<!-- VIEW MODAL -->
+<div id="viewModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+<div class="bg-white p-6 w-96 rounded-xl relative">
+
+<button onclick="closeView()" class="absolute top-2 right-3 text-xl">&times;</button>
+
+<h2 id="viewName" class="text-xl font-bold mb-2"></h2>
+
+<div class="bg-gray-200 h-4 rounded-full mb-2">
+<div id="viewBar" class="bg-green-500 h-4 rounded-full" style="width:0%"></div>
+</div>
+
+<p id="viewPercent" class="text-sm font-semibold"></p>
+<p id="viewStatus" class="mt-2 text-sm"></p>
+
+</div>
+</div>
+
+<!-- DELETE MODAL -->
+<div id="deleteModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+<div class="bg-white p-6 w-80 rounded-xl text-center">
+
+<h2 class="text-lg font-bold mb-4">Delete User?</h2>
+<p class="text-sm mb-4">This action cannot be undone.</p>
+
+<form id="deleteForm" method="POST">
+{% csrf_token %}
+<button class="bg-red-600 text-white px-4 py-2 rounded">
+Confirm Delete
+</button>
+</form>
+
+<button onclick="closeDelete()" class="mt-3 text-sm text-gray-500">
+Cancel
+</button>
+
+</div>
+</div>
+
+<!-- SCRIPT -->
 <script>
-// Toggle sidebar + expand content
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('hidden');
+
+// DATE TIME
+function updateDateTime(){
+const now=new Date();
+document.getElementById('date').innerText=now.toDateString();
+document.getElementById('time').innerText=now.toLocaleTimeString();
 }
-
-// Date + Time
-function updateDateTime() {
-    const now = new Date();
-
-    document.getElementById('date').innerText =
-        now.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
-
-    document.getElementById('time').innerText =
-        now.toLocaleTimeString('en-US');
-}
-
-setInterval(updateDateTime, 1000);
+setInterval(updateDateTime,1000);
 updateDateTime();
 
-// Progress
-function openProgress(id) {
-    fetch(`/user-progress/${id}/json/`)
-    .then(res => res.json())
-    .then(data => {
-        alert(data.name + " - " + data.percent + "%");
-    });
+// SIDEBAR
+function toggleSidebar(){
+document.getElementById('sidebar').classList.toggle('hidden');
 }
+
+// VIEW
+function openView(name,hours,percent){
+
+document.getElementById('viewModal').classList.remove('hidden');
+document.getElementById('viewModal').classList.add('flex');
+
+document.getElementById('viewName').innerText=name;
+document.getElementById('viewPercent').innerText=percent+"%";
+document.getElementById('viewBar').style.width=percent+"%";
+
+let status="Needs More Hours";
+if(percent>=100) status="Eligible to Renew";
+else if(percent>=70) status="Almost Complete";
+
+document.getElementById('viewStatus').innerText=status;
+}
+
+function closeView(){
+document.getElementById('viewModal').classList.add('hidden');
+}
+
+// DELETE
+function openDelete(url){
+document.getElementById('deleteModal').classList.remove('hidden');
+document.getElementById('deleteModal').classList.add('flex');
+document.getElementById('deleteForm').action=url;
+}
+
+function closeDelete(){
+document.getElementById('deleteModal').classList.add('hidden');
+}
+
 </script>
 
 </body>
