@@ -2,20 +2,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - DTR System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - DTR System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* COMPLETE EMBEDDED CSS SYSTEM - ONE FILE SOLUTION */
+:root {
+    --primary-blue: #003a6c; --bg-light: #f8fafc; --bg-white: #ffffff;
+    --text-dark: #1e293b; --text-gray: #64748b; --text-light: #94a3b8;
+    --border-color: #e2e8f0; --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --radius: 12px; --transition: all 0.2s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    font-family: system-ui, sans-serif; 
+    background: var(--bg-light); color: var(--text-dark); line-height: 1.6; 
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px; height: 100vh; background: var(--primary-blue); color: white;
+    position: fixed; left: 0; top: 0; display: flex; flex-direction: column;
+    padding: 24px 20px; box-shadow: var(--shadow-sm); z-index: 1000;
+}
+.sidebar h1 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.sidebar p { font-size: 12px; opacity: 0.8; margin-bottom: 32px; }
+.sidebar nav { flex: 1; }
+.nav-item {
+    display: block; padding: 12px 16px; color: rgba(255,255,255,0.9); 
+    text-decoration: none; border-radius: 8px; font-size: 13px; margin-bottom: 4px;
+    transition: var(--transition);
+}
+.nav-item:hover { background: rgba(255,255,255,0.1); }
+.nav-active { background: rgba(255,255,255,0.15); font-weight: 600; }
+
+/* MAIN */
+.main { margin-left: 260px; min-height: 100vh; transition: var(--transition); }
+.main.full { margin-left: 0; }
+
+/* HEADER */
+.header {
+    height: 56px; background: var(--bg-white); padding: 0 24px; display: flex;
+    align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 999;
+}
+.header h2 { font-size: 18px; font-weight: 700; margin: 0; }
+.header p { font-size: 12px; color: var(--text-gray); margin: 0; }
+
+/* CONTENT */
+.content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+/* CARDS */
+.card {
+    background: var(--bg-white); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 24px;
+}
+.card.border-primary { border-top: 4px solid var(--primary-blue); }
+
+/* BUTTONS */
+.btn {
+    padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 12px;
+    text-transform: uppercase; cursor: pointer; border: none; transition: var(--transition);
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--primary-blue); color: white; }
+.btn-primary:hover { background: #002954; }
+.btn-secondary { background: white; color: var(--text-gray); border: 1px solid var(--border-color); }
+.btn-secondary:hover { background: #f1f5f9; }
+
+/* TABLES */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+    background: #f8fafc; padding: 16px; text-align: left; font-weight: 800; font-size: 11px;
+    color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px;
+}
+td { padding: 16px; border-bottom: 1px solid var(--border-color); }
+tr:hover { background: rgba(0,58,108,0.02); }
+
+/* GRID */
+.grid { display: grid; gap: 24px; }
+@media (min-width: 768px) { .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); } }
+.mb-6 { margin-bottom: 24px; }
+.p-6 { padding: 24px; }
+.text-center { text-align: center; }
+.font-black { font-weight: 900; }
+
+/* MODAL */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+    align-items: center; justify-content: center; z-index: 2000; padding: 20px;
+}
+.modal { 
+    background: var(--bg-white); max-width: 500px; width: 100%; border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); max-height: 90vh; overflow-y: auto; position: relative;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; }
+    .content { padding: 16px; }
+    .header { padding: 0 16px; }
+}
+</style>
 </head>
+
 <body>
 
-<!-- SIDEBAR (UNIFORM) -->
+<!-- SIDEBAR -->
 <aside id="sidebar" class="sidebar">
     <div>
         <h1>DTR System</h1>
-        <p class="text-xs">Admin Panel</p>
-        <nav class="space-y-2">
+        <p>Admin Panel</p>
+        <nav>
             <a href="{% url 'admin_dashboard' %}" class="nav-item nav-active">Dashboard</a>
             <a href="{% url 'user_management' %}" class="nav-item">Management</a>
             <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
@@ -32,75 +136,54 @@
     </div>
 </aside>
 
-<!-- MAIN CONTENT (UNIFORM) -->
-<main id="main" class="main">
-    <!-- HEADER (UNIFORM) -->
+<!-- MAIN -->
+<div id="main" class="main">
+    <!-- HEADER -->
     <header class="header">
         <div class="flex items-center gap-4">
             <button onclick="toggleSidebar()" class="text-2xl">☰</button>
             <div>
                 <h2>Dashboard</h2>
-                <p class="text-xs">Welcome, {{ request.user.username }}</p>
+                <p>Welcome, {{ request.user.username }}</p>
             </div>
         </div>
         <div class="text-right">
-            <p id="date" class="text-sm font-bold text-gray-700"></p>
-            <p id="time" class="text-xs text-gray-500"></p>
+            <p id="date" class="text-sm font-bold" style="color: var(--text-dark);"></p>
+            <p id="time" class="text-xs" style="color: var(--text-gray);"></p>
         </div>
     </header>
 
-    <!-- DASHBOARD CONTENT -->
+    <!-- CONTENT -->
     <div class="content">
-        
-        <!-- STATS CARDS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            
-            <!-- TOTAL STUDENTS -->
-            <div class="card p-6 text-center hover:shadow-md transition">
-                <p class="text-sm text-gray-500 mb-2">Total Students</p>
-                <h3 class="text-3xl font-black mb-1" style="color: var(--primary-blue);">
-                    {{ total_students|default:0 }}
-                </h3>
-                <i class="fas fa-users text-2xl text-blue-100"></i>
+        <!-- STATS -->
+        <div class="grid lg:grid-cols-4 md:grid-cols-2 mb-6">
+            <div class="card p-6 text-center hover:shadow-md" style="transition: var(--transition);">
+                <p class="text-sm" style="color: var(--text-gray);">Total Students</p>
+                <h3 class="text-3xl font-black mb-2" style="color: var(--primary-blue);">{{ total_students|default:0 }}</h3>
+                <i class="fas fa-users text-2xl" style="color: #bfdbfe;"></i>
             </div>
-
-            <!-- PENDING DTRS -->
-            <div class="card p-6 text-center hover:shadow-md transition">
-                <p class="text-sm text-gray-500 mb-2">Pending DTRs</p>
-                <h3 class="text-3xl font-black mb-1 text-yellow-500">
-                    {{ pending_dtrs|default:0 }}
-                </h3>
-                <i class="fas fa-clock text-2xl text-yellow-100"></i>
+            <div class="card p-6 text-center hover:shadow-md" style="transition: var(--transition);">
+                <p class="text-sm" style="color: var(--text-gray);">Pending DTRs</p>
+                <h3 class="text-3xl font-black mb-2" style="color: #f59e0b;">{{ pending_dtrs|default:0 }}</h3>
+                <i class="fas fa-clock text-2xl" style="color: #fef3c7;"></i>
             </div>
-
-            <!-- APPROVED DTRS -->
-            <div class="card p-6 text-center hover:shadow-md transition">
-                <p class="text-sm text-gray-500 mb-2">Approved DTRs</p>
-                <h3 class="text-3xl font-black mb-1 text-green-500">
-                    {{ approved_dtrs|default:0 }}
-                </h3>
-                <i class="fas fa-check-circle text-2xl text-green-100"></i>
+            <div class="card p-6 text-center hover:shadow-md" style="transition: var(--transition);">
+                <p class="text-sm" style="color: var(--text-gray);">Approved DTRs</p>
+                <h3 class="text-3xl font-black mb-2" style="color: #10b981;">{{ approved_dtrs|default:0 }}</h3>
+                <i class="fas fa-check-circle text-2xl" style="color: #d1fae5;"></i>
             </div>
-
-            <!-- ACTIVE OFFICES -->
-            <div class="card p-6 text-center hover:shadow-md transition">
-                <p class="text-sm text-gray-500 mb-2">Active Offices</p>
-                <h3 class="text-3xl font-black mb-1 text-indigo-500">
-                    {{ active_offices|default:0 }}
-                </h3>
-                <i class="fas fa-building text-2xl text-indigo-100"></i>
+            <div class="card p-6 text-center hover:shadow-md" style="transition: var(--transition);">
+                <p class="text-sm" style="color: var(--text-gray);">Active Offices</p>
+                <h3 class="text-3xl font-black mb-2" style="color: #6366f1;">{{ active_offices|default:0 }}</h3>
+                <i class="fas fa-building text-2xl" style="color: #e0e7ff;"></i>
             </div>
-
         </div>
 
-        <!-- STUDENT TABLE -->
+        <!-- TABLE -->
         <div class="card border-primary">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-lg font-black mb-0 text-gray-800">
-                    Student Overview
-                </h3>
+            <div class="p-6" style="border-bottom: 1px solid var(--border-color);">
+                <h3 class="text-lg font-black" style="color: var(--text-dark);">Student Overview</h3>
             </div>
-            
             <div class="table-container">
                 <table>
                     <thead>
@@ -108,38 +191,31 @@
                             <th>Name</th>
                             <th>Office</th>
                             <th>Hours</th>
-                            <th class="text-right">Actions</th>
+                            <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for student in students %}
-                        <tr class="hover:bg-blue-50/20 transition">
-                            <td class="font-bold text-primary-blue">
-                                {{ student.get_full_name }}
-                            </td>
+                        <tr style="transition: var(--transition);">
+                            <td style="font-weight: 700; color: var(--primary-blue);">{{ student.get_full_name }}</td>
                             <td>{{ student.userprofile.office|default:"N/A" }}</td>
-                            <td class="font-medium">
-                                {{ student.total_hours|default:0 }} hrs
-                            </td>
-                            <td class="text-right">
-                                <button onclick="openProgress({{ student.id }})" 
-                                        class="btn btn-primary text-xs px-3 py-1 mr-2">
-                                    <i class="fas fa-eye mr-1"></i>View
+                            <td style="font-weight: 500;">{{ student.total_hours|default:0 }} hrs</td>
+                            <td style="text-align: right;">
+                                <button onclick="openProgress({{ student.id }})" class="btn btn-primary text-xs px-3 py-1 mr-2">
+                                    <i class="fas fa-eye"></i> View
                                 </button>
-                                <form method="POST" action="{% url 'delete_user' student.id %}" class="inline">
+                                <form method="POST" action="{% url 'delete_user' student.id %}" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" 
-                                            onclick="return confirm('Delete {{ student.get_full_name }}?')"
-                                            class="btn btn-secondary text-xs px-3 py-1">
-                                        <i class="fas fa-trash mr-1"></i>Delete
+                                    <button type="submit" onclick="return confirm('Delete {{ student.get_full_name }}?')" class="btn btn-secondary text-xs px-3 py-1">
+                                        <i class="fas fa-trash"></i> Delete
                                     </button>
                                 </form>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="p-8 text-center text-gray-500 py-12">
-                                <i class="fas fa-users text-4xl text-gray-300 mb-4 block"></i>
+                            <td colspan="4" style="padding: 48px; text-align: center; color: var(--text-gray);">
+                                <i class="fas fa-users text-4xl mb-4" style="color: #cbd5e1; display: block;"></i>
                                 No students found.
                             </td>
                         </tr>
@@ -148,44 +224,38 @@
                 </table>
             </div>
         </div>
-
     </div>
-</main>
+</div>
 
-<!-- STUDENT MODAL -->
-<div id="studentModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50 p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
-        <button onclick="closeModal()" 
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">
-            ×
-        </button>
-        <h2 class="text-2xl font-black mb-6" style="color: var(--primary-blue);">
-            Student Information
-        </h2>
-        <div class="space-y-4">
+<!-- MODAL -->
+<div id="studentModal" class="modal-overlay hidden">
+    <div class="modal p-6">
+        <button onclick="closeModal()" style="position: absolute; top: 16px; right: 20px; font-size: 24px; color: var(--text-gray); font-weight: bold;">×</button>
+        <h2 class="text-2xl font-black mb-6" style="color: var(--primary-blue);">Student Information</h2>
+        <div style="display: flex; flex-direction: column; gap: 20px;">
             <div>
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Full Name</p>
-                <p id="modalName" class="font-black text-xl text-gray-800"></p>
+                <p style="font-size: 11px; font-weight: 800; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Full Name</p>
+                <p id="modalName" style="font-weight: 900; font-size: 20px; color: var(--text-dark);"></p>
             </div>
             <div>
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Student ID</p>
-                <p id="modalID" class="font-semibold text-gray-800"></p>
+                <p style="font-size: 11px; font-weight: 800; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Student ID</p>
+                <p id="modalID" style="font-weight: 700; color: var(--text-dark);"></p>
             </div>
             <div>
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Office</p>
-                <p id="modalOffice" class="font-semibold text-gray-800"></p>
+                <p style="font-size: 11px; font-weight: 800; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Office</p>
+                <p id="modalOffice" style="font-weight: 700; color: var(--text-dark);"></p>
             </div>
             <div>
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Status</p>
-                <span id="modalStatus" class="inline-block px-3 py-1 rounded-full text-xs font-black uppercase"></span>
+                <p style="font-size: 11px; font-weight: 800; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Status</p>
+                <span id="modalStatus" style="display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase;"></span>
             </div>
             <div>
-                <div class="flex justify-between text-sm font-semibold mb-2">
-                    <span class="text-gray-500">Progress</span>
+                <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 12px;">
+                    <span style="color: var(--text-gray);">Progress</span>
                     <span id="modalPercent"></span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                    <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-primary-blue h-4 rounded-full transition-all duration-700" style="width: 0%"></div>
+                <div style="width: 100%; height: 16px; background: #e2e8f0; border-radius: 8px; overflow: hidden;">
+                    <div id="progressBar" style="height: 100%; background: linear-gradient(90deg, var(--primary-blue), #2563eb); border-radius: 8px; width: 0%; transition: width 0.7s ease;"></div>
                 </div>
             </div>
         </div>
@@ -193,43 +263,31 @@
 </div>
 
 <script>
-// UNIFORM SIDEBAR TOGGLE
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('hidden');
+    document.getElementById('sidebar').style.transform = document.getElementById('sidebar').style.transform ? '' : 'translateX(-100%)';
     document.getElementById('main').classList.toggle('full');
 }
 
-// DATE & TIME
 function updateDateTime() {
     const now = new Date();
-    document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
-        weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-    });
+    document.getElementById('date').textContent = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
     document.getElementById('time').textContent = now.toLocaleTimeString('en-US');
 }
-setInterval(updateDateTime, 1000);
-updateDateTime();
+setInterval(updateDateTime, 1000); updateDateTime();
 
-// STUDENT MODAL
 function openProgress(id) {
-    fetch(`/user-progress/${id}/json/`)
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('studentModal').classList.remove('hidden');
-            
-            document.getElementById('modalName').textContent = data.name;
-            document.getElementById('modalID').textContent = data.student_id;
-            document.getElementById('modalOffice').textContent = data.office;
-            document.getElementById('modalPercent').textContent = data.percent + '%';
-            
-            const status = document.getElementById('modalStatus');
-            status.textContent = data.status;
-            status.className = data.status === 'Active' ? 
-                'inline-block px-3 py-1 rounded-full text-xs font-black bg-green-100 text-green-700' : 
-                'inline-block px-3 py-1 rounded-full text-xs font-black bg-gray-100 text-gray-700';
-            
-            document.getElementById('progressBar').style.width = data.percent + '%';
-        });
+    fetch(`/user-progress/${id}/json/`).then(res => res.json()).then(data => {
+        document.getElementById('studentModal').classList.remove('hidden');
+        document.getElementById('modalName').textContent = data.name;
+        document.getElementById('modalID').textContent = data.student_id;
+        document.getElementById('modalOffice').textContent = data.office;
+        document.getElementById('modalPercent').textContent = data.percent + '%';
+        const status = document.getElementById('modalStatus');
+        status.textContent = data.status;
+        status.style.background = data.status === 'Active' ? '#d1fae5' : '#f1f5f9';
+        status.style.color = data.status === 'Active' ? '#065f46' : '#475569';
+        document.getElementById('progressBar').style.width = data.percent + '%';
+    });
 }
 
 function closeModal() {
