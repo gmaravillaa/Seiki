@@ -1,124 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DTR Acceptance Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTR Acceptance Portal</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root {
-            --primary-blue: #003a6c;
-            --bg-light: #f4f7f9;
-        }
-
-        body {
-            background-color: var(--bg-light);
-        }
-
-        .sidebar {
-            width: 260px;
-            min-height: 100vh;
-            background: var(--primary-blue);
-            color: white;
-            position: fixed;
-            left: 0;
-            top: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.3s ease;
-        }
-
-        .main {
-            margin-left: 260px;
-        }
-
-        .nav-item {
-            display: block;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: rgba(255,255,255,0.85);
-        }
-
-        .nav-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .nav-active {
-            background: rgba(255,255,255,0.15);
-            font-weight: 600;
-        }
-
-        .sidebar.hidden {
-            transform: translateX(-100%);
-        }
-
-        .main.full {
-            margin-left: 0;
-        }
+        body { font-family: Inter, sans-serif; }
     </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900 flex">
+<body class="bg-gray-50 text-gray-900">
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar p-5">
+<div class="w-full h-2 bg-[#003A6C]"></div>
 
-    <div>
-        <h1 class="text-xl font-bold">DTR System</h1>
-        <p class="text-xs opacity-70 mb-6">Admin Panel</p>
-
-        <nav class="space-y-2">
-            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
-            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
-            <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
-            <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
-            <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
-            <a href="{% url 'chat' %}" class="nav-item">Chat</a>
-        </nav>
-    </div>
-
-    <div class="p-4">
-        <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg">
-                Logout
-            </button>
-        </form>
-    </div>
-
-</aside>
-
-<!-- MAIN -->
-<div id="main" class="main w-full">
+<div class="p-6 space-y-6 max-w-7xl mx-auto">
 
     <!-- HEADER -->
-    <div class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
 
-        <!-- LEFT -->
-        <div class="flex items-center gap-4">
-
-            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
-                ☰
-            </button>
-
-            <div>
-                <h1 class="text-2xl font-bold text-[#003A6C]">
-                    DTR Acceptance Portal
-                </h1>
-                <p class="text-gray-600 mt-1">
-                    Review Pending and Accepted submissions only.
-                </p>
-            </div>
-
+        <div>
+            <h1 class="text-2xl font-bold text-[#003A6C]">DTR Acceptance Portal</h1>
+            <p class="text-gray-600 mt-1">
+                Review Pending and Accepted submissions only.
+            </p>
         </div>
 
-        <a href="{% url 'admin_dashboard' %}"
-           class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+         <a href="{% url 'admin_dashboard' %}"
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
             ← Back to Dashboard
         </a>
 
@@ -182,7 +94,7 @@
 
     </form>
 
-    <!-- TABLE (UNCHANGED) -->
+    <!-- TABLE -->
     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
 
         <table class="w-full text-left">
@@ -205,8 +117,10 @@
 
                 <tr class="hover:bg-gray-50">
 
+                    <!-- STUDENT -->
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
+
                             <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center font-bold text-[#003A6C]">
                                 {{ dtr.user.first_name|first }}{{ dtr.user.last_name|first }}
                             </div>
@@ -219,35 +133,56 @@
                                     ID: {{ dtr.user.userprofile.id_number }}
                                 </div>
                             </div>
+
                         </div>
                     </td>
 
+                    <!-- OFFICE -->
                     <td class="px-6 py-4 text-sm">
-                        {{ dtr.user.userprofile.office }}
+                        <div class="font-medium text-gray-700">
+                            {{ dtr.user.userprofile.office }}
+                        </div>
                     </td>
 
+                    <!-- PERIOD -->
                     <td class="px-6 py-4 text-sm text-gray-600">
                         {{ dtr.get_month_display }} {{ dtr.year }}
                     </td>
 
+                    <!-- HOURS -->
                     <td class="px-6 py-4 font-bold text-[#003A6C]">
                         {{ dtr.total_hours }} hrs
                     </td>
 
+                    <!-- STATUS -->
                     <td class="px-6 py-4">
+
                         {% if dtr.status == "pending" %}
-                        <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">Pending</span>
+                            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">
+                                Pending
+                            </span>
                         {% elif dtr.status == "approved" %}
-                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">Approved</span>
+                            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">
+                                Approved
+                            </span>
                         {% else %}
-                        <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">Rejected</span>
+                            <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">
+                                Rejected
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <!-- REMARKS -->
+                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                        {% if dtr.remarks %}
+                            {{ dtr.remarks }}
+                        {% else %}
+                            <span class="text-gray-400">No remarks</span>
                         {% endif %}
                     </td>
 
-                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                        {{ dtr.remarks|default:"No remarks" }}
-                    </td>
-
+                    <!-- ACTION -->
                     <td class="px-6 py-4 text-right">
                         <a href="{% url 'time_correction_user' dtr.user.id %}"
                            class="px-3 py-1 bg-blue-600 text-white text-xs rounded font-bold hover:bg-blue-700">
@@ -255,6 +190,14 @@
                         </a>
                     </td>
 
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="7" class="text-center py-10 text-gray-400">
+                        No DTR records found
+                    </td>
                 </tr>
 
                 {% endfor %}
@@ -266,15 +209,6 @@
     </div>
 
 </div>
-</div>
-
-<!-- TOGGLE SCRIPT -->
-<script>
-function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("hidden");
-    document.getElementById("main").classList.toggle("full");
-}
-</script>
 
 </body>
 </html>
