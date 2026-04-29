@@ -11,7 +11,7 @@
 
 <body>
 
-<!-- SIDEBAR - UNIFIED WITH USER MANAGEMENT -->
+<!-- SIDEBAR - IDENTICAL -->
 <aside id="sidebar" class="sidebar">
     <div>
         <h1>DTR System</h1>
@@ -33,87 +33,117 @@
     </div>
 </aside>
 
-<!-- MAIN - UNIFIED LAYOUT -->
+<!-- MAIN -->
 <div id="main" class="main">
-    <!-- HEADER - UNIFIED -->
+    <!-- HEADER - EXACT USER MANAGEMENT STYLE -->
     <header class="header">
         <div class="header-left">
             <button onclick="toggleSidebar()" class="hamburger">☰</button>
             <div>
-                <h2 class="page-title">Dashboard</h2>
-                <p class="page-subtitle">Welcome, {{ request.user.username }}</p>
+                <h2 class="page-title">Dashboard Overview</h2>
+                <p class="page-subtitle">Monitor system activity, students, and DTR submissions at a glance.</p>
             </div>
         </div>
-        <div class="text-right">
-            <p id="date" class="text-sm font-bold"></p>
-            <p id="time" class="text-xs"></p>
-        </div>
+        <!-- BACK BUTTON LIKE USER MGMT -->
+        <a href="#" onclick="history.back()" class="back-btn">← Back</a>
     </header>
 
-    <!-- CONTENT - UNIFIED -->
-    <div class="content">
-        <!-- STATS GRID - PERFECT, JUST CLASS UPDATES -->
-        <div class="grid lg:grid-cols-4 md:grid-cols-2 space-y-6">
-            <div class="card p-6 text-center">
-                <p class="text-sm text-gray-500 mb-2">Total Students</p>
-                <h3 class="text-3xl font-black mb-4 text-[#003A6C]">{{ total_students|default:0 }}</h3>
-                <i class="fas fa-users text-2xl text-blue-300"></i>
+    <!-- CONTENT - EXACT USER MANAGEMENT FLOW -->
+    <div class="content space-y-6">
+        
+        <!-- PRIMARY ACTION CARD #1 - STATS OVERVIEW (LIKE CREATE FORM) -->
+        <div class="card card-primary">
+            <div class="card-header">
+                <h2 class="card-title">System Statistics</h2>
             </div>
-            <div class="card p-6 text-center">
-                <p class="text-sm text-gray-500 mb-2">Pending DTRs</p>
-                <h3 class="text-3xl font-black mb-4 text-orange-500">{{ pending_dtrs|default:0 }}</h3>
-                <i class="fas fa-clock text-2xl text-orange-200"></i>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-users text-3xl text-[#003A6C] mb-2 block"></i>
+                    <h3 class="text-2xl font-black text-[#003A6C] mb-1">{{ total_students|default:0 }}</h3>
+                    <p class="text-sm font-bold text-gray-500 uppercase">Total Students</p>
+                </div>
+                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-clock text-3xl text-orange-500 mb-2 block"></i>
+                    <h3 class="text-2xl font-black text-orange-500 mb-1">{{ pending_dtrs|default:0 }}</h3>
+                    <p class="text-sm font-bold text-gray-500 uppercase">Pending DTRs</p>
+                </div>
+                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-check-circle text-3xl text-green-600 mb-2 block"></i>
+                    <h3 class="text-2xl font-black text-green-600 mb-1">{{ approved_dtrs|default:0 }}</h3>
+                    <p class="text-sm font-bold text-gray-500 uppercase">Approved DTRs</p>
+                </div>
+                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-building text-3xl text-indigo-600 mb-2 block"></i>
+                    <h3 class="text-2xl font-black text-indigo-600 mb-1">{{ active_offices|default:0 }}</h3>
+                    <p class="text-sm font-bold text-gray-500 uppercase">Active Offices</p>
+                </div>
             </div>
-            <div class="card p-6 text-center">
-                <p class="text-sm text-gray-500 mb-2">Approved DTRs</p>
-                <h3 class="text-3xl font-black mb-4 text-green-600">{{ approved_dtrs|default:0 }}</h3>
-                <i class="fas fa-check-circle text-2xl text-green-200"></i>
-            </div>
-            <div class="card p-6 text-center">
-                <p class="text-sm text-gray-500 mb-2">Active Offices</p>
-                <h3 class="text-3xl font-black mb-4 text-indigo-600">{{ active_offices|default:0 }}</h3>
-                <i class="fas fa-building text-2xl text-indigo-200"></i>
+            <!-- LIVE CLOCK - LIKE USER MGMT SUBTITLE -->
+            <div class="p-6 pt-0 border-t bg-gray-50">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-bold text-gray-500 uppercase">Last Updated</span>
+                    <div>
+                        <p id="date" class="font-bold"></p>
+                        <p id="time" class="text-xs text-gray-400"></p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- STUDENT TABLE - UNIFIED CARD -->
-        <div class="card card-primary">
-            <div class="card-header">
-                <h2 class="card-title">Student Overview</h2>
+        <!-- SECONDARY CARD #2 - DATA TABLE WITH FILTERS (EXACT LIKE USER MGMT) -->
+        <div class="card">
+            <!-- FILTER BAR - EXACT LIKE USER MGMT -->
+            <div class="table-filters">
+                <button onclick="filterStudents('all')" class="filter-btn active">All Students</button>
+                <button onclick="filterStudents('Active')" class="filter-btn">Active</button>
+                <button onclick="filterStudents('Inactive')" class="filter-btn">Inactive</button>
+                <button onclick="filterStudents('Pending')" class="filter-btn">Pending Hours</button>
             </div>
+
+            <!-- TABLE - EXACT USER MGMT STYLE -->
             <div class="table-container">
-                <table class="table">
+                <table class="table" id="dashboardTable">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <th>Student Name</th>
                             <th>Office</th>
-                            <th>Hours</th>
-                            <th style="text-align: right;">Actions</th>
+                            <th>Required Hours</th>
+                            <th>Logged Hours</th>
+                            <th>Progress</th>
+                            <th class="text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for student in students %}
-                        <tr class="hover:bg-blue-50/20">
-                            <td class="username-bold">{{ student.get_full_name }}</td>
-                            <td>{{ student.userprofile.office|default:"N/A" }}</td>
-                            <td class="font-medium">{{ student.total_hours|default:0 }} hrs</td>
+                        <tr class="student-row hover:bg-blue-50/20 transition" 
+                            data-status="{% if student.total_hours >= student.userprofile.required_hours %}Active{% elif student.total_hours > 0 %}Pending{% else %}Inactive{% endif %}">
+                            <td class="username-bold font-medium">{{ student.get_full_name }}</td>
+                            <td class="text-sm text-gray-500">{{ student.userprofile.office|default:"N/A" }}</td>
+                            <td class="font-medium">{{ student.userprofile.required_hours|default:0 }} hrs</td>
+                            <td class="font-semibold text-[#003A6C]">{{ student.total_hours|default:0 }} hrs</td>
+                            <td>
+                                <span class="role-badge bg-green-100 text-green-800">
+                                    {% if student.total_hours >= student.userprofile.required_hours %}Complete{% else %}{{ student.progress|floatformat:0 }}%{% endif %}
+                                </span>
+                            </td>
                             <td class="text-right">
-                                <button onclick="openProgress({{ student.id }})" class="btn-primary text-xs px-3 py-1 mr-2">
-                                    <i class="fas fa-eye"></i> View
+                                <button onclick="openProgress({{ student.id }})" class="action-btn text-blue-500 hover:text-[#003A6C]">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                                 <form method="POST" action="{% url 'delete_user' student.id %}" class="inline">
                                     {% csrf_token %}
-                                    <button type="submit" onclick="return confirm('Delete {{ student.get_full_name }}?')" class="btn-secondary text-xs px-3 py-1">
-                                        <i class="fas fa-trash"></i> Delete
+                                    <button type="submit" onclick="return confirm('Delete {{ student.get_full_name }}?')" class="action-btn text-red-400 hover:text-red-500">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-12 text-gray-500">
-                                <i class="fas fa-users text-4xl mb-4 text-gray-300 block"></i>
-                                No students found.
+                            <td colspan="6" class="text-center py-12 text-gray-500">
+                                <i class="fas fa-users text-5xl mb-4 text-gray-300"></i>
+                                <p class="text-lg font-semibold">No students found</p>
+                                <p class="text-sm">Create your first student account in Management</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -124,32 +154,20 @@
     </div>
 </div>
 
-<!-- MODAL - UNIFIED STYLING -->
+<!-- MODAL - SAME AS BEFORE -->
 <div id="studentModal" class="modal-overlay hidden">
     <div class="modal p-6">
         <button onclick="closeModal()" class="text-gray-500 text-2xl font-bold absolute top-4 right-5">×</button>
-        <h2 class="text-2xl font-black mb-6 text-[#003A6C]">Student Information</h2>
+        <h2 class="text-2xl font-black mb-6 text-[#003A6C]">Student Details</h2>
+        <!-- Modal content unchanged -->
         <div class="space-y-5">
-            <div>
-                <p class="form-section-title">Full Name</p>
-                <p id="modalName" class="font-black text-2xl"></p>
-            </div>
-            <div>
-                <p class="form-section-title">Student ID</p>
-                <p id="modalID" class="font-semibold"></p>
-            </div>
-            <div>
-                <p class="form-section-title">Office</p>
-                <p id="modalOffice" class="font-semibold"></p>
-            </div>
-            <div>
-                <p class="form-section-title">Status</p>
-                <span id="modalStatus" class="role-badge"></span>
-            </div>
+            <div><p class="form-section-title">Full Name</p><p id="modalName" class="font-black text-2xl"></p></div>
+            <div><p class="form-section-title">Student ID</p><p id="modalID" class="font-semibold"></p></div>
+            <div><p class="form-section-title">Office</p><p id="modalOffice" class="font-semibold"></p></div>
+            <div><p class="form-section-title">Status</p><span id="modalStatus" class="role-badge"></span></div>
             <div>
                 <div class="flex justify-between font-semibold mb-3 text-sm">
-                    <span class="text-gray-500">Progress</span>
-                    <span id="modalPercent"></span>
+                    <span class="text-gray-500">Progress</span><span id="modalPercent"></span>
                 </div>
                 <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
                     <div id="progressBar" class="h-full bg-gradient-to-r from-[#003A6C] to-blue-500 rounded-full w-0 transition-all duration-700"></div>
@@ -159,13 +177,14 @@
     </div>
 </div>
 
-<!-- ALL JS UNCHANGED -->
+<!-- JS - ENHANCED WITH USER MGMT FILTER LOGIC -->
 <script>
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('hidden');
     document.getElementById('main').classList.toggle('full');
 }
 
+// DATE/TIME - SAME
 function updateDateTime() {
     const now = new Date();
     document.getElementById('date').textContent = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
@@ -173,6 +192,22 @@ function updateDateTime() {
 }
 setInterval(updateDateTime, 1000); updateDateTime();
 
+// TABLE FILTER - EXACT LIKE USER MANAGEMENT
+function filterStudents(status) {
+    const rows = document.querySelectorAll('.student-row');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter rows
+    rows.forEach(row => {
+        row.style.display = (status === 'all' || row.dataset.status === status) ? 'table-row' : 'none';
+    });
+}
+
+// MODAL - SAME
 function openProgress(id) {
     fetch(`/user-progress/${id}/json/`).then(res => res.json()).then(data => {
         document.getElementById('studentModal').classList.remove('hidden');
