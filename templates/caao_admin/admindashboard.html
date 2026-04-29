@@ -95,18 +95,18 @@ body {
     <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
 
         <!-- LEFT -->
-        <div class="flex items-center gap-4">
-            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
-                ☰
-            </button>
+        <<div class="flex items-center gap-4">
+    <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
+        ☰
+    </button>
 
-            <div
-                <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
-                <p class="text-xs text-gray-500">
-                    Welcome, {{ request.user.username }}
-                </p>
-            </div>
-        </div>
+    <div>
+        <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
+        <p class="text-xs text-gray-500">
+            Welcome, {{ request.user.username }}
+        </p>
+    </div>
+</div>
 
 
         <!-- RIGHT -->
@@ -233,16 +233,14 @@ body {
 // Toggle sidebar + expand content
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('main');
+
+    <script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
 
     sidebar.classList.toggle('hidden');
-
-    if (sidebar.classList.contains('hidden')) {
-        main.classList.remove('ml-64');
-    } else {
-        main.classList.add('ml-64');
-    }
 }
+</script>
 
 // Date + Time
 function updateDateTime() {
