@@ -118,13 +118,12 @@
             <td style="font-size: 13px; color: var(--gray-600);">{{ submission.remarks|default:"-" }}</td>
             <td class="text-right">
               {% if submission.status == 'pending' %}
-              <form method="post" action="{% url 'approve_dtr' submission.id %}" style="display: inline;">
+              <form method="post" action="{% url 'approve_dtr' submission.id %}" style="display: inline-block; margin-right: 8px;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-success">Approve</button>
-              </form>
-              <form method="post" action="{% url 'reject_dtr' submission.id %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                  <textarea name="remarks" placeholder="Approval message (optional)" rows="2" cols="25" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;"></textarea>
+                  <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                </div>
               </form>
               {% else %}
               <a href="{% url 'time_correction' submission.id %}" class="btn btn-sm btn-outline">View</a>
