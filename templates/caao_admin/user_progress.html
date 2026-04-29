@@ -7,81 +7,105 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-body {
-    overflow: hidden;
-}
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-/* SIDEBAR */
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 260px;
-    height: 100vh;
-    background: #003A6C;
-    color: white;
-    transition: 0.3s;
-    z-index: 50;
-}
+    <style>
+        :root {
+            --primary-blue: #003a6c;
+            --bg-light: #f4f7f9;
+        }
 
-/* MAIN */
-.main {
-    margin-left: 260px;
-    height: 100vh;
-    overflow-y: auto;
-    transition: 0.3s;
-}
+        body {
+            background-color: var(--bg-light);
+        }
 
-/* HIDE */
-.sidebar.hide {
-    transform: translateX(-260px);
-}
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--primary-blue);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
 
-.main.full {
-    margin-left: 0;
-}
+        .main {
+            margin-left: 260px;
+        }
 
-/* CARD HOVER */
-.card:hover {
-    transform: translateY(-4px);
-    transition: 0.2s ease;
-    cursor: pointer;
-}
-</style>
+        .nav-item {
+            display: block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-active {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .main.full {
+            margin-left: 0;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 text-gray-900 flex">
 
 <!-- SIDEBAR -->
 <aside id="sidebar" class="sidebar p-5">
 
-    <h1 class="text-xl font-bold">DTR SYSTEM</h1>
-    <p class="text-xs opacity-70">Admin Panel</p>
+    <div>
+        <h1 class="text-xl font-bold">DTR System</h1>
+        <p class="text-xs opacity-70 mb-6">Admin Panel</p>
 
-    <nav class="mt-6 space-y-2 text-sm">
-        <a href="{% url 'admin_dashboard' %}" class="block py-2 px-3 rounded hover:bg-white/10">Dashboard</a>
-        <a href="{% url 'user_management' %}" class="block py-2 px-3 rounded hover:bg-white/10">Management</a>
-        <a href="{% url 'user_progress' %}" class="block py-2 px-3 rounded bg-white/10 font-bold">Progress</a>
-        <a href="{% url 'dtr_records' %}" class="block py-2 px-3 rounded hover:bg-white/10">DTR Records</a>
-        <a href="{% url 'student_assistants' %}" class="block px-4 py-2 rounded-lg hover:bg-white/10">Student Assistants</a>
-        <a href="{% url 'chat' %}" class="block py-2 px-3 rounded hover:bg-white/10">Chat</a>
-    </nav>
+        <nav class="space-y-2">
+            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
+            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
+            <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
+            <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
+            <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
+            <a href="{% url 'chat' %}" class="nav-item">Chat</a>
+        </nav>
+    </div>
+
+    <div class="p-4">
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg">
+                Logout
+            </button>
+        </form>
+    </div>
 
 </aside>
 
 <!-- MAIN -->
-<div id="main" class="main">
+<div id="main" class="main w-full">
 
-<!-- TOP BAR (UPDATED: added menu button like mother design) -->
-<div class="flex items-center justify-between px-6 py-3 bg-white shadow-sm sticky top-0 z-40">
+    <!-- HEADER -->
+    <div class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
 
-    <div class="flex items-center gap-4">
+        <!-- LEFT -->
+        <div class="flex items-center gap-4">
 
-        <!-- MENU BUTTON -->
-        <button onclick="toggleSidebar()" class="text-xl text-gray-600 hover:text-[#003A6C]">
-            ☰
-        </button>
+            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
+                ☰
+            </button>
 
         <div>
             <h1 class="font-bold text-[#003A6C]">User Progress</h1>
