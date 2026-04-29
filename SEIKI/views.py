@@ -268,6 +268,8 @@ def office_dashboard(request):
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser, login_url='login')
 def office_student_assistants(request):
     """View list of all SAs in the department"""
+    from django.core.paginator import Paginator
+    
     try:
         profile = request.user.userprofile
     except (UserProfile.DoesNotExist, AttributeError):
@@ -276,12 +278,13 @@ def office_student_assistants(request):
     office = profile.office
     if not office:
         # If office not set, show all students (for debugging/admin purposes)
-        students = User.objects.filter(is_staff=False).select_related('userprofile')
+        students = User.objects.filter(is_staff=False, is_superuser=False).select_related('userprofile')
         office_name = 'All Departments'
     else:
         students = User.objects.filter(
             userprofile__office=office,
-            is_staff=False
+            is_staff=False,
+            is_superuser=False
         ).select_related('userprofile')
         office_name = office
 
@@ -293,10 +296,37 @@ def office_student_assistants(request):
             Q(last_name__icontains=search_query) |
             Q(userprofile__id_number__icontains=search_query)
         )
+    
+    # Build users_data for template
+    users_data = []
+    for user in students:
+        # Calculate total hours rendered for this user
+        total_duration = TimeRecord.objects.filter(
+            user=user,
+            record_type='out',
+            duration__isnull=False
+        ).aggregate(total=models.Sum('duration'))['total']
+        
+        # Convert duration to hours (duration is in seconds)
+        total_hours_rendered = 0
+        if total_duration:
+            total_seconds = total_duration.total_seconds()
+            total_hours_rendered = total_seconds / 3600
+        
+        # Get required hours from user profile
+        required_hours = user.userprofile.required_hours if hasattr(user, 'userprofile') else 80.0
+        
+        users_data.append({
+            'user': user,
+            'profile': user.userprofile if hasattr(user, 'userprofile') else None,
+            'total_hours_rendered': round(total_hours_rendered, 2),
+            'required_hours': required_hours,
+        })
 
     return render(request, 'office_head/student_assistants.html', {
-        'students': students,
+        'users_data': users_data,
         'office_name': office_name,
+        'search_query': search_query,
     })
 
 @login_required
@@ -1576,14 +1606,36 @@ def export_students(request):
     return response
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def user_dtr_details(request, user_id):
     """View all DTR submissions for a specific user"""
+    # Permission check: superuser or office head with same office as student
+    is_superuser = request.user.is_superuser
+    is_office_head = request.user.is_staff and not request.user.is_superuser
+    
+    if not is_superuser and not is_office_head:
+        messages.error(request, "You don't have permission to view this user's details.")
+        return redirect('dashboard_redirect')
+    
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         messages.error(request, "User not found.")
-        return redirect('user_progress')
+        if request.user.is_superuser:
+            return redirect('user_progress')
+        else:
+            return redirect('office_student_assistants')
+    
+    # For office heads, verify the student is in their office
+    if request.user.is_staff and not request.user.is_superuser:
+        try:
+            office_head_office = request.user.userprofile.office
+            student_office = user.userprofile.office if hasattr(user, 'userprofile') else None
+            if office_head_office != student_office:
+                messages.error(request, "You can only view students in your office.")
+                return redirect('office_student_assistants')
+        except (UserProfile.DoesNotExist, AttributeError):
+            messages.error(request, "Office information not found.")
+            return redirect('office_student_assistants')
     
     # Get all DTR submissions for this user, sorted from latest to oldest
     dtr_submissions = DTRSubmission.objects.filter(user=user).order_by('-year', '-month', '-submitted_date')

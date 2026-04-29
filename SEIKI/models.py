@@ -69,6 +69,11 @@ class DTRSubmission(models.Model):
     
     class Meta:
         unique_together = ('user', 'month', 'year')
+    
+    def get_month_name(self):
+        """Return the month name from the month number"""
+        import calendar
+        return calendar.month_name[self.month]
 
 class ChatMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
