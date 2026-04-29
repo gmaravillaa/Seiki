@@ -33,8 +33,9 @@ body {
 <body class="flex">
 
 <!-- SIDEBAR -->
-<aside id="sidebar
-    "class="fixed left-0 top-0 h-screen w-64 text-white flex flex-col justify-between transition-all duration-300 transform z-50">
+<aside id="sidebar"
+class="fixed left-0 top-0 h-screen w-64 text-white flex flex-col justify-between
+transition-transform duration-300 transform z-50">
 
     <div class="p-6">
         <h1 class="text-xl font-bold">DTR System</h1>
@@ -233,7 +234,7 @@ body {
 // Toggle sidebar + expand content
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('hidden');
+    sidebar.classList.toggle('-translate-x-full');
 }
 
 // Date + Time
