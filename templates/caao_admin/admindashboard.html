@@ -1,323 +1,276 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DTR System - Unified Design System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-/* =================================================================
-   DTR SYSTEM - COMPLETE DESIGN SYSTEM (SINGLE FILE)
-   Based on User Management (BEST DESIGN) - FULLY FUNCTIONAL
-   Copy this <style> block to ALL 5 pages!
-================================================================= */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
 
-/* ROOT VARIABLES - USER MGMT COLORS */
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+
+<style>
 :root {
     --primary-blue: #003a6c;
+    --accent-light: #e6eef6;
     --bg-light: #f4f7f9;
-    --sidebar-bg: #003a6c;
-    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --border-color: #e5e7eb;
 }
 
-/* BASE RESET */
-* { box-sizing: border-box; margin: 0; }
-body { 
-    background: var(--bg-light); 
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-    color: #1f2937; line-height: 1.6; 
+/* Smooth transition */
+#main {
+    transition: all 0.3s ease;
+}
+body {
+    background-color: var(--bg-light);
 }
 
-/* SIDEBAR - FIXED 260PX LIKE USER MGMT */
-.sidebar {
-    width: 260px; min-height: 100vh; background: var(--sidebar-bg); color: white;
-    position: fixed; left: 0; top: 0; display: flex; flex-direction: column;
-    justify-content: space-between; transition: all 0.3s ease; padding: 1.25rem; z-index: 1000;
+/* Sidebar toggle */
+.sidebar-hidden {
+    transform: translateX(-100%);
 }
-.sidebar.hidden { transform: translateX(-100%); }
-.sidebar h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
-.sidebar p { font-size: 0.75rem; opacity: 0.7; margin-bottom: 1.5rem; }
-.nav-item {
-    display: block; padding: 0.625rem 0.875rem; border-radius: 0.5rem; font-size: 0.8125rem;
-    color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 0.5rem;
-    transition: all 0.2s ease;
-}
-.nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
-.nav-active { background: rgba(255,255,255,0.15); font-weight: 600; color: white; }
-
-/* MAIN LAYOUT */
-.main { margin-left: 260px; min-height: 100vh; }
-.main.full { margin-left: 0; }
-
-/* HEADER - EXACT USER MGMT */
-.header {
-    background: white; height: 3.5rem; padding: 0 1.5rem; display: flex; align-items: center;
-    justify-content: space-between; box-shadow: var(--card-shadow); border-bottom: 1px solid var(--border-color);
-    position: sticky; top: 0; z-index: 100;
-}
-.header-left { display: flex; align-items: center; gap: 1rem; }
-.hamburger { background: none; border: none; font-size: 1.25rem; color: #6b7280; cursor: pointer; padding: 0.5rem; }
-.page-title { font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0; }
-.page-subtitle { font-size: 0.75rem; color: #6b7280; margin: 0; }
-.back-btn {
-    padding: 0.5rem 1rem; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem;
-    font-size: 0.875rem; font-weight: 500; color: #374151; text-decoration: none; transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.back-btn:hover { background: #f9fafb; border-color: var(--primary-blue); color: var(--primary-blue); }
-
-/* CONTENT */
-.content { padding: 1.5rem; max-width: 80rem; margin: 0 auto; }
-.space-y-6 > * + * { margin-top: 1.5rem; }
-
-/* CARDS - EXACT USER MGMT */
-.card { 
-    background: white; border-radius: 0.75rem; box-shadow: var(--card-shadow); 
-    border: 1px solid #f3f4f6; overflow: hidden; margin-bottom: 1.5rem; 
-}
-.card-primary { border-top: 4px solid var(--primary-blue); }
-.card-header { padding: 1.5rem; border-bottom: 1px solid #f3f4f6; }
-.card-title { font-size: 1.125rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #1f2937; }
-
-/* FORMS - 3-COL GRID LIKE USER MGMT */
-.form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-@media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr 1fr; } }
-.form-section-title {
-    font-size: 0.6875rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 0.75rem;
-}
-.form-input {
-    width: 100%; padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;
-    transition: all 0.2s ease;
-}
-.form-input:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(0,58,108,0.1); }
-.radio-group { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-@media (min-width: 640px) { .radio-group { grid-template-columns: repeat(3, 1fr); } }
-.radio-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer; }
-
-/* BUTTONS - UNIFIED */
-.btn-primary {
-    padding: 0.75rem 2rem; background: var(--primary-blue); color: white; border: none; border-radius: 0.5rem;
-    font-weight: 900; font-size: 0.6875rem; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
-}
-.btn-primary:hover { background: #002954; transform: translateY(-1px); }
-.btn-secondary {
-    padding: 0.5rem 1rem; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem;
-    font-size: 0.875rem; font-weight: 500; color: #374151; text-decoration: none; transition: all 0.2s;
-}
-.btn-secondary:hover { background: #f9fafb; border-color: var(--primary-blue); color: var(--primary-blue); }
-
-/* TABLES - EXACT USER MGMT */
-.table-container { overflow-x: auto; }
-.table-filters {
-    padding: 0.5rem; border-bottom: 1px solid #f3f4f6; background: #f9fafb; display: flex; flex-wrap: wrap; gap: 0.5rem;
-}
-.filter-btn {
-    padding: 0.5rem 1rem; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; border-radius: 0.5rem;
-    border: none; cursor: pointer; transition: all 0.2s;
-}
-.filter-btn.active { background: var(--primary-blue); color: white; }
-.filter-btn:not(.active):hover { background: #f3f4f6; }
-table.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-th {
-    background: #f9fafb; padding: 1rem 1.5rem; text-align: left; font-size: 0.625rem; color: #9ca3af;
-    font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #f3f4f6;
-}
-td { padding: 1rem 1.5rem; border-bottom: 1px solid #f9fafb; }
-tbody tr:hover { background: rgba(0,58,108,0.05); transition: background 0.2s ease; }
-.role-badge {
-    font-size: 0.625rem; font-weight: 900; text-transform: uppercase; padding: 0.25rem 0.5rem; border-radius: 0.25rem;
-}
-.username-bold { font-weight: 700; color: var(--primary-blue); }
-.action-btn { padding: 0.25rem; background: none; border: none; cursor: pointer; margin-right: 0.5rem; transition: color 0.2s; }
-.action-btn:hover { color: var(--primary-blue) !important; }
-
-/* STATS CARDS */
-.stat-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-@media (min-width: 768px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
-.stat-card { text-align: center; padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; }
-.stat-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
-.stat-number { font-size: 2rem; font-weight: 900; margin-bottom: 0.25rem; }
-.stat-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #9ca3af; }
-
-/* MODALS */
-.modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
-    z-index: 2000; padding: 1rem;
-}
-.modal {
-    background: white; max-width: 32rem; width: 100%; border-radius: 0.75rem; box-shadow: var(--card-shadow);
-    max-height: 90vh; overflow-y: auto; position: relative;
-}
-.modal-close { position: absolute; top: 1rem; right: 1.25rem; font-size: 1.5rem; color: #6b7280; font-weight: bold; }
-
-/* UTILITIES */
-.bg-gray-50 { background-color: #f9fafb; }
-.text-gray-500 { color: #6b7280; }
-.font-bold { font-weight: 700; }
-.inline { display: inline; }
-
-/* MOBILE */
-@media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
-    .main { margin-left: 0; }
-    .form-grid, .radio-group, .stat-grid { grid-template-columns: 1fr; }
-    .content { padding: 1rem; }
-}
-
-/* =================================================================
-   END CSS - START JS FUNCTIONS (UNIVERSAL FOR ALL PAGES)
-================================================================= */
 </style>
 </head>
 
-<body>
-<!-- UNIVERSAL TEMPLATE - COPY TO ALL PAGES -->
-<!-- SIDEBAR TEMPLATE -->
-<aside id="sidebar" class="sidebar">
-    <div>
-        <h1>DTR System</h1>
-        <p>Admin Panel</p>
-        <nav class="space-y-2">
-            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
-            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
-            <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
-            <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
-            <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
-            <a href="{% url 'chat' %}" class="nav-item">Chat</a>
-        </nav>
+<body class="flex">
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="w-64 min-h-screen text-white flex flex-col justify-between transition-all duration-300"
+       style="background-color: var(--primary-blue);">
+
+    <div class="p-6">
+        <h1 class="text-xl font-bold">DTR System</h1>
+        <p class="text-xs opacity-70 mb-6">Admin Panel</p>
+
+        <div class="space-y-2 text-sm">
+
+            <a href="{% url 'admin_dashboard' %}" 
+               class="block px-4 py-2 rounded-lg bg-white/10 border-l-4 font-semibold"
+               style="border-color: white;">
+                Dashboard
+            </a>
+
+            <a href="{% url 'user_management' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Management
+            </a>
+
+            <a href="{% url 'user_progress' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Progress
+            </a>
+
+            <a href="{% url 'dtr_records' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                DTR Records
+            </a>
+
+            <a href="{% url 'student_assistants' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Student Assistants
+            </a>
+
+            <a href="{% url 'chat' %}" 
+               class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                Chat
+            </a>
+
+        </div>
     </div>
+
+    <!-- LOGOUT (ADNU STYLE - CLEAN) -->
     <div class="p-4">
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg w-full">Logout</button>
+            <button class="w-full border border-white/40 py-2 rounded-lg text-white hover:bg-white/10 transition text-sm">
+                Logout
+            </button>
         </form>
     </div>
+
 </aside>
 
-<!-- MAIN TEMPLATE -->
-<div id="main" class="main">
-    <!-- HEADER TEMPLATE -->
-    <header class="header">
-        <div class="header-left">
-            <button onclick="toggleSidebar()" class="hamburger">☰</button>
-            <div>
-                <h2 class="page-title">PAGE TITLE HERE</h2>
-                <p class="page-subtitle">Page subtitle description here.</p>
+<!-- MAIN -->
+<div id="main" class="flex-1">
+
+    <!-- HEADER -->
+    <header class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
+
+        <!-- LEFT -->
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
+                ☰
+            </button>
+
+            <div
+                <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
+                <p class="text-xs text-gray-500">
+                    Welcome, {{ request.user.username }}
+                </p>
             </div>
         </div>
-        <a href="#" onclick="history.back()" class="back-btn">← Back</a>
+
+
+        <!-- RIGHT -->
+        <div class="text-right">
+            <p id="date" class="text-sm font-semibold text-gray-700"></p>
+            <p id="time" class="text-xs text-gray-500"></p>
+        </div>
+
     </header>
 
-    <!-- CONTENT TEMPLATE -->
-    <div class="content">
-        <!-- PRIMARY ACTION CARD -->
-        <div class="card card-primary">
-            <div class="card-header">
-                <h2 class="card-title">Primary Action</h2>
+    
+    <!-- CONTENT -->
+    <main class="p-8">
+
+        <!-- STATS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+
+            <!-- CARD -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Total Students</p>
+                <h3 class="text-3xl font-bold mt-2" style="color: var(--primary-blue);">
+                    {{ total_students }}
+                </h3>
             </div>
-            <!-- PUT YOUR MAIN FORM/CONTENT HERE -->
-            <div class="p-6">
-                <!-- Example stats -->
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <i class="fas fa-users stat-icon text-[#003A6C]"></i>
-                        <div class="stat-number">{{ total_students|default:0 }}</div>
-                        <div class="stat-label">Total Students</div>
-                    </div>
-                </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Pending DTRs</p>
+                <h3 class="text-3xl font-bold mt-2 text-yellow-500">
+                    {{ pending_dtrs }}
+                </h3>
             </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Approved DTRs</p>
+                <h3 class="text-3xl font-bold mt-2 text-green-500">
+                    {{ approved_dtrs }}
+                </h3>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition 
+                        flex flex-col items-center justify-center text-center">
+                <p class="text-gray-500 text-sm">Active Offices</p>
+                <h3 class="text-3xl font-bold mt-2 text-indigo-500">
+                    {{ active_offices }}
+                </h3>
+            </div>
+
         </div>
 
-        <!-- SECONDARY TABLE CARD -->
-        <div class="card">
-            <div class="table-filters">
-                <button onclick="filterTable('all')" class="filter-btn active">All</button>
-                <button onclick="filterTable('active')" class="filter-btn">Active</button>
-                <button onclick="filterTable('inactive')" class="filter-btn">Inactive</button>
-            </div>
-            <div class="table-container">
-                <table class="table" id="mainTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- YOUR TABLE ROWS HERE -->
-                        {% for item in items %}
-                        <tr class="table-row" data-status="{{ item.status }}">
-                            <td class="username-bold">{{ item.name }}</td>
-                            <td><span class="role-badge">{{ item.status }}</span></td>
-                            <td class="text-right">
-                                <button onclick="openModal({{ item.id }})" class="action-btn text-blue-500">
-                                    <i class="fas fa-eye"></i>
+        <!-- TABLE -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 border">
+
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">
+                Student Overview
+            </h3>
+
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-gray-500 border-b">
+                        <th class="p-3 text-left">Name</th>
+                        <th class="p-3 text-left">Office</th>
+                        <th class="p-3 text-left">Hours</th>
+                        <th class="p-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for student in students %}
+                    <tr class="border-b hover:bg-gray-50">
+
+                        <td class="p-3 font-semibold">
+                            {{ student.get_full_name }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ student.userprofile.office|default:"N/A" }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ student.total_hours }} hrs
+                        </td>
+
+                        <td class="p-3 text-right space-x-2">
+
+                            <button onclick="openProgress({{ student.id }})"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs">
+                                View
+                            </button>
+
+                            <form method="POST"
+                                  action="{% url 'delete_user' student.id %}"
+                                  class="inline">
+                                {% csrf_token %}
+                                <button type="submit"
+                                    onclick="return confirm('Delete user?')"
+                                    class="border border-gray-300 text-gray-600 hover:bg-gray-100 px-3 py-1 rounded-lg text-xs">
+                                    Delete
                                 </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-4 text-center text-gray-500">
+                            No students found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
         </div>
-    </div>
+
+    </main>
 </div>
 
-<!-- UNIVERSAL JS FUNCTIONS -->
+<!-- SCRIPTS -->
 <script>
-/* MOBILE SIDEBAR TOGGLE - ALL PAGES */
+// Toggle sidebar + expand content
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('hidden');
-    document.getElementById('main').classList.toggle('full');
-}
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
 
-/* UNIVERSAL TABLE FILTER - LIKE USER MGMT */
-function filterTable(status) {
-    const rows = document.querySelectorAll('.table-row');
-    const buttons = document.querySelectorAll('.filter-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    rows.forEach(row => {
-        row.style.display = (status === 'all' || row.dataset.status === status) ? 'table-row' : 'none';
-    });
-}
+    sidebar.classList.toggle('hidden');
 
-/* FORM PASSWORD VALIDATION - LIKE USER MGMT */
-function validateForm(formId) {
-    const form = document.getElementById(formId);
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const pass1 = document.getElementById('password')?.value;
-            const pass2 = document.getElementById('confirm_password')?.value;
-            if (pass1 && pass2 && pass1 !== pass2) {
-                e.preventDefault();
-                alert('Passwords do not match!');
-                return false;
-            }
-        });
+    if (sidebar.classList.contains('hidden')) {
+        main.classList.remove('ml-64');
+    } else {
+        main.classList.add('ml-64');
     }
 }
 
-/* UNIVERSAL MODAL */
-function openModal(id) {
-    // Your modal logic here
-    console.log('Open modal for ID:', id);
-}
-validateForm('registrationForm'); // Auto-init if form exists
-
-/* LIVE CLOCK - DASHBOARD */
-function updateClock() {
+// Date + Time
+function updateDateTime() {
     const now = new Date();
-    const dateEl = document.getElementById('date');
-    const timeEl = document.getElementById('time');
-    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'});
-    if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-US');
+
+    document.getElementById('date').innerText =
+        now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+    document.getElementById('time').innerText =
+        now.toLocaleTimeString('en-US');
 }
-setInterval(updateClock, 1000); updateClock();
+
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Progress
+function openProgress(id) {
+    fetch(`/user-progress/${id}/json/`)
+    .then(res => res.json())
+    .then(data => {
+        alert(data.name + " - " + data.percent + "%");
+    });
+}
 </script>
 
 </body>
