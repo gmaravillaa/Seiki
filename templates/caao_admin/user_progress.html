@@ -1,241 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Progress - Seiki Admin</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        :root {
-            --primary-blue: #003a6c;
-            --bg-light: #f4f7f9;
-        }
-
-        body {
-            background-color: var(--bg-light);
-        }
-
-        .sidebar {
-            width: 260px;
-            min-height: 100vh;
-            background: var(--primary-blue);
-            color: white;
-            position: fixed;
-            left: 0;
-            top: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.3s ease;
-        }
-
-        .main {
-            margin-left: 260px;
-        }
-
-        .nav-item {
-            display: block;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: rgba(255,255,255,0.85);
-        }
-
-        .nav-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .nav-active {
-            background: rgba(255,255,255,0.15);
-            font-weight: 600;
-        }
-
-        .sidebar.hidden {
-            transform: translateX(-100%);
-        }
-
-        .main.full {
-            margin-left: 0;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Progress - Seiki Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-50 text-gray-900 flex">
+<body class="bg-gray-50 text-gray-900">
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar p-5">
+<div class="w-full h-2 bg-[#003A6C]"></div>
 
-    <div>
-        <h1 class="text-xl font-bold">DTR System</h1>
-        <p class="text-xs opacity-70 mb-6">Admin Panel</p>
-
-        <nav class="space-y-2">
-            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
-            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
-            <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
-            <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
-            <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
-            <a href="{% url 'chat' %}" class="nav-item">Chat</a>
-        </nav>
-    </div>
-
-    <div class="p-4">
-        <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg">
-                Logout
-            </button>
-        </form>
-    </div>
-
-</aside>
-
-<!-- MAIN -->
-<div id="main" class="main w-full">
-
-    <!-- HEADER -->
-    <div class="bg-white h-14 px-6 flex items-center justify-between shadow-sm border-b">
-
-        <!-- LEFT -->
-        <div class="flex items-center gap-4">
-
-            <button onclick="toggleSidebar()" class="text-gray-600 text-xl">
-                ☰
-            </button>
-
-        <div>
-            <h1 class="font-bold text-[#003A6C]">User Progress</h1>
-            <p class="text-xs text-gray-500">Track Student Assistant performance</p>
-        </div>
-    </div>
-
-</div>
-
-<!-- CONTENT -->
 <div class="p-6 space-y-6 max-w-7xl mx-auto">
 
-<!-- SEARCH -->
-<form method="GET" class="bg-white p-4 rounded-lg shadow flex gap-2">
-    <input type="text" name="search" value="{{ search_query }}"
-           placeholder="Search student..."
-           class="flex-1 border p-2 rounded-lg text-sm">
-    <button class="bg-[#003A6C] text-white px-6 rounded-lg text-sm">
-        Search
-    </button>
-</form>
-
-<!-- CARDS -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-{% for data in users_data %}
-
-<div onclick="openModal(
-    '{{ data.user.get_full_name }}',
-    '{{ data.user.email }}',
-    '{{ data.profile.id_number }}',
-    '{{ data.profile.office }}',
-    '{{ data.percentage }}',
-    '{{ data.total_hours_rendered }}',
-    '{{ data.required_hours }}',
-    '{{ data.user.date_joined|date:"M d, Y" }}'
-)"
-class="card bg-white p-6 rounded-xl border-t-4 border-[#003A6C] shadow">
-
-    <div class="flex gap-3 items-center mb-4">
-        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-[#003A6C]">
-            {{ data.user.first_name|first }}{{ data.user.last_name|first }}
-        </div>
-
+    <!-- HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
         <div>
-            <h2 class="font-bold">{{ data.user.get_full_name }}</h2>
-            <p class="text-xs text-gray-500">{{ data.profile.office }}</p>
-        </div>
-    </div>
-
-    <div class="text-sm mb-3">
-        <p class="text-gray-500">Progress</p>
-        <div class="w-full bg-gray-200 h-2 rounded-full mt-1">
-            <div class="bg-green-500 h-2 rounded-full" style="width: {{ data.percentage }}%"></div>
-        </div>
-    </div>
-
-    <p class="text-xs text-gray-500">
-        {{ data.total_hours_rendered }} / {{ data.required_hours }} hrs
-    </p>
-
-</div>
-
-{% endfor %}
-
-</div>
-
-</div>
-</div>
-
-<!-- MODAL (UNCHANGED) -->
-<div id="modal" class="fixed inset-0 hidden bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md p-6 rounded-xl">
-
-        <h2 id="m_name" class="text-xl font-bold text-[#003A6C]"></h2>
-        <p id="m_email" class="text-sm text-gray-500 mb-4"></p>
-
-        <div class="space-y-2 text-sm">
-            <p><b>ID:</b> <span id="m_id"></span></p>
-            <p><b>Office:</b> <span id="m_office"></span></p>
-            <p><b>Joined:</b> <span id="m_joined"></span></p>
+            <h1 class="text-2xl font-bold text-[#003A6C]">👥 User Progress</h1>
+            <p class="text-gray-600 mt-1">Track Student Assistant hours and completion rates.</p>
         </div>
 
-        <div class="mt-4">
-            <p class="text-sm font-bold">Progress: <span id="m_percent"></span>%</p>
-            <div class="w-full bg-gray-200 h-2 rounded mt-1">
-                <div id="m_bar" class="bg-green-500 h-2 rounded"></div>
-            </div>
-            <p class="text-xs mt-1 text-gray-500">
-                <span id="m_hours"></span> hrs completed
-            </p>
-        </div>
-
-        <button onclick="closeModal()"
-                class="mt-5 w-full bg-[#003A6C] text-white py-2 rounded-lg">
-            Close
+        <button onclick="history.back()"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition shadow-sm">
+            ← Back to Dashboard
         </button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+
+        <form method="GET" class="flex gap-2">
+            <input type="text"
+                   name="search"
+                   value="{{ search_query }}"
+                   placeholder="Search by name or office..."
+                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003A6C] focus:outline-none text-sm">
+
+            <button type="submit"
+                    class="px-6 py-2 bg-[#003A6C] text-white rounded-lg text-sm font-semibold hover:bg-[#002a5c] transition">
+                Search
+            </button>
+        </form>
 
     </div>
+
+    <!-- USER CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+
+        {% for data in users_data %}
+
+        <div class="bg-white rounded-xl shadow-sm border-t-4 border-[#003A6C] p-6 hover:shadow-md transition">
+
+            <!-- NAME -->
+            <div class="flex items-center gap-4 mb-6">
+
+                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#003A6C] font-bold text-lg border border-blue-100">
+                    {{ data.user.first_name|first }}{{ data.user.last_name|first }}
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-900 text-lg">
+                        {{ data.user.get_full_name }}
+                    </h3>
+
+                    <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-md">
+                        ACTIVE SA
+                    </span>
+                </div>
+            </div>
+
+            <!-- INFO -->
+            <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+
+                <div>
+                    <p class="text-gray-500">Office</p>
+                    <p class="font-semibold text-gray-800">
+                        {{ data.profile.office }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-gray-500">DTR Status</p>
+                    <p class="font-semibold">
+                        {{ data.dtr_status }}
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- PROGRESS -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="font-bold text-[#003A6C]">Work Progress</span>
+                    <span class="font-bold text-green-600">
+                        {{ data.percentage }}%
+                    </span>
+                </div>
+
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                    <div class="bg-green-500 h-2.5 rounded-full"
+                         style="width: {{ data.percentage }}%">
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-500 text-right font-medium">
+                    {{ data.total_hours_rendered }} / {{ data.required_hours }} hours completed
+                </p>
+            </div>
+
+            <!-- RECENT ACTIVITY -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    Recent Activity
+                </p>
+
+                {% if data.recent_records %}
+
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>
+                            {{ data.recent_records.0.record_type|title }}:
+                            {{ data.recent_records.0.qr_code }}
+                        </span>
+
+                        <span class="font-medium text-gray-900">
+                            {{ data.recent_records.0.timestamp|date:"M d, h:i A" }}
+                        </span>
+                    </div>
+
+                {% else %}
+                    <p class="text-xs text-gray-400">No activity yet</p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+
+        <p class="text-sm text-gray-500">
+            Showing
+            <span class="font-bold">
+                {{ page_obj.start_index }}-{{ page_obj.end_index }}
+            </span>
+            of
+            <span class="font-bold">
+                {{ page_obj.paginator.count }}
+            </span>
+            Student Assistants
+        </p>
+
+        <div class="flex gap-2">
+
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+                    Previous
+                </a>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                   class="px-4 py-2 bg-[#003A6C] text-white rounded-lg text-sm font-semibold">
+                    Next
+                </a>
+            {% endif %}
+
+        </div>
+    </div>
+
 </div>
-
-<script>
-
-/* SIDEBAR TOGGLE (CONSISTENT WITH YOUR MAIN DESIGN) */
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('hide');
-    document.getElementById('main').classList.toggle('full');
-}
-
-/* MODAL */
-function openModal(name,email,id,office,percent,hours,req,joined){
-    document.getElementById('modal').classList.remove('hidden');
-
-    document.getElementById('m_name').innerText = name;
-    document.getElementById('m_email').innerText = email;
-    document.getElementById('m_id').innerText = id;
-    document.getElementById('m_office').innerText = office;
-    document.getElementById('m_joined').innerText = joined;
-
-    document.getElementById('m_percent').innerText = percent;
-    document.getElementById('m_bar').style.width = percent + "%";
-
-    document.getElementById('m_hours').innerText = hours + " / " + req;
-}
-
-function closeModal(){
-    document.getElementById('modal').classList.add('hidden');
-}
-
-</script>
 
 </body>
 </html>
