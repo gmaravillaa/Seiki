@@ -1,24 +1,188 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - DTR System</title>
+    <title>DTR System - Unified Design System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="design-system.css">
+    
+    <style>
+/* =================================================================
+   DTR SYSTEM - COMPLETE DESIGN SYSTEM (SINGLE FILE)
+   Based on User Management (BEST DESIGN) - FULLY FUNCTIONAL
+   Copy this <style> block to ALL 5 pages!
+================================================================= */
+
+/* ROOT VARIABLES - USER MGMT COLORS */
+:root {
+    --primary-blue: #003a6c;
+    --bg-light: #f4f7f9;
+    --sidebar-bg: #003a6c;
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --border-color: #e5e7eb;
+}
+
+/* BASE RESET */
+* { box-sizing: border-box; margin: 0; }
+body { 
+    background: var(--bg-light); 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+    color: #1f2937; line-height: 1.6; 
+}
+
+/* SIDEBAR - FIXED 260PX LIKE USER MGMT */
+.sidebar {
+    width: 260px; min-height: 100vh; background: var(--sidebar-bg); color: white;
+    position: fixed; left: 0; top: 0; display: flex; flex-direction: column;
+    justify-content: space-between; transition: all 0.3s ease; padding: 1.25rem; z-index: 1000;
+}
+.sidebar.hidden { transform: translateX(-100%); }
+.sidebar h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+.sidebar p { font-size: 0.75rem; opacity: 0.7; margin-bottom: 1.5rem; }
+.nav-item {
+    display: block; padding: 0.625rem 0.875rem; border-radius: 0.5rem; font-size: 0.8125rem;
+    color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+.nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+.nav-active { background: rgba(255,255,255,0.15); font-weight: 600; color: white; }
+
+/* MAIN LAYOUT */
+.main { margin-left: 260px; min-height: 100vh; }
+.main.full { margin-left: 0; }
+
+/* HEADER - EXACT USER MGMT */
+.header {
+    background: white; height: 3.5rem; padding: 0 1.5rem; display: flex; align-items: center;
+    justify-content: space-between; box-shadow: var(--card-shadow); border-bottom: 1px solid var(--border-color);
+    position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 1rem; }
+.hamburger { background: none; border: none; font-size: 1.25rem; color: #6b7280; cursor: pointer; padding: 0.5rem; }
+.page-title { font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0; }
+.page-subtitle { font-size: 0.75rem; color: #6b7280; margin: 0; }
+.back-btn {
+    padding: 0.5rem 1rem; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem;
+    font-size: 0.875rem; font-weight: 500; color: #374151; text-decoration: none; transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.back-btn:hover { background: #f9fafb; border-color: var(--primary-blue); color: var(--primary-blue); }
+
+/* CONTENT */
+.content { padding: 1.5rem; max-width: 80rem; margin: 0 auto; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+
+/* CARDS - EXACT USER MGMT */
+.card { 
+    background: white; border-radius: 0.75rem; box-shadow: var(--card-shadow); 
+    border: 1px solid #f3f4f6; overflow: hidden; margin-bottom: 1.5rem; 
+}
+.card-primary { border-top: 4px solid var(--primary-blue); }
+.card-header { padding: 1.5rem; border-bottom: 1px solid #f3f4f6; }
+.card-title { font-size: 1.125rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #1f2937; }
+
+/* FORMS - 3-COL GRID LIKE USER MGMT */
+.form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+@media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr 1fr; } }
+.form-section-title {
+    font-size: 0.6875rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 0.75rem;
+}
+.form-input {
+    width: 100%; padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+.form-input:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(0,58,108,0.1); }
+.radio-group { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .radio-group { grid-template-columns: repeat(3, 1fr); } }
+.radio-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer; }
+
+/* BUTTONS - UNIFIED */
+.btn-primary {
+    padding: 0.75rem 2rem; background: var(--primary-blue); color: white; border: none; border-radius: 0.5rem;
+    font-weight: 900; font-size: 0.6875rem; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-primary:hover { background: #002954; transform: translateY(-1px); }
+.btn-secondary {
+    padding: 0.5rem 1rem; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem;
+    font-size: 0.875rem; font-weight: 500; color: #374151; text-decoration: none; transition: all 0.2s;
+}
+.btn-secondary:hover { background: #f9fafb; border-color: var(--primary-blue); color: var(--primary-blue); }
+
+/* TABLES - EXACT USER MGMT */
+.table-container { overflow-x: auto; }
+.table-filters {
+    padding: 0.5rem; border-bottom: 1px solid #f3f4f6; background: #f9fafb; display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+.filter-btn {
+    padding: 0.5rem 1rem; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; border-radius: 0.5rem;
+    border: none; cursor: pointer; transition: all 0.2s;
+}
+.filter-btn.active { background: var(--primary-blue); color: white; }
+.filter-btn:not(.active):hover { background: #f3f4f6; }
+table.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+th {
+    background: #f9fafb; padding: 1rem 1.5rem; text-align: left; font-size: 0.625rem; color: #9ca3af;
+    font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #f3f4f6;
+}
+td { padding: 1rem 1.5rem; border-bottom: 1px solid #f9fafb; }
+tbody tr:hover { background: rgba(0,58,108,0.05); transition: background 0.2s ease; }
+.role-badge {
+    font-size: 0.625rem; font-weight: 900; text-transform: uppercase; padding: 0.25rem 0.5rem; border-radius: 0.25rem;
+}
+.username-bold { font-weight: 700; color: var(--primary-blue); }
+.action-btn { padding: 0.25rem; background: none; border: none; cursor: pointer; margin-right: 0.5rem; transition: color 0.2s; }
+.action-btn:hover { color: var(--primary-blue) !important; }
+
+/* STATS CARDS */
+.stat-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 768px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+.stat-card { text-align: center; padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; }
+.stat-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+.stat-number { font-size: 2rem; font-weight: 900; margin-bottom: 0.25rem; }
+.stat-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #9ca3af; }
+
+/* MODALS */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+    z-index: 2000; padding: 1rem;
+}
+.modal {
+    background: white; max-width: 32rem; width: 100%; border-radius: 0.75rem; box-shadow: var(--card-shadow);
+    max-height: 90vh; overflow-y: auto; position: relative;
+}
+.modal-close { position: absolute; top: 1rem; right: 1.25rem; font-size: 1.5rem; color: #6b7280; font-weight: bold; }
+
+/* UTILITIES */
+.bg-gray-50 { background-color: #f9fafb; }
+.text-gray-500 { color: #6b7280; }
+.font-bold { font-weight: 700; }
+.inline { display: inline; }
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; }
+    .form-grid, .radio-group, .stat-grid { grid-template-columns: 1fr; }
+    .content { padding: 1rem; }
+}
+
+/* =================================================================
+   END CSS - START JS FUNCTIONS (UNIVERSAL FOR ALL PAGES)
+================================================================= */
+</style>
 </head>
 
 <body>
-
-<!-- SIDEBAR - IDENTICAL -->
+<!-- UNIVERSAL TEMPLATE - COPY TO ALL PAGES -->
+<!-- SIDEBAR TEMPLATE -->
 <aside id="sidebar" class="sidebar">
     <div>
         <h1>DTR System</h1>
         <p>Admin Panel</p>
         <nav class="space-y-2">
-            <a href="{% url 'admin_dashboard' %}" class="nav-item nav-active">Dashboard</a>
-            <a href="{% url 'user_management' %}" class="nav-item">Management</a>
+            <a href="{% url 'admin_dashboard' %}" class="nav-item">Dashboard</a>
+            <a href="{% url 'user_management' %}" class="nav-item nav-active">Management</a>
             <a href="{% url 'user_progress' %}" class="nav-item">Progress</a>
             <a href="{% url 'dtr_records' %}" class="nav-item">DTR Logs</a>
             <a href="{% url 'student_assistants' %}" class="nav-item">Student Assistants</a>
@@ -28,122 +192,71 @@
     <div class="p-4">
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg">Logout</button>
+            <button class="w-full bg-white text-[#003A6C] font-bold py-2 rounded-lg w-full">Logout</button>
         </form>
     </div>
 </aside>
 
-<!-- MAIN -->
+<!-- MAIN TEMPLATE -->
 <div id="main" class="main">
-    <!-- HEADER - EXACT USER MANAGEMENT STYLE -->
+    <!-- HEADER TEMPLATE -->
     <header class="header">
         <div class="header-left">
             <button onclick="toggleSidebar()" class="hamburger">☰</button>
             <div>
-                <h2 class="page-title">Dashboard Overview</h2>
-                <p class="page-subtitle">Monitor system activity, students, and DTR submissions at a glance.</p>
+                <h2 class="page-title">PAGE TITLE HERE</h2>
+                <p class="page-subtitle">Page subtitle description here.</p>
             </div>
         </div>
-        <!-- BACK BUTTON LIKE USER MGMT -->
         <a href="#" onclick="history.back()" class="back-btn">← Back</a>
     </header>
 
-    <!-- CONTENT - EXACT USER MANAGEMENT FLOW -->
-    <div class="content space-y-6">
-        
-        <!-- PRIMARY ACTION CARD #1 - STATS OVERVIEW (LIKE CREATE FORM) -->
+    <!-- CONTENT TEMPLATE -->
+    <div class="content">
+        <!-- PRIMARY ACTION CARD -->
         <div class="card card-primary">
             <div class="card-header">
-                <h2 class="card-title">System Statistics</h2>
+                <h2 class="card-title">Primary Action</h2>
             </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-users text-3xl text-[#003A6C] mb-2 block"></i>
-                    <h3 class="text-2xl font-black text-[#003A6C] mb-1">{{ total_students|default:0 }}</h3>
-                    <p class="text-sm font-bold text-gray-500 uppercase">Total Students</p>
-                </div>
-                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-clock text-3xl text-orange-500 mb-2 block"></i>
-                    <h3 class="text-2xl font-black text-orange-500 mb-1">{{ pending_dtrs|default:0 }}</h3>
-                    <p class="text-sm font-bold text-gray-500 uppercase">Pending DTRs</p>
-                </div>
-                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-check-circle text-3xl text-green-600 mb-2 block"></i>
-                    <h3 class="text-2xl font-black text-green-600 mb-1">{{ approved_dtrs|default:0 }}</h3>
-                    <p class="text-sm font-bold text-gray-500 uppercase">Approved DTRs</p>
-                </div>
-                <div class="text-center p-4 border rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-building text-3xl text-indigo-600 mb-2 block"></i>
-                    <h3 class="text-2xl font-black text-indigo-600 mb-1">{{ active_offices|default:0 }}</h3>
-                    <p class="text-sm font-bold text-gray-500 uppercase">Active Offices</p>
-                </div>
-            </div>
-            <!-- LIVE CLOCK - LIKE USER MGMT SUBTITLE -->
-            <div class="p-6 pt-0 border-t bg-gray-50">
-                <div class="flex justify-between items-center text-sm">
-                    <span class="font-bold text-gray-500 uppercase">Last Updated</span>
-                    <div>
-                        <p id="date" class="font-bold"></p>
-                        <p id="time" class="text-xs text-gray-400"></p>
+            <!-- PUT YOUR MAIN FORM/CONTENT HERE -->
+            <div class="p-6">
+                <!-- Example stats -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users stat-icon text-[#003A6C]"></i>
+                        <div class="stat-number">{{ total_students|default:0 }}</div>
+                        <div class="stat-label">Total Students</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SECONDARY CARD #2 - DATA TABLE WITH FILTERS (EXACT LIKE USER MGMT) -->
+        <!-- SECONDARY TABLE CARD -->
         <div class="card">
-            <!-- FILTER BAR - EXACT LIKE USER MGMT -->
             <div class="table-filters">
-                <button onclick="filterStudents('all')" class="filter-btn active">All Students</button>
-                <button onclick="filterStudents('Active')" class="filter-btn">Active</button>
-                <button onclick="filterStudents('Inactive')" class="filter-btn">Inactive</button>
-                <button onclick="filterStudents('Pending')" class="filter-btn">Pending Hours</button>
+                <button onclick="filterTable('all')" class="filter-btn active">All</button>
+                <button onclick="filterTable('active')" class="filter-btn">Active</button>
+                <button onclick="filterTable('inactive')" class="filter-btn">Inactive</button>
             </div>
-
-            <!-- TABLE - EXACT USER MGMT STYLE -->
             <div class="table-container">
-                <table class="table" id="dashboardTable">
+                <table class="table" id="mainTable">
                     <thead>
                         <tr>
-                            <th>Student Name</th>
-                            <th>Office</th>
-                            <th>Required Hours</th>
-                            <th>Logged Hours</th>
-                            <th>Progress</th>
-                            <th class="text-right">Actions</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for student in students %}
-                        <tr class="student-row hover:bg-blue-50/20 transition" 
-                            data-status="{% if student.total_hours >= student.userprofile.required_hours %}Active{% elif student.total_hours > 0 %}Pending{% else %}Inactive{% endif %}">
-                            <td class="username-bold font-medium">{{ student.get_full_name }}</td>
-                            <td class="text-sm text-gray-500">{{ student.userprofile.office|default:"N/A" }}</td>
-                            <td class="font-medium">{{ student.userprofile.required_hours|default:0 }} hrs</td>
-                            <td class="font-semibold text-[#003A6C]">{{ student.total_hours|default:0 }} hrs</td>
-                            <td>
-                                <span class="role-badge bg-green-100 text-green-800">
-                                    {% if student.total_hours >= student.userprofile.required_hours %}Complete{% else %}{{ student.progress|floatformat:0 }}%{% endif %}
-                                </span>
-                            </td>
+                        <!-- YOUR TABLE ROWS HERE -->
+                        {% for item in items %}
+                        <tr class="table-row" data-status="{{ item.status }}">
+                            <td class="username-bold">{{ item.name }}</td>
+                            <td><span class="role-badge">{{ item.status }}</span></td>
                             <td class="text-right">
-                                <button onclick="openProgress({{ student.id }})" class="action-btn text-blue-500 hover:text-[#003A6C]">
+                                <button onclick="openModal({{ item.id }})" class="action-btn text-blue-500">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <form method="POST" action="{% url 'delete_user' student.id %}" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit" onclick="return confirm('Delete {{ student.get_full_name }}?')" class="action-btn text-red-400 hover:text-red-500">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-12 text-gray-500">
-                                <i class="fas fa-users text-5xl mb-4 text-gray-300"></i>
-                                <p class="text-lg font-semibold">No students found</p>
-                                <p class="text-sm">Create your first student account in Management</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -154,78 +267,57 @@
     </div>
 </div>
 
-<!-- MODAL - SAME AS BEFORE -->
-<div id="studentModal" class="modal-overlay hidden">
-    <div class="modal p-6">
-        <button onclick="closeModal()" class="text-gray-500 text-2xl font-bold absolute top-4 right-5">×</button>
-        <h2 class="text-2xl font-black mb-6 text-[#003A6C]">Student Details</h2>
-        <!-- Modal content unchanged -->
-        <div class="space-y-5">
-            <div><p class="form-section-title">Full Name</p><p id="modalName" class="font-black text-2xl"></p></div>
-            <div><p class="form-section-title">Student ID</p><p id="modalID" class="font-semibold"></p></div>
-            <div><p class="form-section-title">Office</p><p id="modalOffice" class="font-semibold"></p></div>
-            <div><p class="form-section-title">Status</p><span id="modalStatus" class="role-badge"></span></div>
-            <div>
-                <div class="flex justify-between font-semibold mb-3 text-sm">
-                    <span class="text-gray-500">Progress</span><span id="modalPercent"></span>
-                </div>
-                <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-                    <div id="progressBar" class="h-full bg-gradient-to-r from-[#003A6C] to-blue-500 rounded-full w-0 transition-all duration-700"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JS - ENHANCED WITH USER MGMT FILTER LOGIC -->
+<!-- UNIVERSAL JS FUNCTIONS -->
 <script>
+/* MOBILE SIDEBAR TOGGLE - ALL PAGES */
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('hidden');
     document.getElementById('main').classList.toggle('full');
 }
 
-// DATE/TIME - SAME
-function updateDateTime() {
-    const now = new Date();
-    document.getElementById('date').textContent = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
-    document.getElementById('time').textContent = now.toLocaleTimeString('en-US');
-}
-setInterval(updateDateTime, 1000); updateDateTime();
-
-// TABLE FILTER - EXACT LIKE USER MANAGEMENT
-function filterStudents(status) {
-    const rows = document.querySelectorAll('.student-row');
+/* UNIVERSAL TABLE FILTER - LIKE USER MGMT */
+function filterTable(status) {
+    const rows = document.querySelectorAll('.table-row');
     const buttons = document.querySelectorAll('.filter-btn');
-    
-    // Update active button
     buttons.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    
-    // Filter rows
     rows.forEach(row => {
         row.style.display = (status === 'all' || row.dataset.status === status) ? 'table-row' : 'none';
     });
 }
 
-// MODAL - SAME
-function openProgress(id) {
-    fetch(`/user-progress/${id}/json/`).then(res => res.json()).then(data => {
-        document.getElementById('studentModal').classList.remove('hidden');
-        document.getElementById('modalName').textContent = data.name;
-        document.getElementById('modalID').textContent = data.student_id;
-        document.getElementById('modalOffice').textContent = data.office;
-        document.getElementById('modalPercent').textContent = data.percent + '%';
-        const status = document.getElementById('modalStatus');
-        status.textContent = data.status;
-        status.style.background = data.status === 'Active' ? '#d1fae5' : '#f1f5f9';
-        status.style.color = data.status === 'Active' ? '#065f46' : '#475569';
-        document.getElementById('progressBar').style.width = data.percent + '%';
-    });
+/* FORM PASSWORD VALIDATION - LIKE USER MGMT */
+function validateForm(formId) {
+    const form = document.getElementById(formId);
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const pass1 = document.getElementById('password')?.value;
+            const pass2 = document.getElementById('confirm_password')?.value;
+            if (pass1 && pass2 && pass1 !== pass2) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+        });
+    }
 }
 
-function closeModal() {
-    document.getElementById('studentModal').classList.add('hidden');
+/* UNIVERSAL MODAL */
+function openModal(id) {
+    // Your modal logic here
+    console.log('Open modal for ID:', id);
 }
+validateForm('registrationForm'); // Auto-init if form exists
+
+/* LIVE CLOCK - DASHBOARD */
+function updateClock() {
+    const now = new Date();
+    const dateEl = document.getElementById('date');
+    const timeEl = document.getElementById('time');
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'});
+    if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-US');
+}
+setInterval(updateClock, 1000); updateClock();
 </script>
 
 </body>
